@@ -17,10 +17,40 @@
             :host([narrow]) #thread {
               padding: 12px;
             }
-            #thread img {
+            .profile {
               border-radius: 50%;
               width: 40px;
               height: 40px;
+              transition: transform 350ms ease-in-out;
+              background-color: #9e9e9e;
+              will-change: transform;
+            }
+            .profile.selected {
+              transform: rotate3d(0,1,0,180deg);
+            }
+            .profile.selected img {
+              opacity: 0;
+            }
+            .profile img {
+              border-radius: inherit;
+              width: 100%;
+              height: 100%;
+              transition: opacity 200ms ease-in-out 100ms;
+              will-change: opacity;
+            }
+            .profile core-icon {
+              transition: transform 300ms ease-in-out 100ms;
+              will-change: opacity;
+              transform: rotate3d(0,1,0,-180deg) scale(0);
+              color: white;
+              position: absolute;
+              top: 20%;
+              left: 20%;
+              opacity: 0;
+            }
+            .profile.selected core-icon {
+              transform: rotate3d(0,1,0,-180deg) scale(1);
+              opacity: 1;
             }
             #thread {
               color: #9e9e9e;
@@ -50,13 +80,14 @@
               letter-spacing: 1px;
               text-transform: uppercase;
             }
-            [icon="star"] {
+            .starred {
               color: #ffeb3b;
             }
         </style>
-        <div layout horizontal id="thread">
-            <div>
-                <img src="{{thread.profile}}" class="profile">
+        <div id="thread" layout horizontal>
+            <div class="profile" on-tap="{{toggleThreadSelected}}">
+                <img src="{{thread.profile}}">
+                <core-icon icon="check"></core-icon>
             </div>
             <div flex layout horizontal>
                 <header layout vertical flex>
@@ -67,12 +98,8 @@
                     <span class="subject">{{thread.subject}}</span>
                     <span layout horizontal center justified>
                       <span class="snippet" flex>{{thread.snippet}}</span>
-                      <template if="{{!starred}}">
-                          <core-icon icon="star-outline" on-tap="{{highlightStar}}"></core-icon>
-                      </template>
-                      <template if="{{starred}}">
-                        <core-icon icon="star" on-tap="{{highlightStar}}"></core-icon>
-                      </template>
+                      <core-icon icon="star{{starred ? '' : '-outline'}}" on-tap="{{highlightStar}}"
+                                 class="{{ {starred: starred} | tokenList }}"></core-icon>
                     </span>
                 </header>
                 <div id="actionicons">
@@ -97,6 +124,9 @@
       highlightStar: function(e, detail, sender) {
         this.starred = !this.starred;
         e.stopPropagation();
+      },
+      toggleThreadSelected: function(e, detail, sender) {
+        sender.classList.toggle('selected');
       }
     });
   </script>
