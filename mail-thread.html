@@ -1,0 +1,103 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/core-icon/core-icon.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+
+<polymer-element name="mail-thread" attributes="thread narrow selected">
+    <template>
+        <style>
+            :host {
+              display: block;
+            }
+            :host([selected]) {
+              background-color: #e0f7fa;
+            }
+            :host([narrow]) #actionicons {
+              display: none;
+            }
+            :host([narrow]) #thread {
+              padding: 12px;
+            }
+            #thread img {
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+            }
+            #thread {
+              color: #9e9e9e;
+              padding: 15px 0;
+              border-bottom: 1px solid #e0e0e0;
+            }
+            header {
+              margin-left: 15px;
+              font-size: 14px;
+            }
+            header span.name {
+              font-size: 18px;
+            }
+            header span.subject {
+              font-weight: 500;
+              margin: 6px 0;
+            }
+            header span.snippet {
+              text-overflow: ellipsis;
+              overflow: hidden;
+              white-space: nowrap;
+            }
+            time {
+              font-size: 12px;
+              color: #03a9f4;
+              font-weight: 400;
+              letter-spacing: 1px;
+              text-transform: uppercase;
+            }
+            [icon="star"] {
+              color: #ffeb3b;
+            }
+        </style>
+        <div layout horizontal id="thread">
+            <div>
+                <img src="{{thread.profile}}" class="profile">
+            </div>
+            <div flex layout horizontal>
+                <header layout vertical flex>
+                    <span layout horizontal center justified>
+                      <span class="name">{{thread.name}}</span>
+                      <time>{{thread.timestamp}}</time>
+                    </span>
+                    <span class="subject">{{thread.subject}}</span>
+                    <span layout horizontal center justified>
+                      <span class="snippet" flex>{{thread.snippet}}</span>
+                      <template if="{{!starred}}">
+                          <core-icon icon="star-outline" on-tap="{{highlightStar}}"></core-icon>
+                      </template>
+                      <template if="{{starred}}">
+                        <core-icon icon="star" on-tap="{{highlightStar}}"></core-icon>
+                      </template>
+                    </span>
+                </header>
+                <div id="actionicons">
+                    <paper-icon-button icon="reply"></paper-icon-button>
+                    <paper-icon-button icon="reply-all"></paper-icon-button>
+                    <paper-icon-button icon="forward"></paper-icon-button>
+                    <paper-icon-button icon="more-vert"></paper-icon-button>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+    Polymer({
+      starred: false,
+      publish: {
+        narrow: {value: false, reflect: true},
+        selected: {value: false, reflect: true}
+      },
+      created: function() {
+        this.thread = {};
+      },
+      highlightStar: function(e, detail, sender) {
+        this.starred = !this.starred;
+        e.stopPropagation();
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,28 @@
+{
+  "name": "PolymerWebView",
+  "version": "0.0.1",
+  "authors": [
+    "Eric Bidelman <ebidel@gmail.com>"
+  ],
+  "description": "Polymer in a webview",
+  "main": "index.html",
+  "keywords": [
+    "webcomponents",
+    "web components",
+    "polymer",
+    "webview"
+  ],
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "core-elements": "Polymer/core-elements#~0.4.1",
+    "paper-elements": "Polymer/paper-elements#~0.4.1",
+    "google-signin": "GoogleWebComponents/google-signin#~0.1.0"
+  }
+}

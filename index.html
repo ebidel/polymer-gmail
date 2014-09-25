@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Polymer single page app</title>
+  <!-- Note: platform.js is only needed in non-Chrome 36 browsers.
+             It's included here for portability. -->
+  <script src="bower_components/platform/platform.js"></script>
+  <link rel="import" href="elements.html">
+  <link rel="stylesheet" href="app.css" shim-shadowdom>
+</head>
+<body unresolved fullbleed>
+
+<template id="t" is="auto-binding">
+
+<material-search id="search" previousSearches="{{previousSearches}}"></material-search>
+
+<core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
+
+    <core-header-panel mode="scroll" drawer>
+        <core-toolbar id="navheader" class="tall">
+          <img class="middle profile" src="{{user.profile}}">
+          <div class="bottom" layout vertical>
+            <span>{{user.name}}</span>
+            <span>{{user.email}}</span>
+          </div>
+        </core-toolbar>
+        <core-menu selected="0" excludedLocalNames="div" on-core-select="{{menuSelect}}">
+            <paper-item label="Inbox" icon="inbox"></paper-item>
+            <paper-item label="Social" icon="account-child"></paper-item>
+            <div class="separator">All labels</div>
+            <paper-item label="Sent" icon="send"></paper-item>
+            <paper-item label="All Mail" icon="mail"></paper-item>
+            <paper-item label="Spam" icon="report"></paper-item>
+            <paper-item label="Trash" icon="delete"></paper-item>
+            <paper-item label="Family" icon="label" class="pink"></paper-item>
+            <paper-item label="ToDo" icon="label" class="yellow"></paper-item>
+            <paper-item label="Old stuff" icon="label" class="orange"></paper-item>
+            <paper-item label="Death star plans" icon="label" class="green"></paper-item>
+        </core-menu>
+    </core-header-panel>
+
+    <core-scroll-header-panel main condenses keepCondensedHeader condensedHeaderHeight="64">
+        <core-toolbar id="mainheader" class="tall">
+            <paper-icon-button id="navicon" icon="menu" on-tap="{{toggleDrawer}}"></paper-icon-button>
+            <div flex></div>
+            <span class="bottom indent title">Inbox</span>
+            <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
+            <paper-menu-button icon="more-vert" selected="0" halign="right" class="fade-on-drawer-open">
+              <paper-item icon="settings" label="Settings"></paper-item>
+              <paper-item icon="help" label="Help"></paper-item>
+            </paper-menu-button>
+        </core-toolbar>
+        <div content>
+
+            <!--<core-list data="{{data}}" height="80">-->
+            <core-selector multi selectedAttribute="selected">
+                <template repeat="{{d,i in data}}">
+                    <mail-thread thread="{{d}}" narrow="{{narrow}}"></mail-thread>
+                </template>
+            </core-selector>
+            <!--</core-list>-->
+
+         </div>
+     </core-scroll-header-panel>
+
+</core-drawer-panel>
+
+</template>
+
+<paper-fab icon="create"></paper-fab>
+
+<script src="app.js"></script>
+</body>
+</html>

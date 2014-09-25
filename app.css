@@ -1,0 +1,113 @@
+body {
+  font-family: "RobotoDraft", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  background-color: #fafafa;
+  font-weight: 300;
+}
+
+#drawerPanel:not([narrow]) #navicon {
+  display: none;
+}
+
+#drawerPanel:not([narrow]) core-scroll-header-panel [content] {
+  padding: 40px 78px;
+}
+
+#drawerPanel[selected="drawer"] .fade-on-drawer-open,
+#drawerPanel[selected="drawer"] .fade-on-drawer-open {
+  opacity: 0;
+}
+
+.fade-on-drawer-open {
+  transition: opacity 300ms ease-in-out;
+}
+
+#drawerPanel core-header-panel {
+  background: #fafafa;
+  box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+  color: #757575;
+}
+
+#drawerPanel core-header-panel .separator {
+  padding: 16px;
+  font-size: 14px;
+  border-top: 1px solid #e0e0e0;
+}
+
+#drawerPanel core-header-panel core-menu {
+  margin: 12px 0 0 0;
+}
+
+#drawerPanel core-scroll-header-panel::shadow #headerBg {
+ background: url(images/gmail.png) no-repeat 115% 64px;
+ background-size: 200px;
+ background-color: #e51c23;
+}
+
+#drawerPanel core-scroll-header-panel::shadow #condensedHeaderBg {
+  background-color: #e51c23;
+  opacity: 1 !important; /* Prevents the background color from dissolving. */
+}
+
+paper-item.core-selected {
+  color: white;
+  background-color: #26c6da;
+}
+
+paper-item.core-selected::shadow core-icon {
+  color: #757575;
+}
+
+#navheader {
+  background: url(images/beach.jpg) no-repeat;
+  background-size: cover;
+  font-size: inherit;
+  color: white;
+}
+
+#navheader img.profile {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 20px;
+}
+
+#navheader .bottom :last-child {
+  font-size: small;
+  opacity: 0.54;
+}
+
+#mainheader {
+  color: #fff;
+  background-color: transparent;
+}
+
+#mainheader .title {
+  font-size: 40px;
+}
+
+paper-fab {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  color: white;
+}
+
+
+/* Label colors */
+.pink::shadow core-icon {
+  color: #e91e63 !important;
+}
+.orange::shadow core-icon {
+  color: #ff5722 !important;
+}
+.green::shadow core-icon {
+  color: #259b24 !important;
+}
+.blue::shadow core-icon {
+  color: #5677fc !important;
+}
+.yellow::shadow core-icon {
+  color: #ffeb3b !important;
+}
