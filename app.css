@@ -6,6 +6,11 @@ body {
   font-weight: 300;
 }
 
+#loginscreen {
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 1;
+}
+
 #drawerPanel:not([narrow]) #navicon {
   display: none;
 }
@@ -14,8 +19,7 @@ body {
   padding: 40px 78px;
 }
 
-#drawerPanel[selected="drawer"] .fade-on-drawer-open,
-#drawerPanel[selected="drawer"] .fade-on-drawer-open {
+#drawerPanel[narrow][selected="drawer"] .fade-on-drawer-open {
   opacity: 0;
 }
 
@@ -110,4 +114,14 @@ paper-fab {
 }
 .yellow::shadow core-icon {
   color: #ffeb3b !important;
+}
+.teal::shadow core-icon {
+  color: #009688 !important;
+}
+.purple::shadow core-icon {
+  color: #673ab7 !important;
+}
+
+iframe[src^="https://apis.google.com"] {
+  display: none;
 }

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Polymer single page app</title>
+  <title>Polymer Mail</title>
   <!-- Note: platform.js is only needed in non-Chrome 36 browsers.
              It's included here for portability. -->
   <script src="bower_components/platform/platform.js"></script>
@@ -12,6 +12,14 @@
 <body unresolved fullbleed>
 
 <template id="t" is="auto-binding">
+
+<template if="{{!isAuthenticated}}">
+<div id="loginscreen" layout vertical center-center fit>
+  <google-signin width="wide" height="tall"
+                 clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
+                 scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify" on-google-signin-success="{{onSigninSuccess}}"></google-signin>
+</div>
+</template>
 
 <material-search id="search" previousSearches="{{previousSearches}}"></material-search>
 
@@ -33,10 +41,9 @@
             <paper-item label="All Mail" icon="mail"></paper-item>
             <paper-item label="Spam" icon="report"></paper-item>
             <paper-item label="Trash" icon="delete"></paper-item>
-            <paper-item label="Family" icon="label" class="pink"></paper-item>
-            <paper-item label="ToDo" icon="label" class="yellow"></paper-item>
-            <paper-item label="Old stuff" icon="label" class="orange"></paper-item>
-            <paper-item label="Death star plans" icon="label" class="green"></paper-item>
+            <template repeat="{{label in labels}}">
+              <paper-item label="{{label.name}}" icon="label" class="{{label.color}}"></paper-item>
+            </template>
         </core-menu>
     </core-header-panel>
 
@@ -55,8 +62,9 @@
 
             <!--<core-list data="{{data}}" height="80">-->
             <core-selector multi selectedAttribute="selected">
-                <template repeat="{{d,i in data}}">
-                    <mail-thread thread="{{d}}" narrow="{{narrow}}"></mail-thread>
+                <template repeat="{{t in threads}}">
+                    <mail-thread messages="{{t.messages}}" profile="{{users[t.messages[0].from.name]}}"
+                                 narrow="{{narrow}}"></mail-thread>
                 </template>
             </core-selector>
             <!--</core-list>-->
@@ -66,9 +74,9 @@
 
 </core-drawer-panel>
 
-</template>
-
 <paper-fab icon="create"></paper-fab>
+
+</template>
 
 <script src="app.js"></script>
 </body>
