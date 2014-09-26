@@ -70,7 +70,8 @@
               padding: 12px;
               border-bottom: 1px solid #e0e0e0;
             }
-            #lastline {
+            #lastline,
+            #actionicons {
               color: #9e9e9e;
             }
             .messagecount {
@@ -113,15 +114,6 @@
             }
         </style>
         <div id="thread" layout horizontal>
-            <!--<div class="profile" on-tap="{{toggleThreadSelected}}">
-                <template if="{{profile}}">
-                  <img src="{{profile}}">
-                </template>
-                <template if="{{!profile}}">
-                  <span class="letter" layout horizontal center-center>{{thread.from.name[0]}}</span>
-                </template>
-                <core-icon icon="check"></core-icon>
-            </div>-->
             <profile-img src="{{profile}}" letter="{{thread.from.name[0]}}" on-tap="{{toggleThreadSelected}}"></profile-img>
             <div flex layout horizontal>
                 <header layout vertical flex>
