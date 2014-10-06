@@ -57,9 +57,9 @@ template.menuSelect = function(e, detail, sender) {
 function getAllUserProfileImages(users, nextPageToken, callback) {
   gapi.client.plus.people.list({
     userId: 'me', collection: 'visible', pageToken: nextPageToken
-  }).execute(function(resp) {
+  }).then(function(resp) {
 
-    users = resp.items.reduce(function(o, v, i) {
+    users = resp.result.items.reduce(function(o, v, i) {
       o[v.displayName] = v.image.url;
       return o;
     }, users);
@@ -83,16 +83,16 @@ template.onSigninSuccess = function(e, detail, sender) {
 
   var gapi = e.detail.gapi;
 
-  gapi.client.load('gmail', 'v1', function() {
+  gapi.client.load('gmail', 'v1').then(function() {
     var gmail = gapi.client.gmail.users;
 
     // Fetch only the emails in the user's inbox.
-    gmail.threads.list({userId: 'me', q: 'in:inbox -is:chat'}).execute(function(resp) {
-      var threads = resp.threads;
+    gmail.threads.list({userId: 'me', q: 'in:inbox -is:chat'}).then(function(resp) {
+      var threads = resp.result.threads;
 
       threads.forEach(function(t, i) {
-        gmail.threads.get({userId: 'me', 'id': t.id}).execute(function(resp) {
-          threads[i].messages = resp.messages;
+        gmail.threads.get({userId: 'me', 'id': t.id}).then(function(resp) {
+          threads[i].messages = resp.result.messages;
 
           threads[i].messages.forEach(function(m, j) {
 
@@ -120,33 +120,31 @@ template.onSigninSuccess = function(e, detail, sender) {
 
     });
 
-    gmail.labels.list({userId: 'me'}).execute(function(resp) {
-
+    gmail.labels.list({userId: 'me'}).then(function(resp) {
       // Don't include system labels.
-      resp.labels = resp.labels.filter(function(label, i) {
+      var labels = resp.result.labels.filter(function(label, i) {
         label.color = template.LABEL_COLORS[
             Math.round(Math.random() * template.LABEL_COLORS.length)];
         return label.type != 'system';
       });
 
-      template.labels = resp.labels;
+      template.labels = labels;
     });
   });
 
-  gapi.client.load('plus', 'v1', function() {
+  gapi.client.load('plus', 'v1').then(function() {
 
     // Get user's profile pic, cover image, email, and name.
-    gapi.client.plus.people.get({userId: 'me'}).execute(function(resp) {
-
+    gapi.client.plus.people.get({userId: 'me'}).then(function(resp) {
       var PROFILE_IMAGE_SIZE = 60;
       var COVER_IMAGE_SIZE = 315;
 
-      var img = resp.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
-      var coverImg = resp.cover.coverPhoto.url.replace(/\/s\d{3}-/, "/s" + COVER_IMAGE_SIZE + "-");
+      var img = resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
+      var coverImg = resp.result.cover.coverPhoto.url.replace(/\/s\d{3}-/, "/s" + COVER_IMAGE_SIZE + "-");
 
       template.user = {
-        name: resp.displayName,
-        email: resp.emails[0].value,
+        name: resp.result.displayName,
+        email: resp.result.emails[0].value,
         profile: img,
         cover: coverImg
       };
