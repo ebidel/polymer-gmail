@@ -14,11 +14,13 @@
 <template id="t" is="auto-binding">
 
 <template if="{{!isAuthenticated}}">
-<div id="loginscreen" layout vertical center-center fit>
-  <google-signin width="wide" height="tall"
-                 clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
-                 scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify" on-google-signin-success="{{onSigninSuccess}}"></google-signin>
-</div>
+  <div id="loginscreen" layout vertical center-center fit>
+    <!-- <paper-spinner active></paper-spinner><p>loading...</p> -->
+    <google-signin width="wide" height="tall"
+        clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
+        scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
+        on-google-signin-success="{{onSigninSuccess}}"></google-signin>
+  </div>
 </template>
 
 <material-search id="search" previousSearches="{{previousSearches}}"></material-search>
@@ -26,7 +28,7 @@
 <core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
     <core-header-panel mode="scroll" drawer>
-        <core-toolbar id="navheader" class="tall">
+        <core-toolbar id="navheader" class="tall" style="background-image:url({{user.cover || 'images/beach.jpg'}})">
           <img class="middle profile" src="{{user.profile}}">
           <div class="bottom" layout vertical>
             <span>{{user.name}}</span>
@@ -75,6 +77,12 @@
 </core-drawer-panel>
 
 <paper-fab icon="create"></paper-fab>
+
+<!-- Cache data requests. -->
+<!--<core-localstorage name="polymer-mail-user" value="{{user}}"></core-localstorage>-->
+<!--<core-localstorage name="polymer-mail-labels" value="{{labels}}"></core-localstorage>-->
+<!--<core-localstorage name="polymer-mail-threads" value="{{threads}}"></core-localstorage>-->
+<!--<core-localstorage name="polymer-mail-users" value="{{users}}"></core-localstorage>-->
 
 </template>
 

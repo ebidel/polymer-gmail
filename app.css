@@ -64,7 +64,8 @@ paper-item.core-selected::shadow core-icon {
 }
 
 #navheader {
-  background: url(images/beach.jpg) no-repeat;
+  background-repeat: no-repeat;
+  background-color: #c41411;
   background-size: cover;
   font-size: inherit;
   color: white;

@@ -7,79 +7,79 @@
 <link rel="import" href="bower_components/core-icons/av-icons.html">
 
 <polymer-element name="material-search" attributes="active previousSearches" fit>
-    <template>
-        <style>
-            :host {
-              display: none;
-              margin: 0;
-              background: rgba(255, 255, 255, 0.9);
-              color: #757575;
-              z-index: 20;
-            }
-            :host([active]) {
-              display: block;
-            }
+<template>
+  <style>
+    :host {
+      display: none;
+      margin: 0;
+      background: rgba(255, 255, 255, 0.9);
+      color: #757575;
+      z-index: 20;
+    }
+    :host([active]) {
+      display: block;
+    }
 
-            core-toolbar {
-              background-color: white;
-            }
+    core-toolbar {
+      background-color: white;
+    }
 
-            input {
-              border: none;
-              background: transparent;
-              font: inherit;
-              font-size: 16px;
-              outline: none;
-            }
+    input {
+      border: none;
+      background: transparent;
+      font: inherit;
+      font-size: 16px;
+      outline: none;
+    }
 
-            @media (min-width: 600px) {
-              core-menu {
-                max-width: 50%;
-                margin: 0 auto;
-              }
-            }
-
-            paper-item {
-              padding: 0px 12px !important;
-            }
-            paper-item::shadow core-icon {
-              margin-right: 24px !important;
-            }
-        </style>
-        <core-header-panel mode="standard" fit>
-            <core-toolbar>
-                <paper-icon-button icon="arrow-back" on-tap="{{toggle}}"></paper-icon-button>
-                <input id="searchbox" placeholder="Search mail" flex>
-                <paper-icon-button icon="av:mic"></paper-icon-button>
-            </core-toolbar>
-            <core-menu on-core-select="{{onSelect}}">
-              <template repeat="{{p in previousSearches}}">
-                <paper-item icon="history" label="{{p}}"></paper-item>
-              </template>
-            </core-menu>
-        </core-header-panel>
-    </template>
-    <script>
-    Polymer({
-      publish: {
-        active: {value: false, reflect: true}
-      },
-      created: function() {
-        this.previousSearches = [];
-      },
-      onSelect: function(e, detail, sender) {
-        if (detail.isSelected) {
-          this.async(function() {
-            this.toggle();
-          }, null, 250); // Introduce small delay so user sees ripple.
-        }
-      },
-      toggle: function() {
-        this.active = !this.active;
-        if (this.active) {
-          this.$.searchbox.focus();
-        }
+    @media (min-width: 600px) {
+      core-menu {
+        max-width: 50%;
+        margin: 0 auto;
       }
-    });
-  </script>
+    }
+
+    paper-item {
+      padding: 0px 12px !important;
+    }
+    paper-item::shadow core-icon {
+      margin-right: 24px !important;
+    }
+  </style>
+  <core-header-panel mode="standard" fit>
+    <core-toolbar>
+      <paper-icon-button icon="arrow-back" on-tap="{{toggle}}"></paper-icon-button>
+      <input id="searchbox" placeholder="Search mail" flex>
+      <paper-icon-button icon="av:mic"></paper-icon-button>
+    </core-toolbar>
+    <core-menu on-core-select="{{onSelect}}">
+      <template repeat="{{p in previousSearches}}">
+        <paper-item icon="history" label="{{p}}"></paper-item>
+      </template>
+    </core-menu>
+  </core-header-panel>
+</template>
+<script>
+  Polymer({
+    publish: {
+      active: {value: false, reflect: true}
+    },
+    created: function() {
+      this.previousSearches = [];
+    },
+    onSelect: function(e, detail, sender) {
+      if (detail.isSelected) {
+        this.async(function() {
+          this.toggle();
+        }, null, 250); // Introduce small delay so user sees ripple.
+      }
+    },
+    toggle: function() {
+      this.active = !this.active;
+      if (this.active) {
+        this.$.searchbox.focus();
+      }
+    }
+  });
+</script>
 </polymer-element>
