@@ -16,7 +16,7 @@ body {
 }
 
 #drawerPanel:not([narrow]) core-scroll-header-panel [content] {
-  padding: 40px 78px;
+  padding: 30px 0;
 }
 
 #drawerPanel[narrow][selected="drawer"] .fade-on-drawer-open {
@@ -55,8 +55,7 @@ body {
 }
 
 paper-item.core-selected {
-  color: white;
-  background-color: #26c6da;
+  background-color: #eee;
 }
 
 paper-item.core-selected::shadow core-icon {
@@ -80,7 +79,7 @@ paper-item.core-selected::shadow core-icon {
 
 #navheader .bottom :last-child {
   font-size: small;
-  opacity: 0.54;
+  opacity: 0.6;
 }
 
 #mainheader {
@@ -90,6 +89,7 @@ paper-item.core-selected::shadow core-icon {
 
 #mainheader .title {
   font-size: 40px;
+  transform-origin: 0px 50%;
 }
 
 paper-fab {
