@@ -129,7 +129,7 @@
           </span>
           <span class="subject">{{thread.subject}}</span>
           <span id="lastline" layout horizontal center justified>
-            <span class="snippet" flex>{{thread.snippet}}</span>
+            <span class="snippet" flex>{{thread.snippet | decodeHTMLEntitiesFilter}}</span>
             <core-icon icon="star{{starred ? '' : '-outline'}}" on-tap="{{onHighlightStar}}"
                        class="{{ {starred: starred} | tokenList }}"></core-icon>
           </span>
@@ -165,6 +165,11 @@
     },
     toggleThreadSelected: function(e, detail, sender) {
       sender.classList.toggle('selected');
+    },
+    decodeHTMLEntitiesFilter: function(val) {
+      var t = document.createElement('textarea');
+      t.innerHTML = val;
+      return t.textContent;
     }
   });
 </script>
