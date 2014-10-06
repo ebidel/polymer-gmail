@@ -73,6 +73,10 @@ function getAllUserProfileImages(users, nextPageToken, callback) {
   });
 }
 
+template.onSigninFailure = function(e, detail, sender) {
+  this.isAuthenticated = false;
+};
+
 template.onSigninSuccess = function(e, detail, sender) {
   this.isAuthenticated = true;
 
@@ -81,6 +85,18 @@ template.onSigninSuccess = function(e, detail, sender) {
     return;
   }
 
+  // var worker = new Worker('worker.js');
+
+  // worker.addEventListener('message', function(e) {
+  //   var data =  e.data;
+
+  //   console.log(data);
+  // });
+
+  // worker.postMessage({cmd: 'fetch'});
+
+  var FROM_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
+
   var gapi = e.detail.gapi;
 
   gapi.client.load('gmail', 'v1').then(function() {
@@ -88,13 +104,28 @@ template.onSigninSuccess = function(e, detail, sender) {
 
     // Fetch only the emails in the user's inbox.
     gmail.threads.list({userId: 'me', q: 'in:inbox -is:chat'}).then(function(resp) {
+      
       var threads = resp.result.threads;
 
-      threads.forEach(function(t, i) {
-        gmail.threads.get({userId: 'me', 'id': t.id}).then(function(resp) {
-          threads[i].messages = resp.result.messages;
+console.log(threads)
 
-          threads[i].messages.forEach(function(m, j) {
+      var batch = gapi.client.newBatch();
+
+      for (var i = 0, thread; thread = threads[i]; ++i) {
+        var req = gmail.threads.get({userId: 'me', 'id': thread.id});
+        batch.add(req);
+      }
+
+      batch.then(function(resp) {
+        var i = 0;
+
+console.log(resp.result);
+
+        for (var id in resp.result) {
+
+          threads[i].messages = resp.result[id].result.messages;
+
+          for (var j = 0, m; m = threads[i].messages[j]; ++j) {
 
             var headers = m.payload.headers;
 
@@ -104,18 +135,25 @@ template.onSigninSuccess = function(e, detail, sender) {
             m.to = getValueForHeaderField(headers, 'To');
             m.subject = getValueForHeaderField(headers, 'Subject');
 
-            var fromHeaderMatches = getValueForHeaderField(
-                headers, 'From').match(/"?(.*)"?\s<(.*)>/);
+            var fromHeaders = getValueForHeaderField(headers, 'From');
+            var fromHeaderMatches = fromHeaders.match(FROM_REGEX);
 
+            // Use name if one was found. Otherwise, use email address.
             m.from = {
-              name: fromHeaderMatches[1],
-              email: fromHeaderMatches[2]
-            }
-          });
+              name: fromHeaderMatches ? fromHeaderMatches[1] : fromHeaders,
+              email: fromHeaderMatches ? fromHeaderMatches[2] : fromHeaders
+            };
+          }
 
-          template.threads = threads;
+          i++;
+        }
 
-        });
+// TODO: Order threads by from date.
+
+        // Set entire thread data at once, when it's all been processed.
+        template.threads = threads;
+      }, function(resp) {
+        console.log(resp)
       });
 
     });
@@ -163,8 +201,10 @@ template.onSigninSuccess = function(e, detail, sender) {
 
 template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
 
-template.isAuthenticated = false;
+// Better UX: presume user is logged in when app loads.
+template.isAuthenticated = true;
 
+// TODO: save this from users past searches using core-localstorage.
 template.previousSearches = [
   "something fun",
   "tax forms",
@@ -176,23 +216,45 @@ template.previousSearches = [
 template.addEventListener('template-bound', function(e) {
 
   var titleStyle = document.querySelector('.title').style;
-  var toolbar = document.querySelector('#mainheader');
+  //var toolbar = document.querySelector('#mainheader');
 
-  document.querySelector('#drawerPanel').addEventListener('core-header-transform', function(e) {
+  this.$.drawerPanel.addEventListener('core-header-transform', function(e) {
     var d = e.detail;
+
+    // TODO: figure out why the header text is transformed at page load.
 
     // d.y: the amount that the header moves up
     // d.height: the height of the header when it is at its full size
     // d.condensedHeight: the height of the header when it is condensed
     //scale header's title
     var m = d.height - d.condensedHeight;
-    var scale = Math.max(0.5, (m - d.y) / (m / 0.25)  + 0.5);
+    // var scale = Math.max(0.5, (m - d.y) / (m / 0.25)  + 0.5);
+    var scale = Math.max(0.5, (m - d.y) / (m / 0.5)  + 0.5);
     titleStyle.transform = titleStyle.transform = 'scale(' + scale + ') translateZ(0)';
 
     // Adjust header's color
     //toolbar.style.color = (d.y >= d.height - d.condensedHeight) ? '#fff' : '';
   });
 });
+
+// TODO: Remove. For testing.
+if (!navigator.onLine) {
+  document.addEventListener('polymer-ready', function(e) { 
+    var ajax = document.createElement('core-ajax');
+    ajax.auto = true;
+    ajax.url = '/data/users.json';
+    ajax.addEventListener('core-response', function(e) {
+      template.users = e.detail.response;
+    });
+
+    var ajax2 = document.createElement('core-ajax');
+    ajax2.auto = true;
+    ajax2.url = '/data/threads.json';
+    ajax2.addEventListener('core-response', function(e) {
+      template.threads = e.detail.response;
+    });
+  });
+}
 
 })();
 

@@ -9,6 +9,16 @@ body {
 #loginscreen {
   background: rgba(255, 255, 255, 0.9);
   z-index: 1;
+  visibility: hidden;
+  transition: all 300ms ease-in-out;
+  opacity: 0; 
+  transform: scale(0);
+}
+
+#loginscreen.show {
+  visibility: visible;
+  opacity: 1;
+  transform: scale(1);
 }
 
 #drawerPanel:not([narrow]) #navicon {
@@ -40,11 +50,11 @@ body {
 }
 
 #drawerPanel core-header-panel core-menu {
-  margin: 12px 0 0 0;
+  margin: 16px 0 0 0;
 }
 
 #drawerPanel core-scroll-header-panel::shadow #headerBg {
- background: url(images/gmail.png) no-repeat 115% 64px;
+ background: url(images/gmail.png) no-repeat 115% 56px;
  background-size: 200px;
  background-color: #e51c23;
 }
@@ -63,6 +73,7 @@ paper-item.core-selected::shadow core-icon {
 }
 
 #navheader {
+  /*background-image: url('images/beach.jpg');*/
   background-repeat: no-repeat;
   background-color: #c41411;
   background-size: cover;
@@ -72,8 +83,8 @@ paper-item.core-selected::shadow core-icon {
 
 #navheader img.profile {
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   margin-bottom: 20px;
 }
 
@@ -90,12 +101,13 @@ paper-item.core-selected::shadow core-icon {
 #mainheader .title {
   font-size: 40px;
   transform-origin: 0px 50%;
+  margin-left: 70px;
 }
 
 paper-fab {
   position: fixed;
-  bottom: 15px;
-  right: 15px;
+  bottom: 16px;
+  right: 16px;
   color: white;
 }
 

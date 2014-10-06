@@ -6,7 +6,7 @@
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="bower_components/core-icons/av-icons.html">
 
-<polymer-element name="material-search" attributes="active previousSearches" fit>
+<polymer-element name="material-search" attributes="active previousSearches narrow" fit>
 <template>
   <style>
     :host {
@@ -47,7 +47,7 @@
     }
   </style>
   <core-header-panel mode="standard" fit>
-    <core-toolbar>
+    <core-toolbar class="{{ {'core-narrow' : narrow} | tokenList}}">
       <paper-icon-button icon="arrow-back" on-tap="{{toggle}}"></paper-icon-button>
       <input id="searchbox" placeholder="Search mail" flex>
       <paper-icon-button icon="av:mic"></paper-icon-button>
@@ -62,6 +62,7 @@
 <script>
   Polymer({
     publish: {
+      narrow: {value: false, reflect: true},
       active: {value: false, reflect: true}
     },
     created: function() {

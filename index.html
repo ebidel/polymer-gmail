@@ -12,68 +12,72 @@
 <body unresolved fullbleed>
 
 <template id="t" is="auto-binding">
+        
+<div id="loginscreen" layout vertical center-center fit class="{{ {show: !isAuthenticated} | tokenList }}">
+  <!-- <paper-spinner active></paper-spinner><p>loading...</p> -->
+  <google-signin width="wide" height="tall"
+      clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
+      scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
+      on-google-signin-success="{{onSigninSuccess}}"
+      on-google-signin-failure="{{onSigninFailure}}"></google-signin>
+</div>
 
-<template if="{{!isAuthenticated}}">
-  <div id="loginscreen" layout vertical center-center fit>
-    <!-- <paper-spinner active></paper-spinner><p>loading...</p> -->
-    <google-signin width="wide" height="tall"
-        clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
-        scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
-        on-google-signin-success="{{onSigninSuccess}}"></google-signin>
-  </div>
-</template>
-
-<material-search id="search" previousSearches="{{previousSearches}}"></material-search>
+<material-search id="search" narrow="{{narrow}}"
+                 previousSearches="{{previousSearches}}"></material-search>
 
 <core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
-    <core-header-panel mode="scroll" drawer>
-        <core-toolbar id="navheader" class="tall" style="background-image:url({{user.cover || 'images/beach.jpg'}})">
-          <img class="middle profile" src="{{user.profile}}">
-          <div class="bottom" layout vertical>
-            <span>{{user.name}}</span>
-            <span>{{user.email}}</span>
-          </div>
-        </core-toolbar>
-        <core-menu selected="0" excludedLocalNames="div" on-core-select="{{menuSelect}}">
-            <paper-item label="Inbox" icon="inbox"></paper-item>
-            <paper-item label="Social" icon="account-child"></paper-item>
-            <div class="separator">All labels</div>
-            <paper-item label="Starred" icon="star"></paper-item>
-            <paper-item label="Sent" icon="send"></paper-item>
-            <paper-item label="All Mail" icon="mail"></paper-item>
-            <paper-item label="Spam" icon="report"></paper-item>
-            <paper-item label="Trash" icon="delete"></paper-item>
-            <template repeat="{{label in labels}}">
-              <paper-item label="{{label.name}}" icon="label" class="{{label.color}}"></paper-item>
-            </template>
-        </core-menu>
-    </core-header-panel>
+  <core-header-panel mode="scroll" drawer>
+    <core-toolbar id="navheader" class="tall" style="background-image:url({{user.cover || 'images/beach.jpg'}})">
+      <!-- <core-image src="{{user.cover}}" sizing="cover" preload fade 
+                  style="width:400px; height:400px; background-color:#c41411;">
+      </core-image> -->
+      <img class="middle profile" src="{{user.profile}}">
+      <div class="bottom" layout vertical>
+        <span>{{user.name}}</span>
+        <span>{{user.email}}</span>
+      </div>
+    </core-toolbar>
+    <core-menu selected="0" excludedLocalNames="div" on-core-select="{{menuSelect}}">
+      <paper-item label="Inbox" icon="inbox"></paper-item>
+      <paper-item label="Social" icon="account-child"></paper-item>
+      <div class="separator">All labels</div>
+      <paper-item label="Starred" icon="star"></paper-item>
+      <paper-item label="Sent" icon="send"></paper-item>
+      <paper-item label="All Mail" icon="mail"></paper-item>
+      <paper-item label="Spam" icon="report"></paper-item>
+      <paper-item label="Trash" icon="delete"></paper-item>
+      <template repeat="{{l in labels}}">
+        <paper-item label="{{l.name}}" icon="label" class="{{l.color}}"></paper-item>
+      </template>
+    </core-menu>
+  </core-header-panel>
 
-    <core-scroll-header-panel main condenses keepCondensedHeader condensedHeaderHeight="64">
-        <core-toolbar id="mainheader" class="tall">
-            <paper-icon-button id="navicon" icon="menu" on-tap="{{toggleDrawer}}"></paper-icon-button>
-            <div flex></div>
-            <span class="bottom indent title">Inbox</span>
-            <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
-            <paper-menu-button icon="more-vert" selected="0" halign="right" class="fade-on-drawer-open">
-              <paper-item icon="settings" label="Settings"></paper-item>
-              <paper-item icon="help" label="Help"></paper-item>
-            </paper-menu-button>
-        </core-toolbar>
-        <div content>
+  <core-scroll-header-panel main condenses keepCondensedHeader><!--  condensedHeaderHeight="64"> -->
+    <core-toolbar id="mainheader" class="tall {{ {'core-narrow': narrow} | tokenList }}">
+      <paper-icon-button id="navicon" icon="menu" on-tap="{{toggleDrawer}}"></paper-icon-button>
+      <div flex></div>
+      <span class="bottom indent title">Inbox</span>
+      <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
+      <paper-menu-button icon="more-vert" selected="0" halign="right"
+                         class="fade-on-drawer-open">
+        <paper-item icon="settings" label="Settings"></paper-item>
+        <paper-item icon="help" label="Help"></paper-item>
+      </paper-menu-button>
+    </core-toolbar>
+    <div content>
 
-            <!--<core-list data="{{data}}" height="80">-->
-            <core-selector multi selectedAttribute="selected">
-                <template repeat="{{t in threads}}">
-                    <mail-thread messages="{{t.messages}}" profile="{{users[t.messages[0].from.name]}}"
-                                 narrow="{{narrow}}"></mail-thread>
-                </template>
-            </core-selector>
-            <!--</core-list>-->
+      <!--<core-list data="{{data}}" height="80">-->
+      <core-selector multi selectedAttribute="selected">
+        <template repeat="{{t in threads}}">
+            <mail-thread messages="{{t.messages}}" profile="{{users[t.messages[0].from.name]}}"
+                         narrow="{{narrow}}"></mail-thread>
+        </template>
+      </core-selector>
+      <!--</core-list>-->
 
-         </div>
-     </core-scroll-header-panel>
+     </div>
+  </core-scroll-header-panel>
 
 </core-drawer-panel>
 
