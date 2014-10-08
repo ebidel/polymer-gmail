@@ -151,7 +151,7 @@
       this.messages = [];
     },
     messagesChanged: function() {
-      this.thread = this.messages[0]; // TODO: support all messages in thread.
+      this.thread = this.messages[this.messages.length - 1]; // TODO: support all messages in thread.
     },
     onHighlightStar: function(e, detail, sender) {
       this.starred = !this.starred;
