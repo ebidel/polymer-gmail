@@ -29,6 +29,7 @@
           height: 100%;
           transition: opacity 200ms ease-in-out 100ms;
           will-change: opacity;
+          text-transform: uppercase;
         }
         core-icon {
           transition: transform 300ms ease-in-out 100ms;
@@ -114,7 +115,7 @@
       }
     </style>
     <div id="thread" layout horizontal>
-      <profile-img src="{{profile}}" letter="{{thread.from.name[0]}}" on-tap="{{toggleThreadSelected}}"></profile-img>
+      <profile-img id="profileimage" src="{{profile}}" letter="{{thread.from.name[0]}}" on-tap="{{toggleThreadSelected}}"></profile-img>
       <div flex layout horizontal>
         <header layout vertical flex>
           <span layout horizontal center justified>
@@ -162,6 +163,10 @@
     },
     toggleThreadSelected: function(e, detail, sender) {
       sender.classList.toggle('selected');
+      this.selected = !this.selected;
+    },
+    selectedChanged: function() {
+      this.$.profileimage.classList.toggle('selected', this.selected);
     },
     decodeHTMLEntitiesFilter: function(val) {
       var t = document.createElement('textarea');

@@ -11,66 +11,6 @@ function getValueForHeaderField(headers, field) {
   return null;
 }
 
-/*
-function getLink(links, rel) {
-  for (var i = 0, link; link = links[i]; ++i) {
-    if (rel == link.rel) {
-      return link.href;
-    }
-  }
-  return null;
-}
-
-function isContactMatch(entry, email) {
-  for (var i = 0, email; email = entry.gd$email[i]; ++i) {
-    if (email.address == email) {
-      return true;
-    }
-  }
-  return null;
-}
-
-function getProfileImageForEmail(entries, email) {
-  for (var i = 0, entry; entry = entries[i]; ++i) {
-    if (isContactMatch(entry, email)) {
-      return getLink(entry.links, 'http://schemas.google.com/contacts/2008/rel#photo');
-    }
-  }
-  return null;
-}
-*/
-
-var template = document.querySelector('#t');
-
-template.toggleDrawer = function() {
-  // var gmail = this.gapi && this.gapi.client.gmail.users;
-
-  // if (gmail && !this.labels) {
-  //   gmail.labels.list({userId: 'me'}).then(function(resp) {
-  //     // Don't include system labels.
-  //     var labels = resp.result.labels.filter(function(label, i) {
-  //       label.color = template.LABEL_COLORS[
-  //           Math.round(Math.random() * template.LABEL_COLORS.length)];
-  //       return label.type != 'system';
-  //     });
-
-  //     template.labels = labels;
-  //   });
-  // }
-
-  this.$ && this.$.drawerPanel.togglePanel();
-};
-
-template.toggleSearch = function() {
-  this.$.search.toggle();
-};
-
-template.menuSelect = function(e, detail, sender) {
-  if (detail.isSelected) {
-    this.toggleDrawer();
-  }
-};
-
 function getAllUserProfileImages(users, nextPageToken, callback) {
   gapi.client.plus.people.list({
     userId: 'me', collection: 'visible', pageToken: nextPageToken
@@ -114,6 +54,71 @@ function fixUpMessages(resp) {
 
   return messages;
 }
+
+/*
+function getLink(links, rel) {
+  for (var i = 0, link; link = links[i]; ++i) {
+    if (rel == link.rel) {
+      return link.href;
+    }
+  }
+  return null;
+}
+
+function isContactMatch(entry, email) {
+  for (var i = 0, email; email = entry.gd$email[i]; ++i) {
+    if (email.address == email) {
+      return true;
+    }
+  }
+  return null;
+}
+
+function getProfileImageForEmail(entries, email) {
+  for (var i = 0, entry; entry = entries[i]; ++i) {
+    if (isContactMatch(entry, email)) {
+      return getLink(entry.links, 'http://schemas.google.com/contacts/2008/rel#photo');
+    }
+  }
+  return null;
+}
+*/
+
+var template = document.querySelector('#t');
+
+template.toggleDrawer = function() {
+  // Only make labels request when drawer is opened for the first time.
+  // var gmail = this.gapi && this.gapi.client.gmail.users;
+
+  // if (gmail && !this.labels) {
+  //   gmail.labels.list({userId: 'me'}).then(function(resp) {
+  //     // Don't include system labels.
+  //     var labels = resp.result.labels.filter(function(label, i) {
+  //       label.color = template.LABEL_COLORS[
+  //           Math.round(Math.random() * template.LABEL_COLORS.length)];
+  //       return label.type != 'system';
+  //     });
+
+  //     template.labels = labels;
+  //   });
+  // }
+
+  this.$ && this.$.drawerPanel.togglePanel();
+};
+
+template.toggleSearch = function() {
+  this.$.search.toggle();
+};
+
+template.menuSelect = function(e, detail, sender) {
+  if (detail.isSelected) {
+    this.toggleDrawer();
+  }
+};
+
+template.deselectAll = function(e, detail, sender) {
+  this.$.threadlist.selected = [];
+};
 
 template.onSigninFailure = function(e, detail, sender) {
   this.isAuthenticated = false;
@@ -222,6 +227,8 @@ template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
 // Better UX: presume user is logged in when app loads.
 template.isAuthenticated = true;
 
+template.selectedThreads = [];
+
 // TODO: save this from users past searches using core-localstorage.
 template.previousSearches = [
   "something fun",
@@ -234,7 +241,6 @@ template.previousSearches = [
 template.addEventListener('template-bound', function(e) {
 
   var titleStyle = document.querySelector('.title').style;
-  //var toolbar = document.querySelector('#mainheader');
 
   this.$.drawerPanel.addEventListener('core-header-transform', function(e) {
     var d = e.detail;
@@ -249,7 +255,7 @@ template.addEventListener('template-bound', function(e) {
     titleStyle.transform = titleStyle.transform = 'scale(' + scale + ') translateZ(0)';
 
     // Adjust header's color
-    //toolbar.style.color = (d.y >= d.height - d.condensedHeight) ? '#fff' : '';
+    //document.querySelector('#mainheader').style.color = (d.y >= d.height - d.condensedHeight) ? '#fff' : '';
   });
 });
 
