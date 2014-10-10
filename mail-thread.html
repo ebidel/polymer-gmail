@@ -114,8 +114,8 @@
         color: #ffeb3b;
       }
     </style>
-    <div id="thread" layout horizontal>
-      <profile-img id="profileimage" src="{{profile}}" letter="{{thread.from.name[0]}}" on-tap="{{toggleThreadSelected}}"></profile-img>
+    <div id="thread" layout horizontal on-tap="{{onTap}}">
+      <profile-img id="profileimage" src="{{profile}}" letter="{{thread.from.name[0]}}"></profile-img>
       <div flex layout horizontal>
         <header layout vertical flex>
           <span layout horizontal center justified>
@@ -161,10 +161,6 @@
     onMailAction: function(e, detail, sender) {
       e.stopPropagation();
     },
-    toggleThreadSelected: function(e, detail, sender) {
-      sender.classList.toggle('selected');
-      this.selected = !this.selected;
-    },
     selectedChanged: function() {
       this.$.profileimage.classList.toggle('selected', this.selected);
     },
@@ -172,6 +168,14 @@
       var t = document.createElement('textarea');
       t.innerHTML = val;
       return t.textContent;
+    },
+    onTap: function(e, detail, sender) {
+      if (e.target != this.$.profileimage) {
+        // Profile image is the only thing that selects a thread.
+        e.stopPropagation();
+      } else {
+        e.target.classList.toggle('selected');
+      }
     }
   });
 </script>
