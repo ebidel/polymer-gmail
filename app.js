@@ -1,5 +1,7 @@
 (function() {
 
+var DEBUG = location.search.indexOf('debug') != -1;
+
 var FROM_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
 
 function getValueForHeaderField(headers, field) {
@@ -55,35 +57,6 @@ function fixUpMessages(resp) {
   return messages;
 }
 
-/*
-function getLink(links, rel) {
-  for (var i = 0, link; link = links[i]; ++i) {
-    if (rel == link.rel) {
-      return link.href;
-    }
-  }
-  return null;
-}
-
-function isContactMatch(entry, email) {
-  for (var i = 0, email; email = entry.gd$email[i]; ++i) {
-    if (email.address == email) {
-      return true;
-    }
-  }
-  return null;
-}
-
-function getProfileImageForEmail(entries, email) {
-  for (var i = 0, entry; entry = entries[i]; ++i) {
-    if (isContactMatch(entry, email)) {
-      return getLink(entry.links, 'http://schemas.google.com/contacts/2008/rel#photo');
-    }
-  }
-  return null;
-}
-*/
-
 var template = document.querySelector('#t');
 
 template.toggleDrawer = function() {
@@ -136,7 +109,9 @@ template.onSigninSuccess = function(e, detail, sender) {
     return;
   }
 
-// return;
+  if (DEBUG) {
+    return;
+  }
 
   // var worker = new Worker('worker.js');
 
@@ -155,7 +130,7 @@ template.onSigninSuccess = function(e, detail, sender) {
 
     // Fetch only the emails in the user's inbox.
     gmail.threads.list({userId: 'me', q: 'in:inbox -is:chat'}).then(function(resp) {
-      
+
       var threads = resp.result.threads;
 
       var batch = gapi.client.newBatch();
@@ -174,16 +149,7 @@ template.onSigninSuccess = function(e, detail, sender) {
         });
       });
 
-      batch.then();/*function(resp) {
-console.log(resp.result)
-var i = 0;
-        for (var key in resp.result) {
-          threads[i++].messages = fixUpMessages(resp.result[key]);
-        }
-
-        // Set entire thread data at once, when it's all been processed.
-        template.threads = threads;
-      });*/
+      batch.then();
 
     });
 
@@ -265,29 +231,28 @@ template.addEventListener('template-bound', function(e) {
   });
 });
 
-// // TODO: Remove. For testing.
-// // if (!navigator.onLine) {
-//   document.addEventListener('polymer-ready', function(e) { 
-//     var ajax = document.createElement('core-ajax');
-//     ajax.auto = true;
-//     ajax.url = '/data/users.json';
-//     ajax.addEventListener('core-response', function(e) {
-//       template.users = e.detail.response;
-//     });
-
-//     var ajax2 = document.createElement('core-ajax');
-//     ajax2.auto = true;
-//     ajax2.url = '/data/threads.json';
-//     ajax2.addEventListener('core-response', function(e) {
-//       template.threads = e.detail.response;
-//     });
-//   });
-// // }
-
 // Prevent context menu.
 window.oncontextmenu = function() {
   return false;
 };
+
+if (!navigator.onLine || DEBUG) {
+  document.addEventListener('polymer-ready', function(e) {
+    var ajax = document.createElement('core-ajax');
+    ajax.auto = true;
+    ajax.url = '/data/users.json';
+    ajax.addEventListener('core-response', function(e) {
+      template.users = e.detail.response;
+    });
+
+    var ajax2 = document.createElement('core-ajax');
+    ajax2.auto = true;
+    ajax2.url = '/data/threads.json';
+    ajax2.addEventListener('core-response', function(e) {
+      template.threads = e.detail.response;
+    });
+  });
+}
 
 })();
 
