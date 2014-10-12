@@ -2,9 +2,20 @@
 <link rel="import" href="bower_components/core-icon/core-icon.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
-<link rel="import" href="profile-image.html">
+<link rel="import" href="profile-img.html">
+<link rel="import" href="swipeable-item.html">
 
-<polymer-element name="mail-thread" attributes="messages narrow selected profile">
+<!--
+A single GMail mail thread.
+
+##### Example
+
+    <mail-thread></mail-thread>
+
+@element mail-thread
+@extends swipeable-item
+-->
+<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages narrow selected profile">
   <template>
     <style>
       :host {
@@ -29,15 +40,6 @@
       }
       #thread.pressing {
         background-color: #e0e0e0;
-      }
-      #thread.snapback {
-        transition: all 300ms ease-in-out;
-        transform: none !important;
-        opacity: 1 !important;
-      }
-      #thread.archive {
-        transition: all 300ms linear;
-        opacity: 0 !important;
       }
       #lastline,
       #actionicons {
@@ -103,12 +105,16 @@
       }
     </style>
     <div id="container" on-tap="{{onTap}}">
-        <div id="thread" layout horizontal touch-action="pan-y"
+      <swipeable-item></swipeable-item>
+      <div id="thread" layout horizontal touch-action="pan-y"
+                       on-down="{{onDown}}" on-up="{{onUp}}"
+                       on-hold="{{onHold}}">
+      <!-- <div id="thread" layout horizontal touch-action="pan-y"
                        on-track="{{onTrack}}"
                        on-trackend="{{onTrackEnd}}" 
                        on-down="{{onDown}}" on-up="{{onUp}}"
                        on-hold="{{onHold}}"
-                       on-transitionend="{{onSnapedBack}}">
+                       on-transitionend="{{onSnapedBack}}"> -->
         <profile-img id="profileimage" src="{{profile}}"
                      letter="{{thread.from.name[0]}}"
                      selected?="{{selected}}"></profile-img>
@@ -147,16 +153,48 @@
   Polymer({
     starred: false,
     archive: false,
-    sliding: 0, // -1: sliding left, 0: not sliding, 1: sliding right
-    SWIPE_THREASHOLD: 10,
+
+    /**
+     * TThe list of messages the thread contains.
+     *
+     * @property message
+     * @type array
+     * @default []
+     */
+
+    /**
+     * The profile information of the last person to reply in the thread.
+     *
+     * @attribute profile
+     * @type object
+     * @default null
+     */
+
     publish: {
+      /**
+       * Signifies on a mobile devices. Used to render a more condensed UI.
+       *
+       * @attribute narrow
+       * @type bool
+       * @default false
+       */
       narrow: {value: false, reflect: true},
+
+      /**
+       * If the thread is selected by the user.
+       *
+       * @attribute selected
+       * @type bool
+       * @default false
+       */
       selected: {value: false, reflect: true}
     },
     created: function() {
       this.messages = [];
+      this.profile = null;
     },
     domReady: function() {
+      this.swipeTarget = this.$.thread;
       this.width = this.$.thread.clientWidth; // cache it.
     },
     messagesChanged: function() {
@@ -201,31 +239,6 @@
         e.stopPropagation();
       }
     },
-    onTrack: function(e, detail, sender) {
-      this.sliding = e.xDirection;
-      this.last_ddx = e.ddx;
-
-      var style = this.$.thread.style;
-      style.transform = 'translateX(' + e.dx + 'px)';
-      style.opacity = 1 - (Math.abs(e.dx) / this.width);
-    },
-    onTrackEnd: function(e, detail, sender) {
-      // Archive the message if the swipe was fast.
-      if (Math.abs(this.last_ddx) > this.SWIPE_THREASHOLD) {
-        this.archive = true;
-
-        var time = 100;//(this.sliding * this.width) / this.last_ddx / 0.1;
-        this.$.thread.style.transition = 'all ' + time + 'ms linear';
-        return;
-      }
-
-      // Slide all the way off (left/right) if we're 50% slide.
-      if (Math.abs(e.dx) >= this.width / 2) {
-        this.archive = true;
-      } else {
-        this.$.thread.classList.add('snapback');
-      }
-    },
     archiveChanged: function() {
       this.$.archived.classList.toggle('show', this.archive);
 
@@ -233,34 +246,22 @@
         //this.$.thread.style.transform = 'translateX(' + (e.xDirection * this.width) + 'px)';
         //this.$.thread.style.transform = 'translateX(' + (Math.sign(e.dx) * this.width) + 'px)';
         //this.$.thread.style.transform = 'translateX(' + this.width + 'px)';
-        this.$.thread.classList.add('archive');
-        this.$.thread.style.transform = 'translateX(' + (this.sliding * this.width) + 'px)';
+        this.$.thread.classList.add('offscreen');
+        this.$.thread.style.transform =
+            'translateX(' + (this.lastDirection * this.width) + 'px)';
 
         if (this.selected) {
           this.selected = false;
-          this.fire('tap'); // de-select item through core-selector.
+          this.$.profileimage.fire('tap'); // de-select item through core-selector.
         }
 
       } else {
         this.$.thread.style.transition = '';
         this.$.thread.style.transform = 'translateX(' + this.width + 'px)';
-        this.$.thread.classList.remove('archive');
+        this.$.thread.classList.remove('offscreen');
         this.async(function() {
           this.$.thread.classList.add('snapback');
         });
-      }
-    },
-    onSnapedBack: function(e, detail, sender) {
-      // If thread is archived, don't snap it back.
-      if (this.$.thread.classList.contains('archive')) {
-        return;
-      }
-
-      if (e.propertyName == 'transform') {
-        var style = this.$.thread.style;
-        style.transform = '';
-        style.opacity = '';
-        this.$.thread.classList.remove('snapback');
       }
     }
   });

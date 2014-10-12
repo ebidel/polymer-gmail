@@ -1,0 +1,91 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<style>
+  html /deep/ .snapback {
+    transition: all 300ms ease-in-out;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  html /deep/ .offscreen {
+    transition: all 300ms linear;
+    opacity: 0 !important;
+  }
+</style>
+
+<polymer-element name="swipeable-item" attributes="swipeTarget">
+  <script>
+    Polymer({
+      SWIPE_THREASHOLD: 10,
+
+      /**
+       * The last swiping direction. -1: sliding left, 1: sliding right
+       *
+       * @attribute lastDirection
+       * @type number
+       * @default null
+       */
+      lastDirection: null,
+
+      /**
+       * The target node for track events. If none is provided, the parentElement
+       * of this element is used as the target.
+       *
+       * @attribute swipeTarget
+       * @type DOMElement
+       * @default null
+       */
+      swipeTarget: null,
+
+      eventDelegates: {
+        track: 'onTrack',
+        trackend: 'onTrackEnd',
+        transitionend: 'onSnapedBack'
+      },
+
+      swipeTargetChanged: function() {
+        this.swipeTarget = this.swipeTarget || this.parentElement;
+      },
+
+      onTrack: function(e, detail, sender) {
+console.log(e)
+        this.lastDirection = e.xDirection;
+        this.last_ddx_ = e.ddx;
+
+        var style = this.swipeTarget.style;
+        style.transform = 'translateX(' + e.dx + 'px)';
+        style.opacity = 1 - (Math.abs(e.dx) / this.width);
+      },
+
+      onTrackEnd: function(e, detail, sender) {
+        // Archive the message if the swipe was fast.
+        if (Math.abs(this.last_ddx_) > this.SWIPE_THREASHOLD) {
+          this.archive = true;
+          this.swipeTarget.style.transition = 'all 100ms linear';
+          return;
+        }
+
+        // Slide all the way off (left/right) if we're 50% slide.
+        if (Math.abs(e.dx) >= this.width / 2) {
+          this.archive = true;
+        } else {
+          this.swipeTarget.classList.add('snapback');
+        }
+      },
+
+      onSnapedBack: function(e, detail, sender) {
+        // If thread is archived, don't snap it back.
+        if (this.swipeTarget.classList.contains('offscreen')) {
+          return;
+        }
+
+        if (e.propertyName == 'transform') {
+          var style = this.swipeTarget.style;
+          style.transform = '';
+          style.opacity = '';
+          this.swipeTarget.classList.remove('snapback');
+        }
+      }
+
+    });
+  </script>
+</polymer-element>
