@@ -80,7 +80,7 @@ paper-item.core-selected::shadow core-icon {
   /*background-image: url('images/beach.jpg');*/
   background-blend-mode: multiply;
   background-repeat: no-repeat;
-  background-color: #777;
+  background-color: #999;
   background-size: cover;
   font-size: inherit;
   color: white;
@@ -95,7 +95,7 @@ paper-item.core-selected::shadow core-icon {
 
 #navheader .bottom :last-child {
   font-size: small;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 #mainheader {
