@@ -115,14 +115,32 @@ paper-item.core-selected::shadow core-icon {
 }
 
 #mainheader > .selected-item {
-  display: none;
+  visibility: hidden;
+  will-change: transform;
+  transform: rotateX(90deg);
+  transition: transform 300ms ease-in-out;
+  width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+#mainheader > paper-icon-button[icon="arrow-back"] {
+  transform: translateX(-42px) rotateX(0);
+}
+
+#mainheader.selected-threads > paper-icon-button[icon="arrow-back"] {
+  transform: translateX(0) rotateX(0);
 }
 
 #mainheader.selected-threads > .selected-item {
-  display: block;
+  visibility: visible;
+  transform: rotateX(0);
+  width: auto;
+  margin: 0 8px;
+  padding: 8px;
 }
 
-#mainheader.selected-threads > :not(.title):not(.selected-item):not([flex]) {
+#mainheader.selected-threads > paper-icon-button:not(.selected-item) {
   display: none;
 }
 

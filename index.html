@@ -63,12 +63,7 @@
           {{selectedThreads.length ? selectedThreads.length : 'Inbox'}}
         </span>
         <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
-        <paper-menu-button icon="more-vert" halign="right"
-                           class="fade-on-drawer-open">
-          <paper-item icon="settings" label="Settings"></paper-item>
-          <paper-item icon="help" label="Help"></paper-item>
-        </paper-menu-button>
-        
+
         <paper-icon-button icon="archive" class="selected-item"></paper-icon-button>
         <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
         <paper-icon-button icon="mail" class="selected-item"></paper-icon-button>
@@ -105,7 +100,7 @@
 
 </core-drawer-panel>
 
-<paper-fab icon="create"></paper-fab>
+<paper-fab icon="create" on-tap="{{newMail}}"></paper-fab>
 
 <!-- Cache data requests. -->
 <!--<core-localstorage name="polymer-mail-user" value="{{user}}"></core-localstorage>-->

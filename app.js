@@ -110,6 +110,10 @@ template.toggleSearch = function() {
   this.$.search.toggle();
 };
 
+template.newMail = function(e, detail, sender) {
+  console.warn('Not implemented: Create new mail');
+};
+
 template.menuSelect = function(e, detail, sender) {
   if (detail.isSelected) {
     this.toggleDrawer();
