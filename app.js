@@ -98,6 +98,10 @@ template.deselectAll = function(e, detail, sender) {
 };
 
 template.onSigninFailure = function(e, detail, sender) {
+  if (DEBUG) {
+    return;
+  }
+
   this.isAuthenticated = false;
 };
 
