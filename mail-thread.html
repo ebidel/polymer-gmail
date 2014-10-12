@@ -17,6 +17,7 @@ A single GMail mail thread.
 -->
 <polymer-element name="mail-thread" extends="swipeable-item" attributes="messages narrow selected profile">
   <template>
+    <core-style ref="swipeable"></core-style>
     <style>
       :host {
         display: block;
@@ -105,16 +106,8 @@ A single GMail mail thread.
       }
     </style>
     <div id="container" on-tap="{{onTap}}">
-      <swipeable-item></swipeable-item>
-      <div id="thread" layout horizontal touch-action="pan-y"
-                       on-down="{{onDown}}" on-up="{{onUp}}"
+      <div id="thread" layout horizontal on-down="{{onDown}}" on-up="{{onUp}}"
                        on-hold="{{onHold}}">
-      <!-- <div id="thread" layout horizontal touch-action="pan-y"
-                       on-track="{{onTrack}}"
-                       on-trackend="{{onTrackEnd}}" 
-                       on-down="{{onDown}}" on-up="{{onUp}}"
-                       on-hold="{{onHold}}"
-                       on-transitionend="{{onSnapedBack}}"> -->
         <profile-img id="profileimage" src="{{profile}}"
                      letter="{{thread.from.name[0]}}"
                      selected?="{{selected}}"></profile-img>
@@ -194,8 +187,8 @@ A single GMail mail thread.
       this.profile = null;
     },
     domReady: function() {
-      this.swipeTarget = this.$.thread;
-      this.width = this.$.thread.clientWidth; // cache it.
+      this.swipeTarget = this.$.thread; // set before calling super().
+      this.super();
     },
     messagesChanged: function() {
       // TODO: support all messages in thread.
@@ -214,7 +207,7 @@ A single GMail mail thread.
       e.stopPropagation();
     },
     onUndo: function() {
-      this.archive = false;
+      this.swipeOff = false;
     },
     onDown: function(e, detail, sender) {
       if (e.target == this.$.profileimage || e.target == this.$.star) {
@@ -239,29 +232,14 @@ A single GMail mail thread.
         e.stopPropagation();
       }
     },
-    archiveChanged: function() {
-      this.$.archived.classList.toggle('show', this.archive);
+    swipeOffChanged: function() {
+      this.super();
 
-      if (this.archive) {
-        //this.$.thread.style.transform = 'translateX(' + (e.xDirection * this.width) + 'px)';
-        //this.$.thread.style.transform = 'translateX(' + (Math.sign(e.dx) * this.width) + 'px)';
-        //this.$.thread.style.transform = 'translateX(' + this.width + 'px)';
-        this.$.thread.classList.add('offscreen');
-        this.$.thread.style.transform =
-            'translateX(' + (this.lastDirection * this.width) + 'px)';
+      this.$.archived.classList.toggle('show', this.swipeOff);
 
-        if (this.selected) {
-          this.selected = false;
-          this.$.profileimage.fire('tap'); // de-select item through core-selector.
-        }
-
-      } else {
-        this.$.thread.style.transition = '';
-        this.$.thread.style.transform = 'translateX(' + this.width + 'px)';
-        this.$.thread.classList.remove('offscreen');
-        this.async(function() {
-          this.$.thread.classList.add('snapback');
-        });
+      if (this.swipeOff && this.selected) {
+        this.selected = false;
+        this.$.profileimage.fire('tap'); // de-select item through core-selector.
       }
     }
   });
