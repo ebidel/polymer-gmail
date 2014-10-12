@@ -4,7 +4,7 @@ var FROM_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
 
 function getValueForHeaderField(headers, field) {
   for (var i = 0, header; header = headers[i]; ++i) {
-    if (header.name == field) {
+    if (header.name == field || header.name == field.toLowerCase()) {
       return header.value;
     }
   }
