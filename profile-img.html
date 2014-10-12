@@ -1,0 +1,53 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<polymer-element name="profile-img" attributes="src letter" noscript>
+  <template>
+    <style>
+      .profile {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        transition: transform 350ms ease-in-out;
+        background-color: #9e9e9e;
+        color: white;
+        will-change: transform;
+      }
+      :host([selected]) .profile {
+        transform: rotate3d(0,1,0,180deg);
+      }
+      :host([selected]) img,
+      :host([selected]) .letter {
+        opacity: 0;
+      }
+      :host([selected]) core-icon {
+        transform: rotate3d(0,1,0,-180deg) scale(1);
+        opacity: 1;
+      }
+      img,
+      .letter {
+        border-radius: inherit;
+        width: 100%;
+        height: 100%;
+        transition: opacity 200ms ease-in-out 100ms;
+        will-change: opacity;
+        text-transform: uppercase;
+      }
+      core-icon {
+        transition: transform 300ms ease-in-out 100ms;
+        will-change: opacity;
+        transform: rotate3d(0,1,0,-180deg) scale(0);
+        position: absolute !important;
+        top: 20%;
+        left: 20%;
+        opacity: 0;
+      }
+    </style>
+    <div class="profile">
+      <template if="{{src}}"><img src="{{src}}"></template>
+      <template if="{{!src}}">
+        <span class="letter" layout horizontal center-center>{{letter}}</span>
+      </template>
+      <core-icon icon="check"></core-icon>
+    </div>
+   </template>
+</polymer-element>
