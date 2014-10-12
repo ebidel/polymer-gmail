@@ -105,23 +105,9 @@ template.onSigninSuccess = function(e, detail, sender) {
   this.isAuthenticated = true;
 
   // Cached data? We're already using it. Bomb out before making unnecessary requests.
-  if (template.threads && template.users) {
+  if ((template.threads && template.users) || DEBUG) {
     return;
   }
-
-  if (DEBUG) {
-    return;
-  }
-
-  // var worker = new Worker('worker.js');
-
-  // worker.addEventListener('message', function(e) {
-  //   var data =  e.data;
-
-  //   console.log(data);
-  // });
-
-  // worker.postMessage({cmd: 'fetch'});
 
   this.gapi = e.detail.gapi;
 
