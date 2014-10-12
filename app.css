@@ -64,6 +64,10 @@ body {
   opacity: 1 !important; /* Prevents the background color from dissolving. */
 }
 
+paper-item::shadow core-icon {
+  margin-right: 24px !important;
+}
+
 paper-item.core-selected {
   background-color: #eee;
 }
@@ -74,8 +78,9 @@ paper-item.core-selected::shadow core-icon {
 
 #navheader {
   /*background-image: url('images/beach.jpg');*/
+  background-blend-mode: multiply;
   background-repeat: no-repeat;
-  background-color: #c41411;
+  background-color: #777;
   background-size: cover;
   font-size: inherit;
   color: white;
@@ -96,6 +101,7 @@ paper-item.core-selected::shadow core-icon {
 #mainheader {
   color: #fff;
   background-color: transparent;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
 
 #mainheader .title {

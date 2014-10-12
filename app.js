@@ -132,6 +132,8 @@ template.onSigninSuccess = function(e, detail, sender) {
     return;
   }
 
+// return;
+
   // var worker = new Worker('worker.js');
 
   // worker.addEventListener('message', function(e) {
@@ -260,7 +262,7 @@ template.addEventListener('template-bound', function(e) {
 });
 
 // // TODO: Remove. For testing.
-// if (!navigator.onLine) {
+// // if (!navigator.onLine) {
 //   document.addEventListener('polymer-ready', function(e) { 
 //     var ajax = document.createElement('core-ajax');
 //     ajax.auto = true;
@@ -276,7 +278,12 @@ template.addEventListener('template-bound', function(e) {
 //       template.threads = e.detail.response;
 //     });
 //   });
-// }
+// // }
+
+// Prevent context menu.
+window.oncontextmenu = function() {
+  return false;
+};
 
 })();
 

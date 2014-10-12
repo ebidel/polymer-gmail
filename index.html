@@ -91,8 +91,9 @@
       </template>
 
       <!--<core-list data="{{data}}" height="80">-->
-      <core-selector id="threadlist" multi selectedAttribute="selected" selected="{{selectedThreads}}">
-        <template repeat="{{t in threads}}">
+      <core-selector id="threadlist" multi selectedAttribute="selected"
+                     selected="{{selectedThreads}}">
+        <template repeat="{{t, i in threads}}">
             <mail-thread messages="{{t.messages}}" profile="{{users[t.messages[0].from.name]}}"
                          narrow="{{narrow}}"></mail-thread>
         </template>

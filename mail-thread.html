@@ -6,44 +6,44 @@
 <polymer-element name="profile-img" attributes="src letter" noscript>
   <template>
     <style>
-        .profile {
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          transition: transform 350ms ease-in-out;
-          background-color: #9e9e9e;
-          color: white;
-          will-change: transform;
-        }
-        :host(.selected) .profile {
-          transform: rotate3d(0,1,0,180deg);
-        }
-        :host(.selected) img,
-        :host(.selected) .letter {
-          opacity: 0;
-        }
-        img,
-        .letter {
-          border-radius: inherit;
-          width: 100%;
-          height: 100%;
-          transition: opacity 200ms ease-in-out 100ms;
-          will-change: opacity;
-          text-transform: uppercase;
-        }
-        core-icon {
-          transition: transform 300ms ease-in-out 100ms;
-          will-change: opacity;
-          transform: rotate3d(0,1,0,-180deg) scale(0);
-          position: absolute !important;
-          top: 20%;
-          left: 20%;
-          opacity: 0;
-        }
-        :host(.selected) core-icon {
-          transform: rotate3d(0,1,0,-180deg) scale(1);
-          opacity: 1;
-        }
+      .profile {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        transition: transform 350ms ease-in-out;
+        background-color: #9e9e9e;
+        color: white;
+        will-change: transform;
+      }
+      :host([selected]) .profile {
+        transform: rotate3d(0,1,0,180deg);
+      }
+      :host([selected]) img,
+      :host([selected]) .letter {
+        opacity: 0;
+      }
+      :host([selected]) core-icon {
+        transform: rotate3d(0,1,0,-180deg) scale(1);
+        opacity: 1;
+      }
+      img,
+      .letter {
+        border-radius: inherit;
+        width: 100%;
+        height: 100%;
+        transition: opacity 200ms ease-in-out 100ms;
+        will-change: opacity;
+        text-transform: uppercase;
+      }
+      core-icon {
+        transition: transform 300ms ease-in-out 100ms;
+        will-change: opacity;
+        transform: rotate3d(0,1,0,-180deg) scale(0);
+        position: absolute !important;
+        top: 20%;
+        left: 20%;
+        opacity: 0;
+      }
     </style>
     <div class="profile">
       <template if="{{src}}"><img src="{{src}}"></template>
@@ -60,16 +60,34 @@
     <style>
       :host {
         display: block;
+        background-color: #757575;
+        /*-webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;*/
       }
-      :host([selected]) {
+      :host([selected]) #thread {
         background-color: #eee;
       }
+      /*:host(:active) #thread {
+        background-color: #e0e0e0;
+      }*/
       :host([narrow]) #actionicons {
         display: none;
       }
+      #container {
+        position: relative;
+        z-index: 0;
+      }
       #thread {
+        background-color: #fafafa;
         padding: 16px;
         border-bottom: 1px solid #e0e0e0;
+        /*transition: transform 300ms ease-in-out;*/
+        will-change: transform, opacity;
+      }
+      #thread.pressing {
+        background-color: #e0e0e0;
       }
       #lastline,
       #actionicons {
@@ -113,37 +131,67 @@
       .starred {
         color: #ffeb3b;
       }
+      .undo {
+        color: #ffa726;
+        text-transform: uppercase;
+      }
+      #archived {
+        padding: 16px;
+        color: white;
+        z-index: -1;
+        opacity: 0;
+        will-change: opacity;
+      }
+      #archived.show {
+        opacity: 1;
+        transition: opacity 200ms ease-in-out 400ms;
+      }
     </style>
-    <div id="thread" layout horizontal on-tap="{{onTap}}">
-      <profile-img id="profileimage" src="{{profile}}" letter="{{thread.from.name[0]}}"></profile-img>
-      <div flex layout horizontal>
-        <header layout vertical flex>
-          <span layout horizontal center justified>
-            <span class="name">
-              {{thread.from.name}}
-              <template if="{{messages.length >= 2}}"><span class="messagecount">{{messages.length}}</span></template>
+    <div id="container" on-tap="{{onTap}}">
+        <div id="thread" layout horizontal touch-action="pan-y"
+                       on-trackstart="{{onTrackStart}}"
+                       on-track="{{onTrack}}"
+                       on-trackend="{{onTrackEnd}}" 
+                       on-down="{{onDown}}" on-up="{{onUp}}"
+                       on-hold="{{onHold}}">
+        <profile-img id="profileimage" src="{{profile}}"
+                     letter="{{thread.from.name[0]}}"
+                     selected?="{{selected}}"></profile-img>
+        <div flex layout horizontal>
+          <header layout vertical flex>
+            <span layout horizontal center justified>
+              <span class="name">
+                {{thread.from.name}}
+                <template if="{{messages.length >= 2}}">
+                  <span class="messagecount">{{messages.length}}</span>
+                </template>
+              </span>
+              <time>{{thread.date}}</time>
             </span>
-            <time>{{thread.date}}</time>
-          </span>
-          <span class="subject">{{thread.subject}}</span>
-          <span id="lastline" layout horizontal center justified>
-            <span class="snippet" flex>{{thread.snippet | decodeHTMLEntitiesFilter}}</span>
-            <core-icon icon="star{{starred ? '' : '-outline'}}" on-tap="{{onHighlightStar}}"
-                       class="{{ {starred: starred} | tokenList }}"></core-icon>
-          </span>
-        </header>
-        <div id="actionicons" on-tap="{{onMailAction}}" self-start>
-          <paper-icon-button icon="reply"></paper-icon-button>
-          <paper-icon-button icon="reply-all"></paper-icon-button>
-          <paper-icon-button icon="forward"></paper-icon-button>
-          <paper-icon-button icon="more-vert"></paper-icon-button>
+            <span class="subject">{{thread.subject}}</span>
+            <span id="lastline" layout horizontal center justified>
+              <span class="snippet" flex>{{thread.snippet | decodeHTMLEntitiesFilter}}</span>
+              <core-icon id="star" icon="star{{starred ? '' : '-outline'}}" on-tap="{{onHighlightStar}}" class="{{ {starred: starred} | tokenList }}"></core-icon>
+            </span>
+          </header>
+          <div id="actionicons" on-down="{{onMailAction}}" on-hold="{{onMailAction}}" self-start>
+            <paper-icon-button icon="reply"></paper-icon-button>
+            <paper-icon-button icon="reply-all"></paper-icon-button>
+            <paper-icon-button icon="forward"></paper-icon-button>
+            <paper-icon-button icon="more-vert"></paper-icon-button>
+          </div>
         </div>
+      </div>
+      <div id="archived" layout horizontal center-center justified fit>
+        <span>Archived</span><span class="undo" on-tap="{{onUndo}}">UNDO</span>
       </div>
     </div>
   </template>
   <script>
   Polymer({
     starred: false,
+    archive: false,
+    sliding: false,
     publish: {
       narrow: {value: false, reflect: true},
       selected: {value: false, reflect: true}
@@ -151,8 +199,17 @@
     created: function() {
       this.messages = [];
     },
+    domReady: function() {
+      this.width = this.$.thread.clientWidth; // cache it.
+    },
     messagesChanged: function() {
-      this.thread = this.messages[this.messages.length - 1]; // TODO: support all messages in thread.
+      // TODO: support all messages in thread.
+      this.thread = this.messages[this.messages.length - 1];
+    },
+    decodeHTMLEntitiesFilter: function(val) {
+      var t = document.createElement('textarea');
+      t.innerHTML = val;
+      return t.textContent;
     },
     onHighlightStar: function(e, detail, sender) {
       this.starred = !this.starred;
@@ -161,20 +218,70 @@
     onMailAction: function(e, detail, sender) {
       e.stopPropagation();
     },
-    selectedChanged: function() {
-      this.$.profileimage.classList.toggle('selected', this.selected);
+    onUndo: function() {
+      this.archive = false;
     },
-    decodeHTMLEntitiesFilter: function(val) {
-      var t = document.createElement('textarea');
-      t.innerHTML = val;
-      return t.textContent;
+    onDown: function(e, detail, sender) {
+      if (e.target == this.$.profileimage ||
+          e.target == this.$.star) {
+        return;
+      }
+      this.$.thread.classList.add('pressing');
+    },
+    onUp: function(e, detail, sender) {
+      this.$.thread.classList.remove('pressing');
+    },
+    onHold: function(e, detail, sender) {
+      // If the profile image is the target ignore. onTap() will handle it.
+      if (e.target == this.$.profileimage ||
+          e.target == this.$.star) {
+        return;
+      }
+      this.selected = !this.selected;
+      this.$.profileimage.fire('tap');
     },
     onTap: function(e, detail, sender) {
       if (e.target != this.$.profileimage) {
         // Profile image is the only thing that selects a thread.
         e.stopPropagation();
+      }
+    },
+    onTrackStart: function(e, detail, sender) {
+      this.sliding = true;
+    },
+    onTrack: function(e, detail, sender) {
+
+//console.log(e.dx, e.ddx)
+
+      var style = this.$.thread.style;
+      style.transform = 'translateX(' + e.dx + 'px)';
+      style.opacity = 1 - (Math.abs(e.dx) / this.width);
+    },
+    onTrackEnd: function(e, detail, sender) {
+      this.sliding = false;
+
+      // Slide all the way off (left/right) if we're 50% slide.
+      if (Math.abs(e.dx) >= this.width / 2) {
+        this.$.thread.style.transform = 'translateX(' + (Math.sign(e.dx) * this.width) + 'px)';
+        this.archive = true;
       } else {
-        e.target.classList.toggle('selected');
+        this.$.thread.style.transform = 'none';
+        this.$.thread.style.opacity = 1;
+      }
+    },
+    archiveChanged: function() {
+      this.$.archived.classList.toggle('show', this.archive);
+
+      if (this.archive) {
+        //this.fire('tap');
+
+        //this.selected = false;
+        //this.$.thread.style.transform = 'translateX(' + (e.xDirection * this.width) + 'px)';
+      } else {
+        //this.selected = false;
+
+        this.$.thread.style.transform = 'none';
+        this.$.thread.style.opacity = 1;
       }
     }
   });
