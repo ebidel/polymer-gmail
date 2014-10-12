@@ -61,17 +61,10 @@
       :host {
         display: block;
         background-color: #757575;
-        /*-webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;*/
       }
       :host([selected]) #thread {
         background-color: #eee;
       }
-      /*:host(:active) #thread {
-        background-color: #e0e0e0;
-      }*/
       :host([narrow]) #actionicons {
         display: none;
       }
@@ -83,11 +76,19 @@
         background-color: #fafafa;
         padding: 16px;
         border-bottom: 1px solid #e0e0e0;
-        /*transition: transform 300ms ease-in-out;*/
         will-change: transform, opacity;
       }
       #thread.pressing {
         background-color: #e0e0e0;
+      }
+      #thread.snapback {
+        transition: all 300ms ease-in-out;
+        transform: none !important;
+        opacity: 1 !important;
+      }
+      #thread.archive {
+        transition: all 300ms linear;
+        opacity: 0 !important;
       }
       #lastline,
       #actionicons {
@@ -135,12 +136,17 @@
         color: #ffa726;
         text-transform: uppercase;
       }
+      .undo:active {
+        background-color: #9e9e9e;
+      }
       #archived {
-        padding: 16px;
         color: white;
         z-index: -1;
         opacity: 0;
         will-change: opacity;
+      }
+      #archived > * {
+        padding: 16px;
       }
       #archived.show {
         opacity: 1;
@@ -149,11 +155,11 @@
     </style>
     <div id="container" on-tap="{{onTap}}">
         <div id="thread" layout horizontal touch-action="pan-y"
-                       on-trackstart="{{onTrackStart}}"
                        on-track="{{onTrack}}"
                        on-trackend="{{onTrackEnd}}" 
                        on-down="{{onDown}}" on-up="{{onUp}}"
-                       on-hold="{{onHold}}">
+                       on-hold="{{onHold}}"
+                       on-transitionend="{{onSnapedBack}}">
         <profile-img id="profileimage" src="{{profile}}"
                      letter="{{thread.from.name[0]}}"
                      selected?="{{selected}}"></profile-img>
@@ -192,7 +198,8 @@
   Polymer({
     starred: false,
     archive: false,
-    sliding: false,
+    sliding: 0, // -1: sliding left, 0: not sliding, 1: sliding right
+    SWIPE_THREASHOLD: 10,
     publish: {
       narrow: {value: false, reflect: true},
       selected: {value: false, reflect: true}
@@ -223,8 +230,7 @@
       this.archive = false;
     },
     onDown: function(e, detail, sender) {
-      if (e.target == this.$.profileimage ||
-          e.target == this.$.star) {
+      if (e.target == this.$.profileimage || e.target == this.$.star) {
         return;
       }
       this.$.thread.classList.add('pressing');
@@ -234,8 +240,7 @@
     },
     onHold: function(e, detail, sender) {
       // If the profile image is the target ignore. onTap() will handle it.
-      if (e.target == this.$.profileimage ||
-          e.target == this.$.star) {
+      if (e.target == this.$.profileimage || e.target == this.$.star) {
         return;
       }
       this.selected = !this.selected;
@@ -247,42 +252,66 @@
         e.stopPropagation();
       }
     },
-    onTrackStart: function(e, detail, sender) {
-      this.sliding = true;
-    },
     onTrack: function(e, detail, sender) {
-
-//console.log(e.dx, e.ddx)
+      this.sliding = e.xDirection;
+      this.last_ddx = e.ddx;
 
       var style = this.$.thread.style;
       style.transform = 'translateX(' + e.dx + 'px)';
       style.opacity = 1 - (Math.abs(e.dx) / this.width);
     },
     onTrackEnd: function(e, detail, sender) {
-      this.sliding = false;
+      // Archive the message if the swipe was fast.
+      if (Math.abs(this.last_ddx) > this.SWIPE_THREASHOLD) {
+        this.archive = true;
+
+        var time = 100;//(this.sliding * this.width) / this.last_ddx / 0.1;
+        this.$.thread.style.transition = 'all ' + time + 'ms linear';
+        return;
+      }
 
       // Slide all the way off (left/right) if we're 50% slide.
       if (Math.abs(e.dx) >= this.width / 2) {
-        this.$.thread.style.transform = 'translateX(' + (Math.sign(e.dx) * this.width) + 'px)';
         this.archive = true;
       } else {
-        this.$.thread.style.transform = 'none';
-        this.$.thread.style.opacity = 1;
+        this.$.thread.classList.add('snapback');
       }
     },
     archiveChanged: function() {
       this.$.archived.classList.toggle('show', this.archive);
 
       if (this.archive) {
-        //this.fire('tap');
-
-        //this.selected = false;
         //this.$.thread.style.transform = 'translateX(' + (e.xDirection * this.width) + 'px)';
-      } else {
-        //this.selected = false;
+        //this.$.thread.style.transform = 'translateX(' + (Math.sign(e.dx) * this.width) + 'px)';
+        //this.$.thread.style.transform = 'translateX(' + this.width + 'px)';
+        this.$.thread.classList.add('archive');
+        this.$.thread.style.transform = 'translateX(' + (this.sliding * this.width) + 'px)';
 
-        this.$.thread.style.transform = 'none';
-        this.$.thread.style.opacity = 1;
+        if (this.selected) {
+          this.selected = false;
+          this.fire('tap'); // de-select item through core-selector.
+        }
+
+      } else {
+        this.$.thread.style.transition = '';
+        this.$.thread.style.transform = 'translateX(' + this.width + 'px)';
+        this.$.thread.classList.remove('archive');
+        this.async(function() {
+          this.$.thread.classList.add('snapback');
+        });
+      }
+    },
+    onSnapedBack: function(e, detail, sender) {
+      // If thread is archived, don't snap it back.
+      if (this.$.thread.classList.contains('archive')) {
+        return;
+      }
+
+      if (e.propertyName == 'transform') {
+        var style = this.$.thread.style;
+        style.transform = '';
+        style.opacity = '';
+        this.$.thread.classList.remove('snapback');
       }
     }
   });
