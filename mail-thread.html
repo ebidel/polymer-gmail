@@ -205,6 +205,10 @@ A single GMail mail thread.
       undo: {value: false, reflect: true}
     },
 
+    // observe: {
+    //   'thread.archived': 'archivedChanged'
+    // },
+
     created: function() {
       this.messages = [];
       this.profile = null;
@@ -257,10 +261,12 @@ A single GMail mail thread.
     },
     swipeOffChanged: function() {
       // Show in-place UNDO for a swipe. Don't show it for multi-select archive.
-      this.undo = this.swipeOff;// && !this.archived;
+      this.undo = this.swipeOff;
       this.archived = this.swipeOff;
     },
     archivedChanged: function(e) {
+      //this.thread.archived = this.archived;
+
       if (this.archived) {
 
         // De-select thread.
@@ -271,7 +277,9 @@ A single GMail mail thread.
 
         // TODO: don't do this here. Should be handled by swipeable-item
         this.target.classList.add('offscreen', 'right');
-        if (!this.undo) {
+        if (this.undo) {
+          this.fire('thread-archive', {thread: this});
+        } else {
           this.async(function() {
             this.classList.add('shrink');
           });

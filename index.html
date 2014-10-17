@@ -13,7 +13,8 @@
 
 <template id="t" is="auto-binding">
         
-<div id="loginscreen" layout vertical center-center fit class="{{ {show: !isAuthenticated} | tokenList }}">
+<div id="loginscreen" layout vertical center-center fit
+     class="{{ {show: !isAuthenticated} | tokenList }}">
   <!-- <paper-spinner active></paper-spinner><p>loading...</p> -->
   <google-signin width="wide" height="tall"
       clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
@@ -53,7 +54,7 @@
     </core-menu>
   </core-header-panel>
 
-  <core-scroll-header-panel main condenses keepCondensedHeader><!--  condensedHeaderHeight="64"> -->
+  <core-scroll-header-panel id="scrollheader" main condenses keepCondensedHeader>
     <core-toolbar id="mainheader" class="tall {{ {'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
         <paper-icon-button icon="arrow-back" class="selected-item" on-tap="{{deselectAll}}"></paper-icon-button>
 
@@ -77,9 +78,9 @@
           <paper-item label="Report phishing"></paper-item>
         </paper-menu-button>
     </core-toolbar>
-    <div content>
+    <div content on-thread-archive="{{onThreadArchive}}">
 
-      <template if="{{!threads}}">
+      <template if="{{!threads.length}}">
         <div layout vertical center-center style="height:100%">
           <paper-spinner active></paper-spinner>
         </div>

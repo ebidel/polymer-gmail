@@ -1,11 +1,11 @@
 (function() {
 // TODO
 // - remove pending archived threads if user interactions with app
+// - add manifest.json: http://w3c.github.io/manifest/, https://googlechrome.github.io/samples/web-application-manifest/manifest.json
 
 var DEBUG = location.search.indexOf('debug') != -1;
 
-var FROM_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
-
+var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
 
 var previouslySelected = [];
 
@@ -45,12 +45,12 @@ function fixUpMessages(resp) {
 
     // Example: Thu Sep 25 2014 14:43:18 GMT-0700 (PDT) -> Sept 25.
     var date = new Date(getValueForHeaderField(headers, 'Date'));
-    m.date = date.toDateString().split(' ').slice(1,3).join(' ');
+    m.date = date.toDateString().split(' ').slice(1, 3).join(' ');
     m.to = getValueForHeaderField(headers, 'To');
     m.subject = getValueForHeaderField(headers, 'Subject');
 
     var fromHeaders = getValueForHeaderField(headers, 'From');
-    var fromHeaderMatches = fromHeaders.match(FROM_REGEX);
+    var fromHeaderMatches = fromHeaders.match(FROM_HEADER_REGEX);
 
     // Use name if one was found. Otherwise, use email address.
     m.from = {
@@ -75,8 +75,8 @@ template.toggleSearch = function() {
 template.undoAll = function(e, detail, sender) {
   e.stopPropagation();
 
-  for (var i = 0, thread; thread = previouslySelected[i]; ++i) {
-    thread.archived = false;
+  for (var i = 0, threadEl; threadEl = previouslySelected[i]; ++i) {
+    threadEl.archived = false;
   }
 
   previouslySelected = [];
@@ -104,13 +104,45 @@ template.deselectAll = function(e, detail, sender) {
 template.archiveAll = function(e, detail, sender) {
   e.stopPropagation();
 
-  for (var i = 0, thread; thread = this.$.threadlist.selectedItem[i]; ++i) {
-    thread.archived = true;
-    previouslySelected.push(thread);
+  for (var i = 0, threadEl; threadEl = this.$.threadlist.selectedItem[i]; ++i) {
+    threadEl.archived = true;
+    previouslySelected.push(threadEl);
   }
 
   this.toastMessage = this.selectedThreads.length + ' archived';
   this.$.toast.show();
+};
+
+/**
+ * Utility function to listen to an event on a node once.
+ *
+ * @method listenOnce
+ * @param {Node} node The animated node
+ * @param {string} event Name of an event
+ * @param {Function} fn Event handler
+ * @param {Array} args Additional arguments to pass to `fn`
+ */
+template.listenOnce = function(node, event, fn, args) {
+  var self = this;
+  var listener = function() {
+    fn.apply(self, args);
+    node.removeEventListener(event, listener, false);
+  };
+  node.addEventListener(event, listener, false);
+};
+
+template.onThreadArchive = function(e, detail, sender) {
+  // When user interacts with app, remove any visibly archived threads,
+  // then remove touch listener.
+
+  // TODO: if user archive/undos several times, this adds a listener each time.
+  this.listenOnce(this.$.scrollheader, 'scroll', function(e) {
+    for (var i = 0, threadEl; threadEl = this.$.threadlist.items[i]; ++i) {
+      if (threadEl.archived) {
+        threadEl.classList.add('shrink');
+      }
+    }
+  });
 };
 
 template.onSigninFailure = function(e, detail, sender) {
@@ -146,6 +178,7 @@ template.onSigninSuccess = function(e, detail, sender) {
         batch.add(req);
         req.then(function(resp) {
           thread.messages = fixUpMessages(resp);
+          //thread.archived = false;
 
           // Set entire thread data at once, when it's all been processed.
           template.job('addthreads', function() {
@@ -204,7 +237,7 @@ template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
 
 // Better UX: presume user is logged in when app loads.
 template.isAuthenticated = true;
-
+template.threads = [];
 template.selectedThreads = [];
 
 // TODO: save this from users past searches using core-localstorage.
@@ -255,7 +288,11 @@ if (!navigator.onLine || DEBUG) {
     ajax2.auto = true;
     ajax2.url = '/data/threads.json';
     ajax2.addEventListener('core-response', function(e) {
-      template.threads = e.detail.response;
+      var threads = e.detail.response;
+      // for (var i = 0, thread; thread = threads[i]; ++i) {
+      //   thread.archived = false;
+      // }
+      template.threads = threads;
     });
   });
 }
