@@ -15,19 +15,28 @@ A single GMail mail thread.
 @element mail-thread
 @extends swipeable-item
 -->
-<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages narrow selected profile">
+<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages narrow selected profile archived undo">
   <template>
     <core-style ref="swipeable"></core-style>
     <style>
       :host {
         display: block;
         background-color: #757575;
+        transition: max-height 200ms ease-in-out 200ms;
+        max-height: 120px; /* bigger than thread can ever be. */
+      }
+      :host(.shrink) {
+        max-height: 0;
       }
       :host([selected]) #thread {
         background-color: #eee;
       }
       :host([narrow]) #actionicons {
         display: none;
+      }
+      :host([archived][undo]) #archived {
+        opacity: 1;
+        transition: opacity 200ms ease-in-out 400ms;
       }
       #container {
         position: relative;
@@ -100,10 +109,6 @@ A single GMail mail thread.
       #archived > * {
         padding: 16px;
       }
-      #archived.show {
-        opacity: 1;
-        transition: opacity 200ms ease-in-out 400ms;
-      }
     </style>
     <div id="container" on-tap="{{onTap}}">
       <div id="thread" layout horizontal on-down="{{onDown}}" on-up="{{onUp}}"
@@ -145,7 +150,6 @@ A single GMail mail thread.
   <script>
   Polymer({
     starred: false,
-    archive: false,
 
     /**
      * TThe list of messages the thread contains.
@@ -180,14 +184,33 @@ A single GMail mail thread.
        * @type bool
        * @default false
        */
-      selected: {value: false, reflect: true}
+      selected: {value: false, reflect: true},
+
+      /**
+       * True if the thread is archived.
+       *
+       * @attribute archived
+       * @type bool
+       * @default false
+       */
+      archived: {value: false, reflect: true},
+
+      /**
+       * True if the thread should show its undo UI.
+       *
+       * @attribute undo
+       * @type bool
+       * @default false
+       */
+      undo: {value: false, reflect: true}
     },
+
     created: function() {
       this.messages = [];
       this.profile = null;
     },
     domReady: function() {
-      this.swipeTarget = this.$.thread; // set before calling super().
+      this.target = this.$.thread; // set before calling super().
       this.super();
     },
     messagesChanged: function() {
@@ -207,7 +230,7 @@ A single GMail mail thread.
       e.stopPropagation();
     },
     onUndo: function() {
-      this.swipeOff = false;
+      this.swipe(false);
     },
     onDown: function(e, detail, sender) {
       if (e.target == this.$.profileimage || e.target == this.$.star) {
@@ -233,13 +256,29 @@ A single GMail mail thread.
       }
     },
     swipeOffChanged: function() {
-      this.super();
+      // Show in-place UNDO for a swipe. Don't show it for multi-select archive.
+      this.undo = this.swipeOff;// && !this.archived;
+      this.archived = this.swipeOff;
+    },
+    archivedChanged: function(e) {
+      if (this.archived) {
 
-      this.$.archived.classList.toggle('show', this.swipeOff);
+        // De-select thread.
+        if (this.selected) {
+          this.selected = false;
+          this.$.profileimage.fire('tap'); // tell core-selector.
+        }
 
-      if (this.swipeOff && this.selected) {
-        this.selected = false;
-        this.$.profileimage.fire('tap'); // de-select item through core-selector.
+        // TODO: don't do this here. Should be handled by swipeable-item
+        this.target.classList.add('offscreen', 'right');
+        if (!this.undo) {
+          this.async(function() {
+            this.classList.add('shrink');
+          });
+        }
+      } else {
+        this.target.classList.remove('offscreen', 'right');
+        this.classList.remove('shrink');
       }
     }
   });

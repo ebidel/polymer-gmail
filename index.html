@@ -64,7 +64,7 @@
         </span>
         <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
 
-        <paper-icon-button icon="archive" class="selected-item"></paper-icon-button>
+        <paper-icon-button icon="archive" class="selected-item" on-tap="{{archiveAll}}"></paper-icon-button>
         <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
         <paper-icon-button icon="mail" class="selected-item"></paper-icon-button>
         <paper-menu-button icon="more-vert" halign="right" class="selected-item">
@@ -99,6 +99,11 @@
   </core-scroll-header-panel>
 
 </core-drawer-panel>
+
+<paper-toast id="toast" duration="10000" swipeDisabled text="{{toastMessage}}"
+             on-core-overlay-close-completed="{{onToastClosed}}">
+  <div on-tap="{{undoAll}}">Undo</div>
+</paper-toast>
 
 <paper-fab icon="create" on-tap="{{newMail}}"></paper-fab>
 

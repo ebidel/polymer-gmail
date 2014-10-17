@@ -155,6 +155,10 @@ paper-fab {
   color: white;
 }
 
+paper-toast > * {
+  color: #ffa726;
+}
+
 
 /* Label colors */
 .pink::shadow core-icon {

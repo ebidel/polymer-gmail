@@ -1,8 +1,13 @@
 (function() {
+// TODO
+// - remove pending archived threads if user interactions with app
 
 var DEBUG = location.search.indexOf('debug') != -1;
 
 var FROM_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
+
+
+var previouslySelected = [];
 
 function getValueForHeaderField(headers, field) {
   for (var i = 0, header; header = headers[i]; ++i) {
@@ -60,27 +65,25 @@ function fixUpMessages(resp) {
 var template = document.querySelector('#t');
 
 template.toggleDrawer = function() {
-  // Only make labels request when drawer is opened for the first time.
-  // var gmail = this.gapi && this.gapi.client.gmail.users;
-
-  // if (gmail && !this.labels) {
-  //   gmail.labels.list({userId: 'me'}).then(function(resp) {
-  //     // Don't include system labels.
-  //     var labels = resp.result.labels.filter(function(label, i) {
-  //       label.color = template.LABEL_COLORS[
-  //           Math.round(Math.random() * template.LABEL_COLORS.length)];
-  //       return label.type != 'system';
-  //     });
-
-  //     template.labels = labels;
-  //   });
-  // }
-
   this.$ && this.$.drawerPanel.togglePanel();
 };
 
 template.toggleSearch = function() {
   this.$.search.toggle();
+};
+
+template.undoAll = function(e, detail, sender) {
+  e.stopPropagation();
+
+  for (var i = 0, thread; thread = previouslySelected[i]; ++i) {
+    thread.archived = false;
+  }
+
+  previouslySelected = [];
+};
+
+template.onToastClosed = function(e, detail, sender) {
+  previouslySelected = [];
 };
 
 template.newMail = function(e, detail, sender) {
@@ -94,7 +97,20 @@ template.menuSelect = function(e, detail, sender) {
 };
 
 template.deselectAll = function(e, detail, sender) {
-  this.$.threadlist.selected = [];
+  this.selectedThreads = [];
+};
+
+// Archives currently selected messages.
+template.archiveAll = function(e, detail, sender) {
+  e.stopPropagation();
+
+  for (var i = 0, thread; thread = this.$.threadlist.selectedItem[i]; ++i) {
+    thread.archived = true;
+    previouslySelected.push(thread);
+  }
+
+  this.toastMessage = this.selectedThreads.length + ' archived';
+  this.$.toast.show();
 };
 
 template.onSigninFailure = function(e, detail, sender) {
