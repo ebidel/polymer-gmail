@@ -90,8 +90,10 @@
       <core-selector id="threadlist" multi selectedAttribute="selected"
                      selected="{{selectedThreads}}">
         <template repeat="{{t, i in threads}}">
-            <mail-thread messages="{{t.messages}}" profile="{{users[t.messages[0].from.name]}}"
-                         narrow="{{narrow}}"></mail-thread>
+            <mail-thread messages="{{t.messages}}"
+                         profile="{{users[t.messages[0].from.name]}}"
+                         narrow="{{narrow}}"
+                         on-transitionend="{{onTransitionEnd}}"></mail-thread>
         </template>
       </core-selector>
       <!--</core-list>-->
@@ -101,12 +103,13 @@
 
 </core-drawer-panel>
 
-<paper-toast id="toast" duration="10000" swipeDisabled text="{{toastMessage}}"
-             on-core-overlay-close-completed="{{onToastClosed}}">
+<paper-toast id="toast" duration="10000" swipeDisabled
+             text="{{toastMessage}}" opened="{{toastOpened}}"
+             on-core-overlay-open="{{onToastOpenClose}}">
   <div on-tap="{{undoAll}}">Undo</div>
 </paper-toast>
 
-<paper-fab icon="create" on-tap="{{newMail}}"></paper-fab>
+<paper-fab id="fab" icon="create" on-tap="{{newMail}}"></paper-fab>
 
 <!-- Cache data requests. -->
 <!--<core-localstorage name="polymer-mail-user" value="{{user}}"></core-localstorage>-->

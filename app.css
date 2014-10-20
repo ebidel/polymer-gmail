@@ -157,12 +157,18 @@ paper-fab {
   bottom: 16px;
   right: 16px;
   color: white;
+  will-change: transform;
+  -webkit-transition: -webkit-transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
+}
+
+paper-fab.moveup {
+  transform: translate3d(0, -48px, 0);
 }
 
 paper-toast > * {
   color: #ffa726;
 }
-
 
 /* Label colors */
 .pink::shadow core-icon {

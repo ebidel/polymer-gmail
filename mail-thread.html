@@ -254,8 +254,8 @@ A single GMail mail thread.
       this.$.profileimage.fire('tap');
     },
     onTap: function(e, detail, sender) {
+      // Profile image is the only thing that selects a thread.
       if (e.target != this.$.profileimage) {
-        // Profile image is the only thing that selects a thread.
         e.stopPropagation();
       }
     },
@@ -277,9 +277,9 @@ A single GMail mail thread.
 
         // TODO: don't do this here. Should be handled by swipeable-item
         this.target.classList.add('offscreen', 'right');
-        if (this.undo) {
-          this.fire('thread-archive', {thread: this});
-        } else {
+        this.fire('thread-archive', {thread: this, showUndo: this.undo});
+
+        if (!this.undo) {
           this.async(function() {
             this.classList.add('shrink');
           });

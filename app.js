@@ -82,8 +82,16 @@ template.undoAll = function(e, detail, sender) {
   previouslySelected = [];
 };
 
-template.onToastClosed = function(e, detail, sender) {
-  previouslySelected = [];
+template.onToastOpenClose = function(e, opened, sender) {
+  if (opened) {
+    this.$.fab.classList.add('moveup');
+    // for (var i = 0, threadEl; threadEl = previouslySelected[i]; ++i) {
+    //   threadEl.undo = false; // hide in-place UNDO UI.
+    // }
+  } else {
+    previouslySelected = [];
+    this.$.fab.classList.remove('moveup');
+  }
 };
 
 template.newMail = function(e, detail, sender) {
@@ -110,9 +118,12 @@ template.archiveAll = function(e, detail, sender) {
   }
 
   this.toastMessage = this.selectedThreads.length + ' archived';
-  this.$.toast.show();
+  this.async(function() {
+    this.$.toast.show();
+  }, null, 1000); // delay showing the toast.
 };
 
+// TODO(ericbidelman): listenOnce is defined in core-transition
 /**
  * Utility function to listen to an event on a node once.
  *
@@ -135,11 +146,16 @@ template.onThreadArchive = function(e, detail, sender) {
   // When user interacts with app, remove any visibly archived threads,
   // then remove touch listener.
 
+  if (!detail.showUndo) {
+    return;
+  }
+
   // TODO: if user archive/undos several times, this adds a listener each time.
-  this.listenOnce(this.$.scrollheader, 'scroll', function(e) {
+  this.listenOnce(this.$.scrollheader, 'scroll', function() {
     for (var i = 0, threadEl; threadEl = this.$.threadlist.items[i]; ++i) {
       if (threadEl.archived) {
         threadEl.classList.add('shrink');
+        threadEl.undo = false; // hide in-place UNDO UI.
       }
     }
   });
