@@ -7,6 +7,11 @@ var DEBUG = location.search.indexOf('debug') != -1;
 
 var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
 
+var Labels = {
+  UNREAD: 'UNREAD',
+  STARRED: 'STARRED'
+};
+
 var previouslySelected = [];
 
 function getValueForHeaderField(headers, field) {
@@ -66,7 +71,8 @@ function fixUpMessages(resp) {
     }
     m.from.name = m.from.name.split('@')[0]; // Ensure email is split.
 
-    m.unread = m.labelIds.indexOf('UNREAD') != -1;
+    m.unread = m.labelIds.indexOf(Labels.UNREAD) != -1;
+    m.starred = m.labelIds.indexOf(Labels.STARRED) != -1;
   }
 
   return messages;
