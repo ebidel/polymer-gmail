@@ -97,13 +97,12 @@
       </template>
 
       <!--<core-list data="{{data}}" height="80">-->
-      <!-- TODO: don't pass all messages and labels into mail-thread -->
+      <!-- TODO: don't pass all messages, users, labels into mail-thread -->
       <core-selector id="threadlist" multi selectedAttribute="selected"
                      selected="{{selectedThreads}}">
         <template repeat="{{t, i in threads}}">
             <mail-thread messages="{{t.messages}}"
-                         labels="{{labelMap}}"
-                         profile="{{users[t.messages[0].from.name]}}"
+                         labels="{{labelMap}}" users="{{users}}"
                          narrow="{{narrow}}"
                          on-transitionend="{{onTransitionEnd}}"></mail-thread>
         </template>

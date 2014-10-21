@@ -20,7 +20,7 @@ label.blue {
   background-color: #5677fc !important;
 }
 label.yellow {
-  background-color: #ffea00 !important;
+  background-color: #ffd600 !important;
 }
 label.teal {
   background-color: #009688 !important;
@@ -42,7 +42,7 @@ label.purple {
   color: #5677fc;
 }
 .yellow /deep/ core-icon {
-  color: #ffea00;
+  color: #ffd600;
 }
 .teal /deep/ core-icon {
   color: #009688;
@@ -62,7 +62,7 @@ A single GMail mail thread.
 @element mail-thread
 @extends swipeable-item
 -->
-<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages labels narrow selected profile archived undo">
+<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages labels users narrow selected archived undo">
   <template>
     <core-style ref="swipeable"></core-style>
     <core-style ref="labelcolors"></core-style>
@@ -112,12 +112,14 @@ A single GMail mail thread.
         margin-left: 16px;
         font-size: 14px;
       }
-      header span.name {
-        font-size: 18px;
+      header.unread .name,
+      header.unread .subject {
         font-weight: 500;
       }
+      header span.name {
+        font-size: 18px;
+      }
       header span.subject {
-        font-weight: 500;
         margin: 6px 0;
       }
       header span.snippet,
@@ -163,17 +165,17 @@ A single GMail mail thread.
         padding: 3px 5px;
         color: #fff;
         border-radius: 2px;
-        margin-right: 3px;
+        margin-right: 5px;
       }
     </style>
     <div id="container" on-tap="{{onTap}}">
       <div id="thread" layout horizontal on-down="{{onDown}}" on-up="{{onUp}}"
                        on-hold="{{onHold}}">
-        <profile-img id="profileimage" src="{{profile}}"
+        <profile-img id="profileimage" src="{{users[thread.from.name]}}"
                      letter="{{thread.from.name[0]}}"
                      selected?="{{selected}}"></profile-img>
         <div flex layout horizontal>
-          <header layout vertical flex>
+          <header layout vertical flex class="{{ {unread: thread.unread} | tokenList }}">
             <span layout horizontal center justified>
               <span class="name">
                 {{thread.from.name}}
@@ -230,11 +232,11 @@ A single GMail mail thread.
      */
 
     /**
-     * The profile information of the last person to reply in the thread.
+     * The user profiles.
      *
-     * @attribute profile
-     * @type object
-     * @default null
+     * @attribute users
+     * @type array
+     * @default []
      */
 
     publish: {
@@ -275,22 +277,22 @@ A single GMail mail thread.
       undo: {value: false, reflect: true}
     },
 
-    // observe: {
-    //   'thread.archived': 'archivedChanged'
+    // computed: {
+    //   'unread': "this.thread.labelIds.indexOf('UNREAD') != -1"
     // },
 
     created: function() {
       this.messages = [];
       this.labels = {};
-      this.profile = null;
+      this.users = [];
     },
     domReady: function() {
       this.target = this.$.thread; // set before calling super().
       this.super();
     },
     messagesChanged: function() {
-      // TODO: support all messages in thread.
-      this.thread = this.messages[this.messages.length - 1];
+      // TODO(ericbidelman): this is only the last thread. Support all messages in thread.
+      this.thread = this.messages[0];
     },
     decodeHTMLEntitiesFilter: function(val) {
       var t = document.createElement('textarea');

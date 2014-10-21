@@ -64,8 +64,9 @@ function fixUpMessages(resp) {
       m.from.name = fromHeaders.split('@')[0];
       m.from.email = fromHeaders;
     }
-
     m.from.name = m.from.name.split('@')[0]; // Ensure email is split.
+
+    m.unread = m.labelIds.indexOf('UNREAD') != -1;
   }
 
   return messages;
@@ -202,7 +203,7 @@ template.onSigninSuccess = function(e, detail, sender) {
         var req = gmail.threads.get({userId: 'me', 'id': thread.id});
         batch.add(req);
         req.then(function(resp) {
-          thread.messages = fixUpMessages(resp);
+          thread.messages = fixUpMessages(resp).reverse();
           //thread.archived = false;
 
           // Set entire thread data at once, when it's all been processed.
