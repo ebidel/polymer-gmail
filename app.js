@@ -5,7 +5,7 @@
 
 var DEBUG = location.search.indexOf('debug') != -1;
 
-var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s+<(.*)>/);
+var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
 
 var previouslySelected = [];
 
@@ -28,8 +28,8 @@ function getAllUserProfileImages(users, nextPageToken, callback) {
       return o;
     }, users);
 
-    if (resp.nextPageToken) {
-      getAllUserProfileImages(users, resp.nextPageToken, callback);
+    if (resp.result.nextPageToken) {
+      getAllUserProfileImages(users, resp.result.nextPageToken, callback);
     } else {
       callback(users);
     }
@@ -52,11 +52,18 @@ function fixUpMessages(resp) {
     var fromHeaders = getValueForHeaderField(headers, 'From');
     var fromHeaderMatches = fromHeaders.match(FROM_HEADER_REGEX);
 
+    m.from = {};
+
     // Use name if one was found. Otherwise, use email address.
-    m.from = {
-      name: fromHeaderMatches ? fromHeaderMatches[1] : fromHeaders,
-      email: fromHeaderMatches ? fromHeaderMatches[2] : fromHeaders
-    };
+    if (fromHeaderMatches) {
+      // If not a name, use email address for displayName.
+      m.from.name = fromHeaderMatches[1].length ? fromHeaderMatches[1] :
+                                                  fromHeaderMatches[2];
+      m.from.email = fromHeaderMatches[2];
+    } else {
+      m.from.name = fromHeaders;
+      m.from.email = fromHeaders;
+    }
   }
 
   return messages;
@@ -224,7 +231,7 @@ template.onSigninSuccess = function(e, detail, sender) {
 
     // Get user's profile pic, cover image, email, and name.
     gapi.client.plus.people.get({userId: 'me'}).then(function(resp) {
-      var PROFILE_IMAGE_SIZE = 60;
+      var PROFILE_IMAGE_SIZE = 75;
       var COVER_IMAGE_SIZE = 315;
 
       var img = resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
@@ -236,13 +243,16 @@ template.onSigninSuccess = function(e, detail, sender) {
         profile: img,
         cover: coverImg
       };
+
+      template.$['navheaderstyle'].coverImg = coverImg;
+      template.$.navheader.classList.add('coverimg');
     });
 
     var users = {};
 
     getAllUserProfileImages(users, null, function(users) {
       template.users = users;
-      template.users[template.user.name] = template.user.profile;
+      template.users[template.user.name] = template.user.profile; // signed in user.
     });
 
   });

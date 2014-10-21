@@ -11,8 +11,16 @@
 </head>
 <body unresolved fullbleed>
 
+<core-style id="navheaderstyle">
+  #navheader::after {
+    background-image: url({{coverImg}});
+  }
+</core-style>
+
 <template id="t" is="auto-binding">
-        
+
+<core-style ref="navheaderstyle"></core-style>
+
 <div id="loginscreen" layout vertical center-center fit
      class="{{ {show: !isAuthenticated} | tokenList }}">
   <!-- <paper-spinner active></paper-spinner><p>loading...</p> -->
@@ -29,11 +37,11 @@
 <core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
   <core-header-panel mode="scroll" drawer>
-    <core-toolbar id="navheader" class="tall" style="background-image:url({{user.cover || 'images/beach.jpg'}})">
+    <core-toolbar id="navheader" class="tall">
       <!-- <core-image src="{{user.cover}}" sizing="cover" preload fade 
                   style="width:400px; height:400px; background-color:#c41411;">
       </core-image> -->
-      <img class="middle profile" src="{{user.profile}}">
+      <img class="middle profile" src="{{user.profile}}" hidden?="{{!user.profile}}">
       <div class="bottom" layout vertical>
         <span>{{user.name}}</span>
         <span>{{user.email}}</span>
