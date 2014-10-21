@@ -56,14 +56,16 @@ function fixUpMessages(resp) {
 
     // Use name if one was found. Otherwise, use email address.
     if (fromHeaderMatches) {
-      // If not a name, use email address for displayName.
+      // If no a name, use email address for displayName.
       m.from.name = fromHeaderMatches[1].length ? fromHeaderMatches[1] :
                                                   fromHeaderMatches[2];
       m.from.email = fromHeaderMatches[2];
     } else {
-      m.from.name = fromHeaders;
+      m.from.name = fromHeaders.split('@')[0];
       m.from.email = fromHeaders;
     }
+
+    m.from.name = m.from.name.split('@')[0]; // Ensure email is split.
   }
 
   return messages;
@@ -190,7 +192,7 @@ template.onSigninSuccess = function(e, detail, sender) {
     var gmail = gapi.client.gmail.users;
 
     // Fetch only the emails in the user's inbox.
-    gmail.threads.list({userId: 'me', q: 'in:inbox -is:chat'}).then(function(resp) {
+    gmail.threads.list({userId: 'me', q: 'in:inbox'}).then(function(resp) {
 
       var threads = resp.result.threads;
 
@@ -224,6 +226,11 @@ template.onSigninSuccess = function(e, detail, sender) {
       });
 
       template.labels = labels;
+      template.labelMap = labels.reduce(function(o, v, i) {
+        o[v.id] = v;
+        return o;
+      }, {});
+
     });
   });
 

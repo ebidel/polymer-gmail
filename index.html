@@ -13,6 +13,7 @@
 
 <core-style id="navheaderstyle">
   #navheader::after {
+    /* causes console warning for incorrect mimetype */
     background-image: url({{coverImg}});
   }
 </core-style>
@@ -20,6 +21,7 @@
 <template id="t" is="auto-binding">
 
 <core-style ref="navheaderstyle"></core-style>
+<core-style ref="labelcolors"></core-style>
 
 <div id="loginscreen" layout vertical center-center fit
      class="{{ {show: !isAuthenticated} | tokenList }}">
@@ -95,10 +97,12 @@
       </template>
 
       <!--<core-list data="{{data}}" height="80">-->
+      <!-- TODO: don't pass all messages and labels into mail-thread -->
       <core-selector id="threadlist" multi selectedAttribute="selected"
                      selected="{{selectedThreads}}">
         <template repeat="{{t, i in threads}}">
             <mail-thread messages="{{t.messages}}"
+                         labels="{{labelMap}}"
                          profile="{{users[t.messages[0].from.name]}}"
                          narrow="{{narrow}}"
                          on-transitionend="{{onTransitionEnd}}"></mail-thread>

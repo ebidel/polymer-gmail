@@ -1,9 +1,56 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/core-icon/core-icon.html">
+<link rel="import" href="bower_components/core-style/core-style.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="profile-img.html">
 <link rel="import" href="swipeable-item.html">
+
+<core-style id="labelcolors">
+label.pink {
+  background-color: #e91e63 !important;
+}
+label.orange {
+  background-color: #ff5722 !important;
+}
+label.green {
+  background-color: #259b24 !important;
+}
+label.blue {
+  background-color: #5677fc !important;
+}
+label.yellow {
+  background-color: #ffea00 !important;
+}
+label.teal {
+  background-color: #009688 !important;
+}
+label.purple {
+  background-color: #673ab7 !important;
+}
+
+.pink /deep/ core-icon {
+  color: #e91e63;
+}
+.orange /deep/ core-icon {
+  color: #ff5722;
+}
+.green /deep/ core-icon {
+  color: #259b24;
+}
+.blue /deep/ core-icon {
+  color: #5677fc;
+}
+.yellow /deep/ core-icon {
+  color: #ffea00;
+}
+.teal /deep/ core-icon {
+  color: #009688;
+}
+.purple /deep/ core-icon {
+  color: #673ab7;
+}
+</core-style>
 
 <!--
 A single GMail mail thread.
@@ -15,9 +62,10 @@ A single GMail mail thread.
 @element mail-thread
 @extends swipeable-item
 -->
-<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages narrow selected profile archived undo">
+<polymer-element name="mail-thread" extends="swipeable-item" attributes="messages labels narrow selected profile archived undo">
   <template>
     <core-style ref="swipeable"></core-style>
+    <core-style ref="labelcolors"></core-style>
     <style>
       :host {
         display: block;
@@ -109,6 +157,14 @@ A single GMail mail thread.
       #archived > * {
         padding: 16px;
       }
+      .labels label {
+        font-size: 10px;
+        background-color: #bdbdbd;
+        padding: 3px 5px;
+        color: #fff;
+        border-radius: 2px;
+        margin-right: 3px;
+      }
     </style>
     <div id="container" on-tap="{{onTap}}">
       <div id="thread" layout horizontal on-down="{{onDown}}" on-up="{{onUp}}"
@@ -130,6 +186,12 @@ A single GMail mail thread.
             <span class="subject">{{thread.subject}}</span>
             <span id="lastline" layout horizontal center justified>
               <span class="snippet" flex>{{thread.snippet | decodeHTMLEntitiesFilter}}</span>
+              <span class="labels">
+                <template repeat="{{id in thread.labelIds}}">
+                  <label hidden?="{{labels[id].type != 'user'}}"
+                         class="{{labels[id].color}}">{{labels[id].name}}</label>
+                </template>
+              </span>
               <core-icon id="star" icon="star{{starred ? '' : '-outline'}}" on-tap="{{onHighlightStar}}" class="{{ {starred: starred} | tokenList }}"></core-icon>
             </span>
           </header>
@@ -152,11 +214,19 @@ A single GMail mail thread.
     starred: false,
 
     /**
-     * TThe list of messages the thread contains.
+     * The list of messages the thread contains.
      *
-     * @property message
+     * @attribute messages
      * @type array
      * @default []
+     */
+
+    /**
+     * List of the user's labels. Keys are the label id.
+     *
+     * @attribute labels
+     * @type object
+     * @default {}
      */
 
     /**
@@ -211,6 +281,7 @@ A single GMail mail thread.
 
     created: function() {
       this.messages = [];
+      this.labels = {};
       this.profile = null;
     },
     domReady: function() {

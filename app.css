@@ -193,29 +193,6 @@ paper-toast > * {
   color: #ffa726;
 }
 
-/* Label colors */
-.pink::shadow core-icon {
-  color: #e91e63 !important;
-}
-.orange::shadow core-icon {
-  color: #ff5722 !important;
-}
-.green::shadow core-icon {
-  color: #259b24 !important;
-}
-.blue::shadow core-icon {
-  color: #5677fc !important;
-}
-.yellow::shadow core-icon {
-  color: #ffeb3b !important;
-}
-.teal::shadow core-icon {
-  color: #009688 !important;
-}
-.purple::shadow core-icon {
-  color: #673ab7 !important;
-}
-
 iframe[src^="https://apis.google.com"] {
   display: none;
 }
