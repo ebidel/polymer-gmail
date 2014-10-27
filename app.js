@@ -248,25 +248,26 @@ template.onSigninSuccess = function(e, detail, sender) {
       var PROFILE_IMAGE_SIZE = 75;
       var COVER_IMAGE_SIZE = 315;
 
-      var img = resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
-      var coverImg = resp.result.cover.coverPhoto.url.replace(/\/s\d{3}-/, "/s" + COVER_IMAGE_SIZE + "-");
+      var img = resp.result.image && resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
+      var coverImg = resp.result.cover && resp.result.cover.coverPhoto.url.replace(/\/s\d{3}-/, "/s" + COVER_IMAGE_SIZE + "-");
 
       template.user = {
         name: resp.result.displayName,
         email: resp.result.emails[0].value,
-        profile: img,
-        cover: coverImg
+        profile: img || null,
+        cover: coverImg || null
       };
 
       template.$['navheaderstyle'].coverImg = coverImg;
       template.$.navheader.classList.add('coverimg');
-    });
 
-    var users = {};
+      var users = {};
 
-    getAllUserProfileImages(users, null, function(users) {
-      template.users = users;
-      template.users[template.user.name] = template.user.profile; // signed in user.
+      getAllUserProfileImages(users, null, function(users) {
+        template.users = users;
+        template.users[template.user.name] = template.user.profile; // signed in user.
+      });
+
     });
 
   });
