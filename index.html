@@ -2,6 +2,9 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#e51c23">
+  <meta name="theme-color" content="#e51c23">
   <title>Polymer Mail</title>
   <!-- Note: platform.js is only needed in non-Chrome 36 browsers.
              It's included here for portability. -->
@@ -90,7 +93,7 @@
     </core-toolbar>
     <div content on-thread-archive="{{onThreadArchive}}">
 
-      <template if="{{!threads.length}}">
+      <template if="{{!threads.length && isAuthenticated}}">
         <div layout vertical center-center style="height:100%">
           <paper-spinner active></paper-spinner>
         </div>
