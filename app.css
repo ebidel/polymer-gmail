@@ -11,7 +11,7 @@ body {
   z-index: 1;
   visibility: hidden;
   transition: all 300ms ease-in-out;
-  opacity: 0; 
+  opacity: 0;
   transform: scale(0);
 }
 
@@ -165,6 +165,14 @@ paper-item.core-selected::shadow core-icon {
 
 #mainheader.selected-threads > paper-icon-button:not(.selected-item) {
   display: none;
+}
+
+#mainheader paper-dropdown {
+  color: initial;
+}
+
+#mainheader.selected-threads paper-menu-button {
+  padding: 0 !important;
 }
 
 core-scroll-header-panel > [content] {

@@ -6,9 +6,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="#e51c23">
   <meta name="theme-color" content="#e51c23">
   <title>Polymer Mail</title>
-  <!-- Note: platform.js is only needed in non-Chrome 36 browsers.
+  <!-- Note: webcomponentjs.js is only needed in non-Chrome 36 browsers.
              It's included here for portability. -->
-  <script src="bower_components/platform/platform.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
   <link rel="import" href="elements.html">
   <link rel="stylesheet" href="app.css" shim-shadowdom>
 </head>
@@ -43,7 +43,7 @@
 
   <core-header-panel mode="scroll" drawer>
     <core-toolbar id="navheader" class="tall">
-      <!-- <core-image src="{{user.cover}}" sizing="cover" preload fade 
+      <!-- <core-image src="{{user.cover}}" sizing="cover" preload fade
                   style="width:400px; height:400px; background-color:#c41411;">
       </core-image> -->
       <img class="middle profile" src="{{user.profile}}" hidden?="{{!user.profile}}">
@@ -81,15 +81,20 @@
         <paper-icon-button icon="archive" class="selected-item" on-tap="{{archiveAll}}"></paper-icon-button>
         <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
         <paper-icon-button icon="mail" class="selected-item"></paper-icon-button>
-        <paper-menu-button icon="more-vert" halign="right" class="selected-item">
-          <paper-item label="Move to"></paper-item>
-          <paper-item label="Change labels"></paper-item>
-          <paper-item label="Add star"></paper-item>
-          <paper-item label="Mark not important"></paper-item>
-          <paper-item label="Mute"></paper-item>
-          <paper-item label="Report spam"></paper-item>
-          <paper-item label="Report phishing"></paper-item>
+
+        <paper-menu-button class="selected-item" layout horizontal>
+          <paper-icon-button icon="more-vert"></paper-icon-button>
+          <paper-dropdown class="dropdown" halign="right">
+            <paper-item label="Move to"></paper-item>
+            <paper-item label="Change labels"></paper-item>
+            <paper-item label="Add star"></paper-item>
+            <paper-item label="Mark not important"></paper-item>
+            <paper-item label="Mute"></paper-item>
+            <paper-item label="Report spam"></paper-item>
+            <paper-item label="Report phishing"></paper-item>
+          </paper-dropdown>
         </paper-menu-button>
+
     </core-toolbar>
     <div content on-thread-archive="{{onThreadArchive}}">
 
