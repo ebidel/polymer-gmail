@@ -22,10 +22,6 @@ body {
   transform: scale(1);
 }
 
-#drawerPanel:not([narrow]) #navicon {
-  display: none;
-}
-
 #drawerPanel:not([narrow]) core-scroll-header-panel [content] {
   padding: 30px 0;
 }
