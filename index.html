@@ -70,7 +70,7 @@
     <core-toolbar id="mainheader" class="tall {{ {'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
         <paper-icon-button icon="arrow-back" class="selected-item" on-tap="{{deselectAll}}"></paper-icon-button>
 
-        <paper-icon-button id="navicon" icon="menu" on-tap="{{toggleDrawer}}"></paper-icon-button>
+        <paper-icon-button id="navicon" icon="menu" core-drawer-toggle></paper-icon-button>
         <div flex></div>
         <span class="bottom indent title">
           {{selectedThreads.length ? selectedThreads.length : 'Inbox'}}

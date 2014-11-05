@@ -114,10 +114,6 @@ function fixUpMessages(resp) {
 
 var template = document.querySelector('#t');
 
-template.toggleDrawer = function() {
-  this.$ && this.$.drawerPanel.togglePanel();
-};
-
 template.toggleSearch = function() {
   this.$.search.toggle();
 };
@@ -243,7 +239,7 @@ template.newMail = function(e, detail, sender) {
 
 template.menuSelect = function(e, detail, sender) {
   if (detail.isSelected) {
-    this.toggleDrawer();
+    this.$ && this.$.drawerPanel.togglePanel();
   }
 };
 
