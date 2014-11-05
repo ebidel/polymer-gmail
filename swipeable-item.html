@@ -38,10 +38,10 @@ Adds horizontal swiping functionality to an element.
       <div id="card">Swipe me!</div>
     </template>
 
-The `target` is the target node to add swiping behavior to. 
+The `target` is the target node to add swiping behavior to.
 
 By default, when the element is being dragged the `swiping` class is applied. You can configure this class by changing the `swipingClass` property. When the element has been fully
-swiped outside of it's container, the `offscreen` class is applied.  
+swiped outside of it's container, the `offscreen` class is applied.
 
 When extending `<swipeable-item>`, it's useful to define a `swipeOffChanged()` to do your own work when the element has been swiped away:
 
@@ -60,7 +60,7 @@ Alternatively, you can listen for the `swipe-away` event.
   TODO(ericbidelman): use core-transition instead for snapback
 -->
 
-<polymer-element name="swipeable-item" attributes="target noSnapBack noDissolve" touch-action="pan-y">
+<polymer-element name="swipeable-item" attributes="target noSnapBack noDissolve" touch-action="none">
 <script>
 (function() {
   var thisDoc = document._currentScript.ownerDocument;
@@ -206,7 +206,7 @@ Alternatively, you can listen for the `swipe-away` event.
           this.target.classList.add('fade');
         }
 
-        style.transform = style.webkitTransform = 
+        style.transform = style.webkitTransform =
             'translate3d(' + (obj.direction * this.width) + 'px, 0, 0)';
 
         this.fire('swipe-away', {direction: obj.direction});
@@ -215,7 +215,7 @@ Alternatively, you can listen for the `swipe-away` event.
         style.transition = style.webkitTransition = '';
         style.transform = style.webkitTransform = 'translate3d(' + this.width + 'px, 0, 0)';
         this.target.classList.remove('offscreen', 'fade');
-        
+
         // Native app always comes back from right. Need to wait one rAF for
         // .offscreen to have been applied.
         this.async(function() {

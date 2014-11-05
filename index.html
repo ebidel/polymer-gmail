@@ -28,7 +28,6 @@
 
 <div id="loginscreen" layout vertical center-center fit
      class="{{ {show: !isAuthenticated} | tokenList }}">
-  <!-- <paper-spinner active></paper-spinner><p>loading...</p> -->
   <google-signin width="wide" height="tall"
       clientId="1054047045356-j8pgqgls9vdef3rl09hapoicumbte0bo.apps.googleusercontent.com"
       scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
@@ -67,7 +66,7 @@
     </core-menu>
   </core-header-panel>
 
-  <core-scroll-header-panel id="scrollheader" main condenses keepCondensedHeader>
+  <core-scroll-header-panel id="scrollheader" main condenses keepCondensedHeader on-trackstart="{{onRefreshStart}}"  on-tracky="{{onMainAreaTrack}}" on-trackend="{{onRefreshUp}}">
     <core-toolbar id="mainheader" class="tall {{ {'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
         <paper-icon-button icon="arrow-back" class="selected-item" on-tap="{{deselectAll}}"></paper-icon-button>
 
@@ -95,6 +94,13 @@
           </paper-dropdown>
         </paper-menu-button>
 
+        <div id="refresh" class="bottom fit"
+             layout horizontal center-center on-transitionend="{{onRefreshTransitionEnd}}">
+          <div class="paper-shadow-bottom-z-1">
+            <paper-spinner id="refreshspinner"></paper-spinner>
+          </div>
+        </div>
+
     </core-toolbar>
     <div content on-thread-archive="{{onThreadArchive}}">
 
@@ -112,7 +118,8 @@
             <mail-thread messages="{{t.messages}}"
                          labels="{{labelMap}}" users="{{users}}"
                          narrow="{{narrow}}"
-                         on-transitionend="{{onTransitionEnd}}"></mail-thread>
+                         on-transitionend="{{onTransitionEnd}}"
+                         touch-action="{{touchAction}}"></mail-thread>
         </template>
       </core-selector>
       <!--</core-list>-->

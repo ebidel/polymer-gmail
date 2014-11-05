@@ -12,6 +12,7 @@ body {
   visibility: hidden;
   transition: all 300ms ease-in-out;
   opacity: 0;
+  will-change: transform;
   transform: scale(0);
 }
 
@@ -183,7 +184,7 @@ core-scroll-header-panel > [content] {
   display: block;
 }
 
-paper-fab {
+#fab {
   position: fixed;
   bottom: 16px;
   right: 16px;
@@ -193,12 +194,51 @@ paper-fab {
   transition: transform 0.2s ease-in-out;
 }
 
-paper-fab.moveup {
+#fab.moveup {
   transform: translate3d(0, -48px, 0);
 }
 
-paper-toast > * {
+#toast > * {
   color: #ffa726;
+}
+
+#refresh {
+  position: absolute;
+  z-index: -1;
+  bottom: 10px;
+  pointer-events: none;
+  will-change: transform;
+}
+
+#refresh.snapback {
+  transition: all 100ms ease-out;
+  -webkit-transform: translate3d(0, 81px, 0);
+  transform: translate3d(0, 81px, 0);
+}
+
+#refresh.snapback.tostart {
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+#refresh.shrink {
+  -webkit-transform: translate3d(0, 81px, 0) scale(0.001); /* Note: scale(0) doesn't work */
+  transform: translate3d(0, 81px, 0) scale(0.001); /* Note: scale(0) doesn't work */
+}
+
+#refresh > div {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 8px;
+}
+
+#refresh paper-spinner {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  will-change: opacity;
 }
 
 iframe[src^="https://apis.google.com"] {

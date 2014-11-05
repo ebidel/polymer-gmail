@@ -1,7 +1,7 @@
 (function() {
 // TODO
-// - remove pending archived threads if user interactions with app
-// - add manifest.json: http://w3c.github.io/manifest/, https://googlechrome.github.io/samples/web-application-manifest/manifest.json
+// - add manifest.json: http://w3c.github.io/manifest/,
+//   https://googlechrome.github.io/samples/web-application-manifest/manifest.json
 
 var DEBUG = location.search.indexOf('debug') != -1;
 
@@ -13,6 +13,40 @@ var Labels = {
 };
 
 var previouslySelected = [];
+
+
+var GMail = window.GMail || {};
+
+GMail.fetchMail = function(q, opt_callback) {
+  var gmail = gapi.client.gmail.users;
+
+  // Fetch only the emails in the user's inbox.
+  gmail.threads.list({userId: 'me', q: q}).then(function(resp) {
+
+    var threads = resp.result.threads;
+
+    var batch = gapi.client.newBatch();
+
+    threads.forEach(function(thread, i) {
+      var req = gmail.threads.get({userId: 'me', 'id': thread.id});
+      batch.add(req);
+      req.then(function(resp) {
+        thread.messages = fixUpMessages(resp).reverse();
+        //thread.archived = false;
+
+        // Set entire thread data at once, when it's all been processed.
+        template.job('addthreads', function() {
+          this.threads = threads;
+          opt_callback && opt_callback(threads);
+        }, 100);
+
+      });
+    });
+
+    batch.then();
+
+  });
+};
 
 function getValueForHeaderField(headers, field) {
   for (var i = 0, header; header = headers[i]; ++i) {
@@ -98,6 +132,16 @@ template.undoAll = function(e, detail, sender) {
   previouslySelected = [];
 };
 
+template.refreshInbox = function(opt_callback) {
+  var q = 'in:inbox';
+
+  if (opt_callback) {
+    GMail.fetchMail(q, opt_callback.bind(this));
+  } else {
+    GMail.fetchMail(q);
+  }
+};
+
 template.onToastOpenClose = function(e, opened, sender) {
   if (opened) {
     this.$.fab.classList.add('moveup');
@@ -108,6 +152,89 @@ template.onToastOpenClose = function(e, opened, sender) {
     previouslySelected = [];
     this.$.fab.classList.remove('moveup');
   }
+};
+
+template.onRefreshStart = function(e, detail, sender) {
+  if (this.syncing) {
+    return;
+  }
+
+  var atTop = this.$.scrollheader.scroller.scrollTop == 0;
+
+  if (atTop && e.yDirection > 0) {
+    this.refreshStarted = true;
+
+    this.$.refreshspinner.active = true;
+
+  } else if (!this.refreshStarted)  {
+    template.touchAction = 'pan-y';
+  }
+};
+
+template.onMainAreaTrack = function(e, detail, sender) {
+  if (this.syncing) {
+    return;
+  }
+
+  var y =  Math.min(e.dy, this.MAX_REFRESH_Y);
+
+  this.$.refreshspinner.style.opacity =
+      Math.min(1, 1 - ((this.MAX_REFRESH_Y - e.dy) / this.MAX_REFRESH_Y));
+
+  var style = this.$.refresh.style;
+  style.transform = style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
+
+  if (!this.refreshStarted) {
+    // TODO(ericbidelman): fake scrolling. We're already in a touch event, and
+    // scrolling won't kick in until after the user releaes. Ask Dan about this.
+    this.$.scrollheader.scroller.scrollTop = Math.abs(e.dy);
+  }
+};
+
+template.onRefreshUp = function(e, detail, sender) {
+  if (!this.refreshStarted || this.syncing) {
+    return;
+  }
+
+  var style = this.$.refresh.style;
+  style.transform = style.webkitTransform = '';
+
+  var threshhold = this.MAX_REFRESH_Y / 2;
+
+  if (e.dy >= threshhold) {
+    this.syncing = true;
+
+    this.$.refreshspinner.style.opacity = 1;
+    this.$.refresh.classList.add('snapback');
+  } else {
+    this.$.refresh.classList.add('snapback', 'tostart');
+  }
+};
+
+template.onRefreshTransitionEnd = function(e, detail, sender) {
+  if (!this.refreshStarted) {
+    return;
+  }
+
+  this.refreshStarted = false;
+
+  if (this.$.refresh.classList.contains('tostart')) {
+    this.$.refresh.classList.remove('snapback', 'shrink', 'tostart');
+    return;
+  }
+
+  this.refreshInbox(function(threads) {
+    this.$.refreshspinner.active = false;
+    this.$.refresh.classList.add('shrink');
+
+    this.async(function() {
+      this.$.refresh.classList.remove('snapback', 'shrink', 'tostart');
+      this.$.refreshspinner.style.opacity = 0;
+
+      this.syncing = false;
+    }, null, 150);
+
+  });
 };
 
 template.newMail = function(e, detail, sender) {
@@ -198,31 +325,7 @@ template.onSigninSuccess = function(e, detail, sender) {
   gapi.client.load('gmail', 'v1').then(function() {
     var gmail = gapi.client.gmail.users;
 
-    // Fetch only the emails in the user's inbox.
-    gmail.threads.list({userId: 'me', q: 'in:inbox'}).then(function(resp) {
-
-      var threads = resp.result.threads;
-
-      var batch = gapi.client.newBatch();
-
-      threads.forEach(function(thread, i) {
-        var req = gmail.threads.get({userId: 'me', 'id': thread.id});
-        batch.add(req);
-        req.then(function(resp) {
-          thread.messages = fixUpMessages(resp).reverse();
-          //thread.archived = false;
-
-          // Set entire thread data at once, when it's all been processed.
-          template.job('addthreads', function() {
-            this.threads = threads;
-          }, 100);
-
-        });
-      });
-
-      batch.then();
-
-    });
+    template.refreshInbox();
 
     gmail.labels.list({userId: 'me'}).then(function(resp) {
       // Don't include system labels.
@@ -281,6 +384,12 @@ template.isAuthenticated = true;
 template.threads = [];
 template.selectedThreads = [];
 
+template.touchAction = 'none'; // Allow track events from x/y directions.
+
+template.MAX_REFRESH_Y = 150;
+template.syncing = false; // True, if the mail is syncing.
+template.refreshStarted = false; // True if the pull to refresh has been enabled.
+
 // TODO: save this from users past searches using core-localstorage.
 template.previousSearches = [
   "something fun",
@@ -296,6 +405,10 @@ template.addEventListener('template-bound', function(e) {
 
   this.$.drawerPanel.addEventListener('core-header-transform', function(e) {
     var d = e.detail;
+
+    // If at the top, allow swiping and pull down refresh. When scrolled, set
+    // pan-y so track events don't fire in the y direction.
+    template.touchAction = d.y == 0 ? 'none' : 'pan-y';
 
     // d.y: the amount that the header moves up
     // d.height: the height of the header when it is at its full size
