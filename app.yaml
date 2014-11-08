@@ -1,0 +1,43 @@
+application: poly-mail
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+
+- url: /bower_components
+  static_dir: bower_components
+
+- url: /data
+  static_dir: data
+
+- url: /images
+  static_dir: images
+
+- url: /(.*).(html|js|css)
+  static_files: \1.\2
+  upload: (.*)\.(html|js|cs)
+
+- url: /$
+  static_files: index.html
+  upload: index\.html
+  #http_headers:
+  #  Access-Control-Allow-Origin: "*"
+  secure: always
+
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?index\.yaml
+- ^(.*/)?index\.yml
+- ^(.*/)?bower\.json
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?\..*
+- ^(.*/)?.*\.bak$
+- ^(.*/)?node_modules/.*
+- ^(.*/).md|markdown
+- ^(.*/)LICENSE
