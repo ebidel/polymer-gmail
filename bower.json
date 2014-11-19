@@ -21,9 +21,9 @@
     "tests"
   ],
   "dependencies": {
-    "core-elements": "Polymer/core-elements#master",
-    "paper-elements": "Polymer/paper-elements#master",
-    "google-signin": "GoogleWebComponents/google-signin#~0.1.0",
-    "paper-spinner": "PolymerLabs/paper-spinner"
+    "core-elements": "Polymer/core-elements#^0.5.1",
+    "paper-elements": "Polymer/paper-elements#^0.5.1",
+    "google-signin": "GoogleWebComponents/google-signin#~0.2.0",
+    "paper-spinner": "Polymer/paper-spinner#^0.5.1"
   }
 }

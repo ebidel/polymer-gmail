@@ -420,10 +420,10 @@ template.addEventListener('template-bound', function(e) {
   });
 });
 
-// Prevent context menu.
-window.oncontextmenu = function() {
-  return false;
-};
+// // Prevent context menu.
+// window.oncontextmenu = function() {
+//   return false;
+// };
 
 if (!navigator.onLine || DEBUG) {
   document.addEventListener('polymer-ready', function(e) {

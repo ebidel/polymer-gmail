@@ -172,8 +172,7 @@ A single GMail mail thread.
       }
     </style>
     <div id="container" on-tap="{{onTap}}">
-      <div id="thread" layout horizontal on-down="{{onDown}}" on-up="{{onUp}}"
-                       on-hold="{{onHold}}">
+      <div id="thread" layout horizontal on-hold="{{onHold}}"><!--  on-down="{{onDown}}" on-up="{{onUp}}"> -->
         <profile-img id="profileimage" src="{{users[thread.from.name]}}"
                      letter="{{thread.from.name[0]}}"
                      selected?="{{selected}}"></profile-img>
@@ -310,15 +309,17 @@ A single GMail mail thread.
     onUndo: function() {
       this.swipe(false);
     },
-    onDown: function(e, detail, sender) {
-      if (e.target == this.$.profileimage || e.target == this.$.star) {
-        return;
-      }
-      this.$.thread.classList.add('pressing');
-    },
-    onUp: function(e, detail, sender) {
-      this.$.thread.classList.remove('pressing');
-    },
+    // TODO(ericbidelman): Add back in. .pressing class currently looks
+    // janky when scrolling.
+    // onDown: function(e, detail, sender) {
+    //   if (e.target == this.$.profileimage || e.target == this.$.star) {
+    //     return;
+    //   }
+    //   this.$.thread.classList.add('pressing');
+    // },
+    // onUp: function(e, detail, sender) {
+    //   this.$.thread.classList.remove('pressing');
+    // },
     onHold: function(e, detail, sender) {
       // If the profile image is the target ignore. onTap() will handle it.
       if (e.target == this.$.profileimage || e.target == this.$.star) {
