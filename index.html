@@ -1,19 +1,28 @@
+<!-- Author: Eric Bidelman <@ebidel> -->
 <!doctype html>
 <html>
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- Fallback for manifest.json add to homescreen (Chrome Android) -->
+  <meta name="mobile-web-app-capable" content="yes">
+
   <meta name="apple-mobile-web-app-status-bar-style" content="#e51c23">
   <meta name="theme-color" content="#e51c23">
   <meta name="msapplication-TileColor" content="#e51c23">
+  <meta name="msapplication-tap-highlight" content="no">
   <title>Polymer Mail</title>
-  <!-- Note: webcomponentjs.js is only needed in non-Chrome 36 browsers.
-             It's included here for portability. -->
+
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Note: webcomponent.js is only needed in non-Chrome 36 browsers. Included here for portability. -->
   <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <link rel="import" href="vulcanized.html">
   <link rel="stylesheet" href="app.css" shim-shadowdom>
 
-  <link rel="icon" sizes="192x192" href="nice-highres.png">
+  <link rel="icon" sizes="192x192" href="images/gmail.png">
 </head>
 <body unresolved fullbleed>
 

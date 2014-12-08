@@ -1,0 +1,23 @@
+{
+  "name": "Polymer Mail",
+  "short_name": "PolyMail",
+  "start_url": "https://poly-mail.appspot.com/?utm_source=web_app_manifest",
+  "display": "standalone",
+  "orientation": "portrait",
+  "icons": [{
+    "src": "images/gmail.png",
+    "sizes": "96x96",
+    "type": "image/png",
+    "density": "2.0"
+  }, {
+    "src": "images/gmail.png",
+    "sizes": "144x144",
+    "type": "image/png",
+    "density": "3.0"
+  }, {
+    "src": "images/gmail.png",
+    "sizes": "192x192",
+    "type": "image/png",
+    "density": "4.0"
+  }]
+}
