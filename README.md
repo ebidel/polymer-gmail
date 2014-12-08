@@ -2,6 +2,11 @@
 
 **Note**: the app is *read only* despite what the permissions popup says. Also, most of the buttons don't do anything. There's a lot of missing functionality.
 
+#### Testing
+
+Hitting http://localhost:8080?debug will bypass Google Sign-in and use mock data for threads. Under this
+testig mode, you will no see custom labels in the left nav or user profile images show up on threads.
+
 #### Future improvements
 
 - Caching API requests
