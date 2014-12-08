@@ -1,8 +1,4 @@
 (function() {
-// TODO
-// - add manifest.json: http://w3c.github.io/manifest/,
-//   https://googlechrome.github.io/samples/web-application-manifest/manifest.json
-
 var DEBUG = location.search.indexOf('debug') != -1;
 
 var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
