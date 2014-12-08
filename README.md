@@ -11,7 +11,7 @@ testig mode, you will no see custom labels in the left nav or user profile image
 
 - Caching API requests
 - full offline support (Service Worker)
-- Add to homescreen (manifest.json)
+- notifications (SW/GCM)
 - Reading emails in a thread
 - Creating emails
 - Searching emails
