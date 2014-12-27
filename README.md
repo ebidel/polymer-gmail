@@ -20,3 +20,4 @@ testig mode, you will no see custom labels in the left nav or user profile image
 - a11y (keyboard access, tab support)
 - i18n
 - better perf on mobile (gesture UX needs work)
+- use new drawer-panel for touch support
