@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <!-- Fallback for manifest.json add to homescreen (Chrome Android) -->
@@ -50,7 +50,7 @@
 <material-search id="search" narrow="{{narrow}}"
                  previousSearches="{{previousSearches}}"></material-search>
 
-<core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
+<core-drawer-panel id="drawerPanel" narrow?="{{narrow}}">
 
   <core-header-panel mode="scroll" drawer>
     <core-toolbar id="navheader" class="tall">
@@ -64,16 +64,16 @@
       </div>
     </core-toolbar>
     <core-menu selected="0" excludedLocalNames="div" on-core-select="{{menuSelect}}">
-      <paper-item label="Inbox" icon="inbox"></paper-item>
-      <paper-item label="Social" icon="account-child"></paper-item>
+      <paper-item><core-icon icon="inbox"></core-icon>Inbox</paper-item>
+      <paper-item><core-icon icon="social:people"></core-icon>Social</paper-item>
       <div class="separator">All labels</div>
-      <paper-item label="Starred" icon="star"></paper-item>
-      <paper-item label="Sent" icon="send"></paper-item>
-      <paper-item label="All Mail" icon="mail"></paper-item>
-      <paper-item label="Spam" icon="report"></paper-item>
-      <paper-item label="Trash" icon="delete"></paper-item>
+      <paper-item><core-icon icon="star"></core-icon>Starred</paper-item>
+      <paper-item><core-icon icon="send"></core-icon>Sent</paper-item>
+      <paper-item><core-icon icon="mail"></core-icon>All Mail</paper-item>
+      <paper-item><core-icon icon="report"></core-icon>Spam</paper-item>
+      <paper-item><core-icon icon="delete"></core-icon>Trash</paper-item>
       <template repeat="{{l in labels}}">
-        <paper-item label="{{l.name}}" icon="label" class="{{l.color}}"></paper-item>
+        <paper-item class="{{l.color}}"><core-icon icon="label"></core-icon>{{l.name}}</paper-item>
       </template>
     </core-menu>
   </core-header-panel>
@@ -96,13 +96,13 @@
         <paper-menu-button class="selected-item" layout horizontal>
           <paper-icon-button icon="more-vert"></paper-icon-button>
           <paper-dropdown class="dropdown" halign="right">
-            <paper-item label="Move to"></paper-item>
-            <paper-item label="Change labels"></paper-item>
-            <paper-item label="Add star"></paper-item>
-            <paper-item label="Mark not important"></paper-item>
-            <paper-item label="Mute"></paper-item>
-            <paper-item label="Report spam"></paper-item>
-            <paper-item label="Report phishing"></paper-item>
+            <paper-item>Move to</paper-item>
+            <paper-item>Change labels</paper-item>
+            <paper-item>Add star</paper-item>
+            <paper-item>Mark not important</paper-item>
+            <paper-item>Mute</paper-item>
+            <paper-item>Report spam</paper-item>
+            <paper-item>Report phishing</paper-item>
           </paper-dropdown>
         </paper-menu-button>
 

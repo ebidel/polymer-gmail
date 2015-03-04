@@ -43,7 +43,7 @@
         margin: 0 auto;
       }
     }
-    paper-item::shadow core-icon {
+    paper-item core-icon {
       margin-right: 24px !important;
     }
   </style>
@@ -55,7 +55,7 @@
     </core-toolbar>
     <core-menu on-core-select="{{onSelect}}">
       <template repeat="{{p in previousSearches}}">
-        <paper-item icon="history" label="{{p}}"></paper-item>
+        <paper-item><core-icon icon="history"></core-icon>{{p}}</paper-item>
       </template>
     </core-menu>
   </core-header-panel>

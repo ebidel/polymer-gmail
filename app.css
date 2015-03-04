@@ -61,7 +61,7 @@ body {
   opacity: 1 !important; /* Prevents the background color from dissolving. */
 }
 
-paper-item::shadow core-icon {
+paper-item core-icon {
   margin-right: 24px !important;
 }
 
@@ -69,7 +69,7 @@ paper-item.core-selected {
   background-color: #eee;
 }
 
-paper-item.core-selected::shadow core-icon {
+paper-item.core-selected core-icon {
   color: #757575;
 }
 
