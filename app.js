@@ -393,9 +393,15 @@ template.previousSearches = [
 
 template.addEventListener('template-bound', function(e) {
 
+  var headerEl = document.querySelector('#mainheader');
   var titleStyle = document.querySelector('.title').style;
 
   this.$.drawerPanel.addEventListener('core-header-transform', function(e) {
+
+    if (!headerEl.classList.contains('tall')) {
+      return;
+    }
+
     var d = e.detail;
 
     // If at the top, allow swiping and pull down refresh. When scrolled, set

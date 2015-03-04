@@ -125,9 +125,13 @@ paper-item.core-selected core-icon {
 }
 
 #mainheader .title {
-  font-size: 40px;
+  font-size: 20px;
   transform-origin: 0px 50%;
   margin-left: 70px;
+}
+
+#mainheader.tall .title {
+  font-size: 40px;
 }
 
 #mainheader.selected-threads {

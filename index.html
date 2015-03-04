@@ -50,7 +50,7 @@
 <material-search id="search" narrow="{{narrow}}"
                  previousSearches="{{previousSearches}}"></material-search>
 
-<core-drawer-panel id="drawerPanel" narrow?="{{narrow}}">
+<core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
   <core-header-panel mode="scroll" drawer>
     <core-toolbar id="navheader" class="tall">
@@ -78,8 +78,8 @@
     </core-menu>
   </core-header-panel>
 
-  <core-scroll-header-panel id="scrollheader" main condenses keepCondensedHeader on-trackstart="{{onRefreshStart}}"  on-tracky="{{onMainAreaTrack}}" on-trackend="{{onRefreshUp}}">
-    <core-toolbar id="mainheader" class="tall {{ {'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
+  <core-scroll-header-panel id="scrollheader" main condenses="{{!narrow}}" keepCondensedHeader fixed?="{{narrow}}" on-trackstart="{{onRefreshStart}}"  on-tracky="{{onMainAreaTrack}}" on-trackend="{{onRefreshUp}}">
+    <core-toolbar id="mainheader" class="{{ {tall: !narrow, 'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
         <paper-icon-button icon="arrow-back" class="selected-item" on-tap="{{deselectAll}}"></paper-icon-button>
 
         <paper-icon-button id="navicon" icon="menu" core-drawer-toggle></paper-icon-button>
