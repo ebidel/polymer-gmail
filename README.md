@@ -2,6 +2,14 @@
 
 **Note**: the app is *read only* despite what the permissions popup says. Also, most of the buttons don't do anything. There's a lot of missing functionality.
 
+#### Building
+
+Install [Vulcanize](https://github.com/polymer/vulcanize) (`npm install -g vulcanize`) and run:
+
+    vulcanize -o vulcanized.html elements.html
+
+This will create vulcanized.html, which is used in index.html.
+
 #### Testing
 
 Hitting http://localhost:8080?debug will bypass Google Sign-in and use mock data for threads. Under this
