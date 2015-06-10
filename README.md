@@ -13,7 +13,7 @@ This will create vulcanized.html, which is used in index.html.
 #### Testing
 
 Hitting http://localhost:8080?debug will bypass Google Sign-in and use mock data for threads. Under this
-testig mode, you will no see custom labels in the left nav or user profile images show up on threads.
+testing mode, you will no see custom labels in the left nav or user profile images show up on threads.
 
 #### Future improvements
 
