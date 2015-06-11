@@ -1,4 +1,17 @@
 (function() {
+var startTime = performance.now();
+
+// var firstPaintRaf;
+// requestAnimationFrame(function() {
+//   firstPaintRaf = performance.now();
+// });
+
+// var times = chrome.loadTimes();
+// firstPaintMetric = (times.firstPaintTime || performance.msFirstPaint)  - times.startLoadTime;
+
+// firstPaint = Math.min(firstPaintRaf, firstPaintMetric);
+// console.info('First paint @', firstPaint);
+
 var DEBUG = location.search.indexOf('debug') != -1;
 
 var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
@@ -109,6 +122,27 @@ function fixUpMessages(resp) {
 }
 
 var template = document.querySelector('#t');
+
+template._computeShowSpinner = function(threads, isAuthenticated) {
+  return !threads.length && isAuthenticated;
+};
+
+template._computeMainHeaderClass = function(narrow, numSelectedThreads) {
+  return (narrow ? 'core-narrow' : 'tall') + ' ' +
+         (numSelectedThreads ? 'selected-threads' : '');
+};
+
+template._computeHeaderTitle = function(numSelectedThreads) {
+  return numSelectedThreads ? numSelectedThreads : 'Inbox';
+};
+
+// TODO: iron-selector bug where subscribers are not notified of changes
+// after the first selection. For now, use events instead to update title.
+// See github.com/PolymerElements/iron-selector/issues/33
+template._onThreadSelectChange = function(e) {
+  this.headerTitle = this._computeHeaderTitle(this.selectedThreads.length);
+  this.headerClass = this._computeMainHeaderClass(this.narrow, this.selectedThreads.length);
+}
 
 template.toggleSearch = function() {
   this.$.search.toggle();
@@ -229,22 +263,24 @@ template.onRefreshTransitionEnd = function(e, detail, sender) {
   });
 };
 
-template.newMail = function(e, detail, sender) {
+template.newMail = function(e) {
   console.warn('Not implemented: Create new mail');
 };
 
-template.menuSelect = function(e, detail, sender) {
+template.menuSelect = function(e) {
   if (detail.isSelected) {
     this.$ && this.$.drawerPanel.togglePanel();
   }
 };
 
-template.deselectAll = function(e, detail, sender) {
+template.deselectAll = function(e) {
+console.log('here')
   this.selectedThreads = [];
+  this.set('selectedThreads', []);
 };
 
 // Archives currently selected messages.
-template.archiveAll = function(e, detail, sender) {
+template.archiveAll = function(e) {
   e.stopPropagation();
 
   for (var i = 0, threadEl; threadEl = this.$.threadlist.selectedItem[i]; ++i) {
@@ -375,6 +411,8 @@ template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
 template.isAuthenticated = true;
 template.threads = [];
 template.selectedThreads = [];
+template.headerTitle = template._computeHeaderTitle(template.selectedThreads.length);
+template.headerClass = template._computeMainHeaderClass(template.narrow, template.selectedThreads.length);
 
 template.touchAction = 'none'; // Allow track events from x/y directions.
 
@@ -382,7 +420,7 @@ template.MAX_REFRESH_Y = 150;
 template.syncing = false; // True, if the mail is syncing.
 template.refreshStarted = false; // True if the pull to refresh has been enabled.
 
-// TODO: save this from users past searches using core-localstorage.
+// TODO: save this from users past searches using iron-localstorage.
 template.previousSearches = [
   "something fun",
   "tax forms",
@@ -391,12 +429,14 @@ template.previousSearches = [
   'party on saturday'
 ];
 
-template.addEventListener('template-bound', function(e) {
+template.addEventListener('dom-change', function(e) {
+  var timestamp = performance.now();
+  console.info('dom-change took', performance.now() - startTime, 'ms @', timestamp);
 
   var headerEl = document.querySelector('#mainheader');
   var titleStyle = document.querySelector('.title').style;
 
-  this.$.drawerPanel.addEventListener('core-header-transform', function(e) {
+  this.$.drawerPanel.addEventListener('paper-header-transform', function(e) {
 
     if (!headerEl.classList.contains('tall')) {
       return;
@@ -428,18 +468,22 @@ template.addEventListener('template-bound', function(e) {
 // };
 
 if (!navigator.onLine || DEBUG) {
-  document.addEventListener('polymer-ready', function(e) {
-    var ajax = document.createElement('core-ajax');
+
+  document.addEventListener('WebComponentsReady', function(e) {
+    var timestamp = performance.now();
+    console.info('WebComponentsReady took', timestamp - startTime, 'ms @', timestamp);
+
+    var ajax = document.createElement('iron-ajax');
     ajax.auto = true;
     ajax.url = '/data/users.json';
-    ajax.addEventListener('core-response', function(e) {
+    ajax.addEventListener('response', function(e) {
       template.users = e.detail.response;
     });
 
-    var ajax2 = document.createElement('core-ajax');
+    var ajax2 = document.createElement('iron-ajax');
     ajax2.auto = true;
     ajax2.url = '/data/threads.json';
-    ajax2.addEventListener('core-response', function(e) {
+    ajax2.addEventListener('response', function(e) {
       var threads = e.detail.response;
       // for (var i = 0, thread; thread = threads[i]; ++i) {
       //   thread.archived = false;

@@ -1,74 +1,91 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
-<link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
-<link rel="import" href="bower_components/core-menu/core-menu.html">
+<link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="bower_components/paper-item/paper-item.html">
-<link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="bower_components/core-icons/av-icons.html">
+<link rel="import" href="bower_components/iron-icons/av-icons.html">
 
-<polymer-element name="material-search" attributes="active previousSearches narrow" fit>
+<dom-module id="material-search">
+<style>
+  :host {
+    display: none;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.9);
+    color: #757575;
+    z-index: 20;
+  }
+
+  :host([active]) {
+    display: block;
+  }
+
+  paper-menu {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  paper-toolbar {
+    background-color: white;
+  }
+
+  input {
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 16px;
+    outline: none;
+  }
+
+  @media (min-width: 600px) {
+    paper-menu {
+      max-width: 50%;
+      margin: 0 auto;
+    }
+  }
+
+  paper-item iron-icon {
+    margin-right: 24px !important;
+  }
+</style>
 <template>
-  <style>
-    :host {
-      display: none;
-      margin: 0;
-      background: rgba(255, 255, 255, 0.9);
-      color: #757575;
-      z-index: 20;
-    }
-    :host([active]) {
-      display: block;
-    }
-
-    core-menu {
-      margin-left: 0;
-      margin-right: 0;
-    }
-
-    core-toolbar {
-      background-color: white;
-    }
-
-    input {
-      border: none;
-      background: transparent;
-      font: inherit;
-      font-size: 16px;
-      outline: none;
-    }
-
-    @media (min-width: 600px) {
-      core-menu {
-        max-width: 50%;
-        margin: 0 auto;
-      }
-    }
-    paper-item core-icon {
-      margin-right: 24px !important;
-    }
-  </style>
-  <core-header-panel mode="standard" fit>
-    <core-toolbar class="{{ {'core-narrow' : narrow} | tokenList}}">
-      <paper-icon-button icon="arrow-back" on-tap="{{toggle}}"></paper-icon-button>
-      <input id="searchbox" placeholder="Search mail" flex>
+  <paper-header-panel mode="standard" class="fit">
+    <paper-toolbar class="{{ {'core-narrow' : narrow} | tokenList}}">
+      <paper-icon-button icon="arrow-back" on-tap="toggle"></paper-icon-button>
+      <input id="searchbox" placeholder="Search mail" class="flex">
       <paper-icon-button icon="av:mic"></paper-icon-button>
-    </core-toolbar>
-    <core-menu on-core-select="{{onSelect}}">
-      <template repeat="{{p in previousSearches}}">
-        <paper-item><core-icon icon="history"></core-icon>{{p}}</paper-item>
+    </paper-toolbar>
+    <paper-menu on-paper-select="onSelect">
+      <template is="dom-repeat" items="{{previousSearches}}">
+        <paper-item><iron-icon icon="history"></iron-icon>{{item}}</paper-item>
       </template>
-    </core-menu>
-  </core-header-panel>
+    </paper-menu>
+  </paper-header-panel>
 </template>
 <script>
   Polymer({
-    publish: {
-      narrow: {value: false, reflect: true},
-      active: {value: false, reflect: true}
+    is: 'material-search',
+
+    properties: {
+      previousSearches: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+
+      narrow: {
+        value: false,
+        reflectToAttribute: true,
+        notify: true
+      },
+
+      active: {
+        value: false,
+        reflectToAttribute: true,
+        //notify: true
+      }
     },
-    created: function() {
-      this.previousSearches = [];
-    },
+
     onSelect: function(e, detail, sender) {
       if (detail.isSelected) {
         this.async(function() {
@@ -76,6 +93,7 @@
         }, null, 250); // Introduce small delay so user sees ripple.
       }
     },
+
     toggle: function() {
       this.active = !this.active;
       if (this.active) {
@@ -84,4 +102,4 @@
     }
   });
 </script>
-</polymer-element>
+</dom-module>

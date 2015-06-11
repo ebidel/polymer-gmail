@@ -18,142 +18,168 @@
   <link rel="manifest" href="manifest.json">
 
   <!-- Note: webcomponent.js is only needed in non-Chrome 36 browsers. Included here for portability. -->
-  <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
-  <link rel="import" href="vulcanized.html">
-  <link rel="stylesheet" href="app.css" shim-shadowdom>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <!-- <link rel="import" href="vulcanized.html"> -->
+  <link rel="import" href="elements.html">
+  <link rel="stylesheet" href="app.css">
+  <link rel="import" href="appstyles_sd.html">
 
   <link rel="icon" sizes="192x192" href="images/gmail.png">
 </head>
-<body unresolved fullbleed>
+<!-- <body class="fullbleed" unresolved -->
+<body class="fullbleed">
 
-<core-style id="navheaderstyle">
+<!-- <core-style id="navheaderstyle">
   #navheader::after {
     /* causes console warning for incorrect mimetype */
     background-image: url({{coverImg}});
   }
 </core-style>
+ -->
+<template id="t" is="dom-bind">
 
-<template id="t" is="auto-binding">
+<!-- <core-style ref="navheaderstyle"></core-style> -->
+<!-- <core-style ref="labelcolors"></core-style> -->
 
-<core-style ref="navheaderstyle"></core-style>
-<core-style ref="labelcolors"></core-style>
-
-<div id="loginscreen" layout vertical center-center fit
-     class="{{ {show: !isAuthenticated} | tokenList }}">
+<div id="loginscreen" class="layout vertical center-center fit" show$="{{!isAuthenticated}}">
   <google-signin width="wide" height="tall"
       clientId="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
       scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
-      on-google-signin-success="{{onSigninSuccess}}"
-      on-google-signin-failure="{{onSigninFailure}}"></google-signin>
+      on-google-signin-success="onSigninSuccess"
+      on-google-signin-failure="onSigninFailure"></google-signin>
 </div>
 
 <material-search id="search" narrow="{{narrow}}"
-                 previousSearches="{{previousSearches}}"></material-search>
+                 previousSearches="{{previousSearches}}" class="fit"></material-search>
 
-<core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
+<paper-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
-  <core-header-panel mode="scroll" drawer>
-    <core-toolbar id="navheader" class="tall">
-      <!-- <core-image src="{{user.cover}}" sizing="cover" preload fade
+  <paper-header-panel mode="scroll" drawer>
+    <paper-toolbar id="navheader" class="tall">
+      <!-- <iron-image src="{{user.cover}}" sizing="cover" preload fade
                   style="width:400px; height:400px; background-color:#c41411;">
-      </core-image> -->
-      <img class="middle profile" src="{{user.profile}}" hidden?="{{!user.profile}}">
-      <div class="bottom" layout vertical>
+      </iron-image> -->
+      <img class="middle profile" src="{{user.profile}}" hidden="{{!user.profile}}">
+      <div class="bottom layout vertical">
         <span>{{user.name}}</span>
         <span>{{user.email}}</span>
       </div>
-    </core-toolbar>
-    <core-menu selected="0" excludedLocalNames="div" on-core-select="{{menuSelect}}">
-      <paper-item><core-icon icon="inbox"></core-icon>Inbox</paper-item>
-      <paper-item><core-icon icon="social:people"></core-icon>Social</paper-item>
+    </paper-toolbar>
+    <paper-menu selectable="paper-icon-item" on-paper-select="menuSelect">
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="inbox" item-icon></iron-icon>Inbox
+      </paper-icon-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="social:people" item-icon></iron-icon>Social
+      </paper-icon-item>
+
       <div class="separator">All labels</div>
-      <paper-item><core-icon icon="star"></core-icon>Starred</paper-item>
-      <paper-item><core-icon icon="send"></core-icon>Sent</paper-item>
-      <paper-item><core-icon icon="mail"></core-icon>All Mail</paper-item>
-      <paper-item><core-icon icon="report"></core-icon>Spam</paper-item>
-      <paper-item><core-icon icon="delete"></core-icon>Trash</paper-item>
-      <template repeat="{{l in labels}}">
-        <paper-item class="{{l.color}}"><core-icon icon="label"></core-icon>{{l.name}}</paper-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="star" item-icon></iron-icon>Starred
+      </paper-icon-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="send" item-icon></iron-icon>Sent
+      </paper-icon-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="icons:drafts" item-icon></iron-icon>Drafts
+      </paper-icon-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="mail" item-icon></iron-icon>All Mail
+      </paper-icon-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="report" item-icon></iron-icon>Spam
+      </paper-icon-item>
+      <paper-icon-item role="menuitem">
+        <iron-icon icon="delete" item-icon></iron-icon>Trash
+      </paper-icon-item>
+      <template is="dom-repeat" items="{{labels}}">
+        <paper-item role="menuitem" class$="{{item.color}}">
+          <iron-icon icon="label"></iron-icon><span>{{item.name}}</span>
+        </paper-item>
       </template>
-    </core-menu>
-  </core-header-panel>
+    </paper-menu>
+  </paper-header-panel>
 
-  <core-scroll-header-panel id="scrollheader" main condenses="{{!narrow}}" keepCondensedHeader fixed?="{{narrow}}" on-trackstart="{{onRefreshStart}}"  on-tracky="{{onMainAreaTrack}}" on-trackend="{{onRefreshUp}}">
-    <core-toolbar id="mainheader" class="{{ {tall: !narrow, 'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
-        <paper-icon-button icon="arrow-back" class="selected-item" on-tap="{{deselectAll}}"></paper-icon-button>
+  <paper-scroll-header-panel id="scrollheader" main
+      keep-condensed-header condenses="{{!narrow}}" fixed="{{narrow}}"
+      on-trackstart="onRefreshStart"
+      on-tracky="onMainAreaTrack"
+      on-trackend="onRefreshUp">
 
-        <paper-icon-button id="navicon" icon="menu" core-drawer-toggle></paper-icon-button>
-        <div flex></div>
-        <span class="bottom indent title">
-          {{selectedThreads.length ? selectedThreads.length : 'Inbox'}}
-        </span>
-        <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
+    <paper-toolbar id="mainheader" class$="[[headerClass]]">
+      <paper-icon-button icon="arrow-back" class="selected-item" on-tap="deselectAll"></paper-icon-button>
 
-        <paper-icon-button icon="archive" class="selected-item" on-tap="{{archiveAll}}"></paper-icon-button>
-        <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
-        <paper-icon-button icon="mail" class="selected-item"></paper-icon-button>
+      <paper-icon-button id="navicon" icon="menu" paper-drawer-toggle></paper-icon-button>
+      <div class="flex"></div>
+      <span class="bottom indent title">{{headerTitle}}</span>
+      <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="toggleSearch"></paper-icon-button>
 
-        <paper-menu-button class="selected-item" layout horizontal>
-          <paper-icon-button icon="more-vert"></paper-icon-button>
-          <paper-dropdown class="dropdown" halign="right">
-            <paper-item>Move to</paper-item>
-            <paper-item>Change labels</paper-item>
-            <paper-item>Add star</paper-item>
-            <paper-item>Mark not important</paper-item>
-            <paper-item>Mute</paper-item>
-            <paper-item>Report spam</paper-item>
-            <paper-item>Report phishing</paper-item>
-          </paper-dropdown>
-        </paper-menu-button>
+      <paper-icon-button icon="archive" class="selected-item" on-tap="archiveAll"></paper-icon-button>
+      <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
+      <paper-icon-button icon="mail" class="selected-item"></paper-icon-button>
 
-        <div id="refresh" class="bottom fit"
-             layout horizontal center-center on-transitionend="{{onRefreshTransitionEnd}}">
-          <div class="paper-shadow-bottom-z-1">
-            <paper-spinner id="refreshspinner"></paper-spinner>
-          </div>
+      <!-- <paper-menu-button class="selected-item" class="layout horizontal">
+        <paper-icon-button icon="more-vert"></paper-icon-button>
+        <paper-dropdown class="dropdown" halign="right">
+          <paper-item>Move to</paper-item>
+          <paper-item>Change labels</paper-item>
+          <paper-item>Add star</paper-item>
+          <paper-item>Mark not important</paper-item>
+          <paper-item>Mute</paper-item>
+          <paper-item>Report spam</paper-item>
+          <paper-item>Report phishing</paper-item>
+        </paper-dropdown>
+      </paper-menu-button> -->
+
+      <div id="refresh" class="bottom fit layout horizontal center-center"
+           on-transitionend="onRefreshTransitionEnd">
+        <div>
+          <!-- <paper-material class="fit" elevation="2" animated></paper-material> -->
+          <paper-spinner id="refreshspinner"></paper-spinner>
         </div>
+      </div>
 
-    </core-toolbar>
-    <div content on-thread-archive="{{onThreadArchive}}">
+    </paper-toolbar>
+    <div content on-thread-archive="onThreadArchive">
 
-      <template if="{{!threads.length && isAuthenticated}}">
-        <div layout vertical center-center style="height:100%">
+      <template is="dom-if" if="{{_computeShowSpinner(threads, isAuthenticated)}}">
+        <div class="layout vertical center-center" style="height:100%">
           <paper-spinner active></paper-spinner>
         </div>
       </template>
 
-      <!--<core-list data="{{data}}" height="80">-->
       <!-- TODO: don't pass all messages, users, labels into mail-thread -->
-      <core-selector id="threadlist" multi selectedAttribute="selected"
-                     selected="{{selectedThreads}}">
-        <template repeat="{{t, i in threads}}">
-            <mail-thread messages="{{t.messages}}"
-                         labels="{{labelMap}}" users="{{users}}"
-                         narrow="{{narrow}}"
-                         on-transitionend="{{onTransitionEnd}}"
-                         touch-action="{{touchAction}}"></mail-thread>
+      <iron-selector id="threadlist" multi
+                     selected-attribute="selected"
+                     selected-items="{{selectedThreads}}"
+                     on-iron-select="_onThreadSelectChange"
+                     on-iron-deselect="_onThreadSelectChange">
+        <template is="dom-repeat" items="[[threads]]">
+          <mail-thread messages="[[item.messages]]"
+                       labels="[[labelMap]]" users="[[users]]"
+                       narrow="[[narrow]]"
+                       touch-action="[[touchAction]]"></mail-thread>
         </template>
-      </core-selector>
-      <!--</core-list>-->
+      </iron-selector>
 
      </div>
-  </core-scroll-header-panel>
+  </paper-scroll-header-panel>
 
-</core-drawer-panel>
+</paper-drawer-panel>
 
-<paper-toast id="toast" duration="10000" swipeDisabled
+<paper-toast id="toast" duration="10000" swipe-disabled
              text="{{toastMessage}}" opened="{{toastOpened}}"
-             on-core-overlay-open="{{onToastOpenClose}}">
-  <div on-tap="{{undoAll}}">Undo</div>
+             on-paper-overlay-open="onToastOpenClose">
+  <div on-tap="undoAll">Undo</div>
 </paper-toast>
 
-<paper-fab id="fab" icon="create" on-tap="{{newMail}}"></paper-fab>
+<paper-fab id="fab" icon="create" on-tap="newMail"></paper-fab>
 
 <!-- Cache data requests. -->
-<!--<core-localstorage name="polymer-mail-user" value="{{user}}"></core-localstorage>-->
-<!--<core-localstorage name="polymer-mail-labels" value="{{labels}}"></core-localstorage>-->
-<!--<core-localstorage name="polymer-mail-threads" value="{{threads}}"></core-localstorage>-->
-<!--<core-localstorage name="polymer-mail-users" value="{{users}}"></core-localstorage>-->
+<!--<iron-localstorage name="polymer-mail-user" value="{{user}}"></iron-localstorage>-->
+<!--<iron-localstorage name="polymer-mail-labels" value="{{labels}}"></iron-localstorage>-->
+<!--<iron-localstorage name="polymer-mail-threads" value="{{threads}}"></iron-localstorage>-->
+<!--<iron-localstorage name="polymer-mail-users" value="{{users}}"></iron-localstorage>-->
 
 </template>
 

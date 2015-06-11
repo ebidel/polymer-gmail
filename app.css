@@ -1,5 +1,5 @@
 body {
-  font-family: "RobotoDraft", sans-serif;
+  font-family: "Roboto", sans-serif;
   -webkit-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
   background-color: #fafafa;
@@ -7,7 +7,7 @@ body {
 }
 
 #loginscreen {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.6);
   z-index: 1;
   visibility: hidden;
   transition: all 300ms ease-in-out;
@@ -16,13 +16,13 @@ body {
   transform: scale(0);
 }
 
-#loginscreen.show {
+#loginscreen[show] {
   visibility: visible;
   opacity: 1;
   transform: scale(1);
 }
 
-#drawerPanel:not([narrow]) core-scroll-header-panel [content] {
+#drawerPanel:not([narrow]) paper-scroll-header-panel [content] {
   padding: 30px 0;
 }
 
@@ -34,43 +34,41 @@ body {
   transition: opacity 300ms ease-in-out;
 }
 
-#drawerPanel core-header-panel {
+#drawerPanel paper-header-panel {
   background: #fafafa;
   box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
   color: #757575;
 }
 
-#drawerPanel core-header-panel .separator {
+#drawerPanel paper-header-panel .separator {
   padding: 16px;
   font-size: 14px;
+  font-weight: 500;
+  color: #aaa;
   border-top: 1px solid #e0e0e0;
 }
 
-#drawerPanel core-header-panel core-menu {
+#drawerPanel paper-header-panel paper-menu {
   margin: 16px 0 0 0;
 }
 
-#drawerPanel core-scroll-header-panel::shadow #headerBg {
+#drawerPanel paper-scroll-header-panel::shadow #headerBg {
  background: url(images/gmail.png) no-repeat 115% 56px;
  background-size: 200px;
  background-color: #e51c23;
 }
 
-#drawerPanel core-scroll-header-panel::shadow #condensedHeaderBg {
+#drawerPanel paper-scroll-header-panel::shadow #condensedHeaderBg {
   background-color: #e51c23;
   opacity: 1 !important; /* Prevents the background color from dissolving. */
 }
 
-paper-item core-icon {
-  margin-right: 24px !important;
-}
-
-paper-item.core-selected {
-  background-color: #eee;
-}
-
-paper-item.core-selected core-icon {
+paper-icon-item iron-icon {
   color: #757575;
+}
+
+paper-icon-item.iron-selected iron-icon {
+  color: #212121;
 }
 
 #navheader {
@@ -81,10 +79,6 @@ paper-item.core-selected core-icon {
   background-size: cover;
   font-size: inherit;
   color: white;
-}
-
-#navheader::shadow .toolbar-tools {
-  z-index: 1;
 }
 
 #navheader::after {
@@ -132,13 +126,14 @@ paper-item.core-selected core-icon {
 
 #mainheader.tall .title {
   font-size: 40px;
+  line-height: 40px;
 }
 
 #mainheader.selected-threads {
   background-color: #757575;
 }
 
-#mainheader > .selected-item {
+#mainheader .selected-item {
   visibility: hidden;
   will-change: transform;
   transform: rotateX(90deg);
@@ -148,15 +143,15 @@ paper-item.core-selected core-icon {
   margin: 0;
 }
 
-#mainheader > paper-icon-button[icon="arrow-back"] {
+#mainheader paper-icon-button[icon="arrow-back"] {
   transform: translateX(-42px) rotateX(0);
 }
 
-#mainheader.selected-threads > paper-icon-button[icon="arrow-back"] {
+#mainheader.selected-threads paper-icon-button[icon="arrow-back"] {
   transform: translateX(0) rotateX(0);
 }
 
-#mainheader.selected-threads > .selected-item {
+#mainheader.selected-threads .selected-item {
   visibility: visible;
   transform: rotateX(0);
   width: auto;
@@ -164,7 +159,7 @@ paper-item.core-selected core-icon {
   padding: 8px;
 }
 
-#mainheader.selected-threads > paper-icon-button:not(.selected-item) {
+#mainheader.selected-threads paper-icon-button:not(.selected-item) {
   display: none;
 }
 
@@ -176,7 +171,7 @@ paper-item.core-selected core-icon {
   padding: 0 !important;
 }
 
-core-scroll-header-panel > [content] {
+paper-scroll-header-panel [content] {
   height: 100%;
 }
 
@@ -205,7 +200,7 @@ core-scroll-header-panel > [content] {
 #refresh {
   position: absolute;
   z-index: -1;
-  bottom: 10px;
+  /*bottom: 10px;*/
   pointer-events: none;
   will-change: transform;
 }
@@ -244,3 +239,26 @@ core-scroll-header-panel > [content] {
 iframe[src^="https://apis.google.com"] {
   display: none;
 }
+
+label.pink {
+  background-color: #e91e63 !important;
+}
+label.orange {
+  background-color: #ff5722 !important;
+}
+label.green {
+  background-color: #259b24 !important;
+}
+label.blue {
+  background-color: #5677fc !important;
+}
+label.yellow {
+  background-color: #ffd600 !important;
+}
+label.teal {
+  background-color: #009688 !important;
+}
+label.purple {
+  background-color: #673ab7 !important;
+}
+
