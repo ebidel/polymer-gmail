@@ -1,32 +1,32 @@
 <!-- <link rel="import" href="bower_components/polymer/polymer.html"> -->
 <!-- <link rel="import" href="bower_components/paper-style/paper-style.html"> -->
 
-<!-- <style id="swipeable"> -->
+<!-- Styles in an import are added to the main document -->
 <style>
-  .offscreen {
-    -webkit-transition: all 200ms ease-in-out;
-    transition: all 200ms ease-in-out;
-  }
-  .offscreen.right {
-    -webkit-transform: translate3d({{width}}px, 0, 0);
-    transform: translate3d({{width}}px, 0, 0);
-  }
-  .fade {
-    opacity: 0 !important;
-  }
-  .swiping {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-  .snapback {
-    -webkit-transition: all 200ms ease-in-out;
-    transition: all 200ms ease-in-out;
-    -webkit-transform: none !important;
-    transform: none !important;
-    opacity: 1 !important;
-  }
+.offscreen {
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+}
+.offscreen.right {
+  -webkit-transform: translate3d(100%, 0, 0);
+  transform: translate3d(100%, 0, 0);
+}
+.fade {
+  opacity: 0 !important;
+}
+.swiping {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.snapback {
+  -webkit-transition: all 200ms ease-in-out;
+  transition: all 200ms ease-in-out;
+  -webkit-transform: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
 </style>
 
 <!--
@@ -150,12 +150,16 @@ SwipeableBehavior = {
   //   thisDoc.querySelector('#swipeable').width = this.width;
   // },
 
+  ready: function() {
+    this.setScrollDirection('y', this);
+  },
+
   _targetChanged: function() {
     this.target = this.target || this.parentElement;
   },
 
-  _onTrackStart: function(e, detail, sender) {
-    e.preventTap();
+  _onTrackStart: function(e) {
+    //e.preventTap();
     this.target.classList.add(this.swipingClass);
   },
 
@@ -163,11 +167,13 @@ SwipeableBehavior = {
 
     switch(e.detail.state) {
       case 'start':
+        this._onTrackStart(e);
         break;
       case 'track':
-//console.log(e.detail.hover())
+console.log(e.detail);//e.detail.hover())
         break;
       case 'end':
+console.log('end')
         break;
 
     }
@@ -183,7 +189,7 @@ SwipeableBehavior = {
   //   }
   // },
 
-  _onTrackEnd: function(e, detail, sender) {
+  _onTrackEnd: function(e) {
     this.target.classList.remove(this.swipingClass);
 
     var info = {dx: e.dx, ddx: this.last_ddx_, direction: e.xDirection};
