@@ -1,6 +1,6 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/iron-icon/iron-icon.html">
-<!-- <link rel="import" href="bower_components/paper-style/paper-style.html"> -->
+<link rel="import" href="bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="profile-img.html">
@@ -67,7 +67,7 @@ A single GMail mail thread.
       font-weight: 500;
     }
     header[unread] time {
-      color: #03a9f4;
+      color: var(--paper-light-blue-500);
     }
     header span.name {
       font-size: 18px;
@@ -92,7 +92,7 @@ A single GMail mail thread.
       letter-spacing: 1px;
     }
     iron-icon[starred] {
-      color: #ffc107;
+      color: var(--paper-yellow-600);
     }
     .undo {
       color: #ffa726;
@@ -118,14 +118,33 @@ A single GMail mail thread.
       border-radius: 2px;
       margin-right: 5px;
     }
+    label.pink {
+      @apply(--label-pink);
+    }
+    label.orange {
+      @apply(--label-orange);
+    }
+    label.green {
+      @apply(--label-green);
+    }
+    label.blue {
+      @apply(--label-blue);
+    }
+    label.yellow {
+      @apply(--label-yellow);
+    }
+    label.teal {
+      @apply(--label-teal);
+    }
+    label.purple {
+      @apply(--label-purple);
+    }
   </style>
   <template>
-    <core-style ref="swipeable"></core-style>
-    <!-- <core-style ref="labelcolors"></core-style> -->
     <div id="container">
       <div id="thread" class="layout horizontal">
         <profile-img id="profileimage"
-                     src="[[users[thread.from.name]]]"
+                     src="[[profileSrc]]"
                      letter="[[thread.from.name.0]]"
                      selected="[[selected]]" on-tap="_onSelectThread"
                      on-transitionend="_onProfileImgTransitionEnd"></profile-img>
@@ -142,9 +161,9 @@ A single GMail mail thread.
             <span id="lastline" class="layout horizontal center justified">
               <span class="snippet flex">[[_decodeHTMLEntities(thread.snippet)]]</span>
               <span class="labels">
-                <template is="dom-repeat" items="[[thread.labelIds]]">
-                  <label hidden="{{_hideThreadLabel(item)}}"
-                         class$="[[item.color]]">[[item.name]]</label>
+                <template is="dom-repeat" items="[[thread.labelIds]]" as="id">
+                  <label hidden="{{_hideThreadLabel(id)}}"
+                         class$="[[_objectItem('labels', id, 'color')]]">[[_objectItem('labels', id, 'name')]]</label>
                 </template>
               </span>
               <iron-icon id="star" icon="[[starredIcon]]"
@@ -221,7 +240,8 @@ A single GMail mail thread.
       archived: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '_archivedChanged'
       },
 
       /**
@@ -245,6 +265,13 @@ A single GMail mail thread.
         computed: '_computeStarredIcon(thread.starred)'
       },
 
+      profileSrc: {
+        type: String,
+        value: null,
+        readOnly: true,
+        computed: '_computeProfilePic(users, thread.from.name)'
+      },
+
       showMessageCount: {
         type: Number,
         readOnly: true,
@@ -253,12 +280,23 @@ A single GMail mail thread.
     },
 
     // observers: [
-    //   '_updateSnippet(thread.snippet)'
+    //   '_updateProfilePic(thread.from.*)'
     // ],
 
-    domReady: function() {
-      this.target = this.$.thread; // set before calling super().
-      // this.super();
+    ready: function() {
+      // this.async(function() {
+        this.target = this.$.thread;
+      // });
+// this.setScrollDirection('y');
+
+    },
+
+    _objectItem: function(prop, id, path) {
+      return this.get([prop, id, path]) || '';
+    },
+
+    _computeProfilePic: function(users, name) {
+      this._setProfileSrc(this.users[name]);
     },
 
     _messagesChanged: function() {
@@ -275,8 +313,9 @@ A single GMail mail thread.
       return t.textContent;
     },
 
-    _hideThreadLabel: function(label) {
-      return label.type !== 'user';
+    _hideThreadLabel: function(id) {
+      var label = this.labels[id];
+      return !label || label.type !== 'user';
     },
 
     _computeStarredIcon: function(starred) {
@@ -331,14 +370,17 @@ A single GMail mail thread.
       e.stopPropagation();
     },
 
-    swipeOffChanged: function() {
+    _swipeOffChanged: function() {
       // Show in-place UNDO for a swipe. Don't show it for multi-select archive.
       this.undo = this.swipeOff;
       this.archived = this.swipeOff;
     },
 
-    archivedChanged: function(e) {
+    _archivedChanged: function() {
       //this.thread.archived = this.archived;
+      if (!this.isAttached) {
+        return;
+      }
 
       if (this.archived) {
 

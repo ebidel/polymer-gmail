@@ -1,40 +1,75 @@
-<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="bower_components/paper-styles/paper-styles.html">
 
 <style is="custom-style">
-#drawerPanel paper-scroll-header-panel::shadow #headerBg {
- background: url(images/gmail.png) no-repeat 115% 56px;
- background-size: 200px;
- background-color: #e51c23;
+/* Global custom props */
+:root {
+  --header-red-color: var(--paper-red-600);
 }
 
-#drawerPanel paper-scroll-header-panel::shadow #condensedHeaderBg {
-  background-color: #e51c23;
-  opacity: 1 !important; /* Prevents the background color from dissolving. */
+paper-scroll-header-panel {
+  --paper-scroll-header-panel-full-header: {
+    background: url(images/gmail.png) no-repeat 115% 56px;
+    background-size: 200px;
+    background-color: var(--header-red-color) !important;
+  };
+  --paper-scroll-header-panel-condensed-header: {
+    background-color: var(--header-red-color);
+    opacity: 1 !important; /* Prevents the background color from dissolving. */
+  };
 }
+
+
+/*#mainheader::shadow .toolbar-tools {
+  z-index: 1;
+}*/
 
 #fab {
   background: var(--paper-red-700);
 }
 
-.pink /deep/ iron-icon {
-  color: #e91e63;
+.pink iron-icon {
+  color: var(--paper-pink-500);
 }
-.orange /deep/ iron-icon {
-  color: #ff5722;
+.orange iron-icon {
+  color: var(--paper-orange-500);
 }
-.green /deep/ iron-icon {
-  color: #259b24;
+.green iron-icon {
+  color: var(--paper-green-500);
 }
-.blue /deep/ iron-icon {
-  color: #5677fc;
+.blue iron-icon {
+  color: var(--paper-blue-500);
 }
-.yellow /deep/ iron-icon {
-  color: #ffd600;
+.yellow iron-icon {
+  color: var(--paper-yellow-a700);
 }
-.teal /deep/ iron-icon {
-  color: #009688;
+.teal iron-icon {
+  color: var(--paper-teal-500);
 }
-.purple /deep/ iron-icon {
-  color: #673ab7;
+.purple iron-icon {
+  color: var(--paper-purple-500);
+}
+
+mail-thread {
+  --label-pink: {
+    background-color: var(--paper-pink-500) !important;
+  };
+  --label-orange: {
+    background-color: var(--paper-orange-500) !important;
+  };
+  --label-green: {
+    background-color: var(--paper-green-500) !important;
+  };
+  --label-blue: {
+    background-color: var(--paper-blue-500) !important;
+  };
+  --label-yellow: {
+    background-color: var(--paper-yellow-a700) !important;
+  };
+  --label-teal: {
+    background-color: var(--paper-teal-500) !important;
+  };
+  --label-purple: {
+    background-color: var(--paper-purple-500) !important;
+  };
 }
 </style>

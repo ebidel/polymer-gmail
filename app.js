@@ -1,19 +1,17 @@
 (function() {
-var startTime = performance.now();
 
 // var firstPaintRaf;
 // requestAnimationFrame(function() {
 //   firstPaintRaf = performance.now();
 // });
 
-// var times = chrome.loadTimes();
-// firstPaintMetric = (times.firstPaintTime || performance.msFirstPaint)  - times.startLoadTime;
+if (window.PolymerMetrics) {
+  var polyMetrics = new PolymerMetrics(template);
+  window.addEventListener('load', polyMetrics.printPageMetrics);
+}
 
-// firstPaint = Math.min(firstPaintRaf, firstPaintMetric);
-// console.info('First paint @', firstPaint);
 
 var DEBUG = location.search.indexOf('debug') != -1;
-
 var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
 
 var Labels = {
@@ -32,7 +30,7 @@ GMail.fetchMail = function(q, opt_callback) {
   // Fetch only the emails in the user's inbox.
   gmail.threads.list({userId: 'me', q: q}).then(function(resp) {
 
-    var threads = resp.result.threads;
+    var threads = resp.result.threads; // template.threads = resp.result.threads;
 
     var batch = gapi.client.newBatch();
 
@@ -44,7 +42,7 @@ GMail.fetchMail = function(q, opt_callback) {
         //thread.archived = false;
 
         // Set entire thread data at once, when it's all been processed.
-        template.job('addthreads', function() {
+        template.debounce('addthreads', function() {
           this.threads = threads;
           opt_callback && opt_callback(threads);
         }, 100);
@@ -55,6 +53,8 @@ GMail.fetchMail = function(q, opt_callback) {
     batch.then();
 
   });
+
+
 };
 
 function getValueForHeaderField(headers, field) {
@@ -123,6 +123,10 @@ function fixUpMessages(resp) {
 
 var template = document.querySelector('#t');
 
+template._computeLoginScreenClass = function(isAuthenticated, staticClasses) {
+  return (!isAuthenticated ? 'show ' : '') + staticClasses;
+};
+
 template._computeShowSpinner = function(threads, isAuthenticated) {
   return !threads.length && isAuthenticated;
 };
@@ -156,6 +160,9 @@ template.undoAll = function(e, detail, sender) {
   }
 
   previouslySelected = [];
+
+  this.$.toast.hide();
+  this.onToastOpenClose();
 };
 
 template.refreshInbox = function(opt_callback) {
@@ -168,7 +175,10 @@ template.refreshInbox = function(opt_callback) {
   }
 };
 
-template.onToastOpenClose = function(e, opened, sender) {
+// paper-toast 1.0 doesnt have event: github.com/PolymerElements/paper-toast/issues/10
+template.onToastOpenClose = function(e) {
+
+  var opened = this.$.toast.visible;
   if (opened) {
     this.$.fab.classList.add('moveup');
     // for (var i = 0, threadEl; threadEl = previouslySelected[i]; ++i) {
@@ -268,30 +278,29 @@ template.newMail = function(e) {
 };
 
 template.menuSelect = function(e) {
-  if (detail.isSelected) {
-    this.$ && this.$.drawerPanel.togglePanel();
-  }
+  this.$.drawerPanel.togglePanel();
 };
 
 template.deselectAll = function(e) {
-console.log('here')
-  this.selectedThreads = [];
-  this.set('selectedThreads', []);
+  this.$.threadlist.selectedValues = [];
 };
 
 // Archives currently selected messages.
 template.archiveAll = function(e) {
   e.stopPropagation();
 
-  for (var i = 0, threadEl; threadEl = this.$.threadlist.selectedItem[i]; ++i) {
+  this.toastMessage = this.selectedThreads.length + ' archived';
+
+  var selectedItems = this.$.threadlist.selectedItems.slice(0);
+  for (var i = 0, threadEl; threadEl = selectedItems[i]; ++i) {
     threadEl.archived = true;
     previouslySelected.push(threadEl);
   }
 
-  this.toastMessage = this.selectedThreads.length + ' archived';
   this.async(function() {
     this.$.toast.show();
-  }, null, 1000); // delay showing the toast.
+    this.onToastOpenClose();
+  }, 1000); // delay showing the toast.
 };
 
 // TODO(ericbidelman): listenOnce is defined in core-transition
@@ -332,65 +341,51 @@ template.onThreadArchive = function(e, detail, sender) {
   });
 };
 
-template.onSigninFailure = function(e, detail, sender) {
-  if (DEBUG) {
-    return;
-  }
-
-  this.isAuthenticated = false;
-};
-
-template.onSigninSuccess = function(e, detail, sender) {
+template.onSigninSuccess = function(e) {
   this.isAuthenticated = true;
 
   // Cached data? We're already using it. Bomb out before making unnecessary requests.
-  if ((template.threads && template.users) || DEBUG) {
+  if (DEBUG || (template.threads && template.users)) {
     return;
   }
 
-  this.gapi = e.detail.gapi;
+  // var currentUser = gapi.auth2.currentUser.get();
+  var currentUser = gapi.auth2.getAuthInstance().currentUser.get();
+  if (e.target.signedIn) {
+    var profile = currentUser.getBasicProfile();
+    template.user = {
+      id: profile.getId(),
+      name: profile.getName(),
+      profile: profile.getImageUrl(),
+      email: profile.getEmail(),
+    };
+  }
 
-  gapi.client.load('gmail', 'v1').then(function() {
-    var gmail = gapi.client.gmail.users;
+  gapi.load('client', function() {
 
-    template.refreshInbox();
+    gapi.client.load('gmail', 'v1').then(function() {
+      var gmail = gapi.client.gmail.users;
 
-    gmail.labels.list({userId: 'me'}).then(function(resp) {
-      // Don't include system labels.
-      var labels = resp.result.labels.filter(function(label, i) {
-        label.color = template.LABEL_COLORS[
-            Math.round(Math.random() * template.LABEL_COLORS.length)];
-        return label.type != 'system';
+      template.refreshInbox();
+
+      gmail.labels.list({userId: 'me'}).then(function(resp) {
+        // Don't include system labels.
+        var labels = resp.result.labels.filter(function(label, i) {
+          label.color = template.LABEL_COLORS[
+              Math.round(Math.random() * template.LABEL_COLORS.length)];
+          return label.type != 'system';
+        });
+
+        template.labels = labels;
+        template.labelMap = labels.reduce(function(o, v, i) {
+          o[v.id] = v;
+          return o;
+        }, {});
+
       });
-
-      template.labels = labels;
-      template.labelMap = labels.reduce(function(o, v, i) {
-        o[v.id] = v;
-        return o;
-      }, {});
-
     });
-  });
 
-  gapi.client.load('plus', 'v1').then(function() {
-
-    // Get user's profile pic, cover image, email, and name.
-    gapi.client.plus.people.get({userId: 'me'}).then(function(resp) {
-      var PROFILE_IMAGE_SIZE = 75;
-      var COVER_IMAGE_SIZE = 315;
-
-      var img = resp.result.image && resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
-      var coverImg = resp.result.cover && resp.result.cover.coverPhoto.url.replace(/\/s\d{3}-/, "/s" + COVER_IMAGE_SIZE + "-");
-
-      template.user = {
-        name: resp.result.displayName,
-        email: resp.result.emails[0].value,
-        profile: img || null,
-        cover: coverImg || null
-      };
-
-      template.$['navheaderstyle'].coverImg = coverImg;
-      template.$.navheader.classList.add('coverimg');
+    gapi.client.load('plus', 'v1').then(function() {
 
       var users = {};
 
@@ -399,22 +394,53 @@ template.onSigninSuccess = function(e, detail, sender) {
         template.users[template.user.name] = template.user.profile; // signed in user.
       });
 
+      // Get user's profile pic, cover image, email, and name.
+      gapi.client.plus.people.get({userId: 'me'}).then(function(resp) {
+        // var PROFILE_IMAGE_SIZE = 75;
+        var COVER_IMAGE_SIZE = 315;
+
+        // var img = resp.result.image && resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + PROFILE_IMAGE_SIZE);
+        var coverImg = resp.result.cover && resp.result.cover.coverPhoto.url.replace(/\/s\d{3}-/, "/s" + COVER_IMAGE_SIZE + "-");
+
+        template.set('user.cover',  coverImg || null);
+      });
+
     });
 
   });
 
 };
 
-template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
+template.onSignOutAttempt = function(e) {
+  console.log('onSignOutAttempt')
+};
 
-// Better UX: presume user is logged in when app loads.
-template.isAuthenticated = true;
+template.onSigninFailure = function(e) {
+  this.isAuthenticated = false;
+};
+
+
+template.onSignInAwareSignout = function(e) {
+  // this.isAuthenticated = false;
+};
+
+template.onSignOut = function(e) {
+// console.log('here', window.gapi)
+// console.log(_onSignOutAttempt, e.target.signedIn)
+  if (DEBUG) {
+    return;
+  }
+
+  this.isAuthenticated = false;
+};
+
+template.DEBUG = DEBUG;
+template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
+template.isAuthenticated = true; // Presume user is logged in when app loads (better UX).
 template.threads = [];
 template.selectedThreads = [];
-template.headerTitle = template._computeHeaderTitle(template.selectedThreads.length);
-template.headerClass = template._computeMainHeaderClass(template.narrow, template.selectedThreads.length);
 
-template.touchAction = 'none'; // Allow track events from x/y directions.
+// template.touchAction = 'none'; // Allow track events from x/y directions.
 
 template.MAX_REFRESH_Y = 150;
 template.syncing = false; // True, if the mail is syncing.
@@ -430,8 +456,8 @@ template.previousSearches = [
 ];
 
 template.addEventListener('dom-change', function(e) {
-  var timestamp = performance.now();
-  console.info('dom-change took', performance.now() - startTime, 'ms @', timestamp);
+  this.headerTitle = this._computeHeaderTitle(this.selectedThreads.length);
+  this.headerClass = this._computeMainHeaderClass(this.narrow, this.selectedThreads.length);
 
   var headerEl = document.querySelector('#mainheader');
   var titleStyle = document.querySelector('.title').style;
@@ -446,7 +472,7 @@ template.addEventListener('dom-change', function(e) {
 
     // If at the top, allow swiping and pull down refresh. When scrolled, set
     // pan-y so track events don't fire in the y direction.
-    template.touchAction = d.y == 0 ? 'none' : 'pan-y';
+    //template.touchAction = d.y == 0 ? 'none' : 'pan-y';
 
     // d.y: the amount that the header moves up
     // d.height: the height of the header when it is at its full size
@@ -470,9 +496,6 @@ template.addEventListener('dom-change', function(e) {
 if (!navigator.onLine || DEBUG) {
 
   document.addEventListener('WebComponentsReady', function(e) {
-    var timestamp = performance.now();
-    console.info('WebComponentsReady took', timestamp - startTime, 'ms @', timestamp);
-
     var ajax = document.createElement('iron-ajax');
     ajax.auto = true;
     ajax.url = '/data/users.json';
@@ -492,6 +515,8 @@ if (!navigator.onLine || DEBUG) {
     });
   });
 }
+
+// window.Polymer.dom = 'shadow';
 
 })();
 

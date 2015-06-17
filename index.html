@@ -4,68 +4,64 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+  <title>Polymer Mail</title>
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <!-- Fallback for manifest.json add to homescreen (Chrome Android) -->
   <meta name="mobile-web-app-capable" content="yes">
 
   <meta name="apple-mobile-web-app-status-bar-style" content="#e51c23">
-  <meta name="theme-color" content="#e51c23">
   <meta name="msapplication-TileColor" content="#e51c23">
   <meta name="msapplication-tap-highlight" content="no">
-  <title>Polymer Mail</title>
+  <meta name="theme-color" content="#e51c23">
+
+  <link rel="icon" sizes="192x192" href="images/gmail.png">
 
   <link rel="manifest" href="manifest.json">
 
-  <!-- Note: webcomponent.js is only needed in non-Chrome 36 browsers. Included here for portability. -->
+  <link rel="stylesheet" href="app.css">
+
+  <!-- Polyfill webcomponents in browsers that don't support it. -->
   <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+
   <!-- <link rel="import" href="vulcanized.html"> -->
   <link rel="import" href="elements.html">
-  <link rel="stylesheet" href="app.css">
-  <link rel="import" href="appstyles_sd.html">
-
-  <link rel="icon" sizes="192x192" href="images/gmail.png">
 </head>
-<!-- <body class="fullbleed" unresolved -->
 <body class="fullbleed">
 
-<!-- <core-style id="navheaderstyle">
-  #navheader::after {
-    /* causes console warning for incorrect mimetype */
-    background-image: url({{coverImg}});
-  }
-</core-style>
- -->
 <template id="t" is="dom-bind">
 
-<!-- <core-style ref="navheaderstyle"></core-style> -->
-<!-- <core-style ref="labelcolors"></core-style> -->
-
-<div id="loginscreen" class="layout vertical center-center fit" show$="{{!isAuthenticated}}">
+<div id="loginscreen"
+     class$="[[_computeLoginScreenClass(isAuthenticated, 'layout vertical center-center fit')]]"
+     hidden="{{DEBUG}}">
   <google-signin width="wide" height="tall"
-      clientId="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
-      scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
+      client-id="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
+      scopes="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.readonly"
       on-google-signin-success="onSigninSuccess"
-      on-google-signin-failure="onSigninFailure"></google-signin>
+      on-google-signed-out="onSignOut"
+      on-google-signout-attempted="onSignOutAttempt"
+      on-google-signin-aware-signed-out="onSignInAwareSignout"
+      on-google-signin-failure="onSigninFailure"
+      signed-in="{{signedIn}}"></google-signin>
 </div>
 
-<material-search id="search" narrow="{{narrow}}"
-                 previousSearches="{{previousSearches}}" class="fit"></material-search>
+<material-search id="search" narrow="[[narrow]]"
+                 previous-searches="{{previousSearches}}" class="fit"></material-search>
 
 <paper-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
   <paper-header-panel mode="scroll" drawer>
     <paper-toolbar id="navheader" class="tall">
-      <!-- <iron-image src="{{user.cover}}" sizing="cover" preload fade
-                  style="width:400px; height:400px; background-color:#c41411;">
-      </iron-image> -->
+      <iron-image src="{{user.cover}}" placeholder="images/beach.jpg"
+                  sizing="cover" preload fade
+                  class="fit" style="height:192px;"></iron-image>
       <img class="middle profile" src="{{user.profile}}" hidden="{{!user.profile}}">
       <div class="bottom layout vertical">
         <span>{{user.name}}</span>
         <span>{{user.email}}</span>
       </div>
     </paper-toolbar>
-    <paper-menu selectable="paper-icon-item" on-paper-select="menuSelect">
+    <paper-menu selectable="paper-icon-item" on-iron-select="menuSelect">
       <paper-icon-item role="menuitem">
         <iron-icon icon="inbox" item-icon></iron-icon>Inbox
       </paper-icon-item>
@@ -93,9 +89,9 @@
         <iron-icon icon="delete" item-icon></iron-icon>Trash
       </paper-icon-item>
       <template is="dom-repeat" items="{{labels}}">
-        <paper-item role="menuitem" class$="{{item.color}}">
-          <iron-icon icon="label"></iron-icon><span>{{item.name}}</span>
-        </paper-item>
+        <paper-icon-item class$="{{item.color}}">
+          <iron-icon icon="label" item-icon></iron-icon><span>{{item.name}}</span>
+        </paper-icon-item>
       </template>
     </paper-menu>
   </paper-header-panel>
@@ -142,7 +138,7 @@
     </paper-toolbar>
     <div content on-thread-archive="onThreadArchive">
 
-      <template is="dom-if" if="{{_computeShowSpinner(threads, isAuthenticated)}}">
+      <template is="dom-if" if="{{_computeShowSpinner(threads, signedIn)}}">
         <div class="layout vertical center-center" style="height:100%">
           <paper-spinner active></paper-spinner>
         </div>
@@ -157,8 +153,7 @@
         <template is="dom-repeat" items="[[threads]]">
           <mail-thread messages="[[item.messages]]"
                        labels="[[labelMap]]" users="[[users]]"
-                       narrow="[[narrow]]"
-                       touch-action="[[touchAction]]"></mail-thread>
+                       narrow="[[narrow]]"></mail-thread>
         </template>
       </iron-selector>
 
@@ -167,10 +162,11 @@
 
 </paper-drawer-panel>
 
-<paper-toast id="toast" duration="10000" swipe-disabled
-             text="{{toastMessage}}" opened="{{toastOpened}}"
-             on-paper-overlay-open="onToastOpenClose">
-  <div on-tap="undoAll">Undo</div>
+<paper-toast id="toast" class="layout horizontal justified"
+             duration="10000" text="{{toastMessage}}" visible="{{toastOpened}}"
+             on-paper-overlay-open="onToastOpenClose"
+             on-transitionend="onToastOpenClose">
+  <div on-tap="undoAll" class="undo">Undo</div>
 </paper-toast>
 
 <paper-fab id="fab" icon="create" on-tap="newMail"></paper-fab>
@@ -183,6 +179,7 @@
 
 </template>
 
+<script src="scripts/polymer_metrics.js"></script>
 <script src="app.js"></script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

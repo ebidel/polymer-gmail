@@ -16,7 +16,7 @@ body {
   transform: scale(0);
 }
 
-#loginscreen[show] {
+#loginscreen.show {
   visibility: visible;
   opacity: 1;
   transform: scale(1);
@@ -72,32 +72,15 @@ paper-icon-item.iron-selected iron-icon {
 }
 
 #navheader {
-  background-image: url('images/beach.jpg');
-  background-blend-mode: multiply;
-  background-repeat: no-repeat;
-  background-color: #999;
-  background-size: cover;
   font-size: inherit;
   color: white;
 }
 
-#navheader::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
+#navheader iron-image {
   background-blend-mode: multiply;
   background-repeat: no-repeat;
+  background-color: #999;
   background-size: cover;
-  z-index: 0;
-  opacity: 0;
-  will-change: opacity;
-  transition: opacity 600ms ease-in-out;
-}
-
-#navheader.coverimg::after {
-  opacity: 1;
 }
 
 #navheader img.profile {
@@ -193,8 +176,9 @@ paper-scroll-header-panel [content] {
   transform: translate3d(0, -48px, 0);
 }
 
-#toast > * {
+#toast .undo {
   color: #ffa726;
+  cursor: pointer;
 }
 
 #refresh {
@@ -239,26 +223,3 @@ paper-scroll-header-panel [content] {
 iframe[src^="https://apis.google.com"] {
   display: none;
 }
-
-label.pink {
-  background-color: #e91e63 !important;
-}
-label.orange {
-  background-color: #ff5722 !important;
-}
-label.green {
-  background-color: #259b24 !important;
-}
-label.blue {
-  background-color: #5677fc !important;
-}
-label.yellow {
-  background-color: #ffd600 !important;
-}
-label.teal {
-  background-color: #009688 !important;
-}
-label.purple {
-  background-color: #673ab7 !important;
-}
-

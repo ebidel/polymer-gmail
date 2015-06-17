@@ -1,7 +1,8 @@
 <!-- <link rel="import" href="bower_components/polymer/polymer.html"> -->
 <!-- <link rel="import" href="bower_components/paper-style/paper-style.html"> -->
 
-<core-style id="swipeable">
+<!-- <style id="swipeable"> -->
+<style>
   .offscreen {
     -webkit-transition: all 200ms ease-in-out;
     transition: all 200ms ease-in-out;
@@ -26,14 +27,14 @@
     transform: none !important;
     opacity: 1 !important;
   }
-</core-style>
+</style>
 
 <!--
 Adds horizontal swiping functionality to an element.
 
 ##### Example
 
-    <template is="auto-binding">
+    <template is="dom-bind">
       <swipeable-item target="{{$.card}}"></swipeable-item>
       <div id="card">Swipe me!</div>
     </template>
@@ -43,9 +44,9 @@ The `target` is the target node to add swiping behavior to.
 By default, when the element is being dragged the `swiping` class is applied. You can configure this class by changing the `swipingClass` property. When the element has been fully
 swiped outside of it's container, the `offscreen` class is applied.
 
-When extending `<swipeable-item>`, it's useful to define a `swipeOffChanged()` to do your own work when the element has been swiped away:
+When extending `<swipeable-item>`, it's useful to define a `_swipeOffChanged()` to do your own work when the element has been swiped away:
 
-    swipeOffChanged: function() {
+    _swipeOffChanged: function() {
       if (this.swipeOff) {
         // Element was swiped away.
       }
@@ -117,7 +118,8 @@ SwipeableBehavior = {
      */
     swipeOff: {
       type: Boolean,
-      value: false
+      value: false,
+      observer: '_swipeOffChanged'
     }
   },
 
@@ -129,10 +131,16 @@ SwipeableBehavior = {
    * @param {Object} detail.direction The direction the item was swiped. -1: left, 1: right
    */
 
+  // listeners: {
+  //   trackx: '_onTrack',
+  //   trackstart: '_onTrackStart',
+  //   trackend: '_onTrackEnd',
+  //   // webkitTransitionEnd: 'snapBack',
+  //   transitionend: 'snapBack'
+  // },
+
   listeners: {
-    trackx: '_onTrack',
-    trackstart: '_onTrackStart',
-    trackend: '_onTrackEnd',
+    track: '_onTrack',
     // webkitTransitionEnd: 'snapBack',
     transitionend: 'snapBack'
   },
@@ -151,15 +159,29 @@ SwipeableBehavior = {
     this.target.classList.add(this.swipingClass);
   },
 
-  _onTrack: function(e, detail, sender) {
-    this.last_ddx_ = e.ddx;
+  _onTrack: function(e) {
 
-    var style = this.target.style;
-    style.transform = style.webkitTransform = 'translate3d(' + e.dx + 'px, 0, 0)';
-    if (!this.noDissolve) {
-      style.opacity = 1 - (Math.abs(e.dx) / this.width);
+    switch(e.detail.state) {
+      case 'start':
+        break;
+      case 'track':
+//console.log(e.detail.hover())
+        break;
+      case 'end':
+        break;
+
     }
   },
+
+  // _onTrack: function(e, detail, sender) {
+  //   this.last_ddx_ = e.ddx;
+
+  //   var style = this.target.style;
+  //   style.transform = style.webkitTransform = 'translate3d(' + e.dx + 'px, 0, 0)';
+  //   if (!this.noDissolve) {
+  //     style.opacity = 1 - (Math.abs(e.dx) / this.width);
+  //   }
+  // },
 
   _onTrackEnd: function(e, detail, sender) {
     this.target.classList.remove(this.swipingClass);
@@ -188,7 +210,6 @@ SwipeableBehavior = {
   snapBack: function(e) {
     e.stopPropagation(); // Prevent transitionend event from bubbling up further.
 
-console.log(e)
     // If item is already swiped offscreen, don't snap it back.
     if (this.target.classList.contains('offscreen')) {
       return;
