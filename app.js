@@ -439,6 +439,8 @@ template.LABEL_COLORS = ['pink', 'orange', 'green', 'yellow', 'teal', 'purple'];
 template.isAuthenticated = true; // Presume user is logged in when app loads (better UX).
 template.threads = [];
 template.selectedThreads = [];
+template.headerTitle = 'Inbox';
+template.headerClass = template._computeMainHeaderClass(template.narrow, 0);
 
 // template.touchAction = 'none'; // Allow track events from x/y directions.
 
@@ -456,7 +458,7 @@ template.previousSearches = [
 ];
 
 template.addEventListener('dom-change', function(e) {
-  this.headerTitle = this._computeHeaderTitle(this.selectedThreads.length);
+  // Force binding updated when narrow has been calculated via binding.
   this.headerClass = this._computeMainHeaderClass(this.narrow, this.selectedThreads.length);
 
   var headerEl = document.querySelector('#mainheader');
@@ -482,6 +484,7 @@ template.addEventListener('dom-change', function(e) {
     var scale = Math.max(0.5, (m - d.y) / (m / 0.25)  + 0.5);
     // var scale = Math.max(0.5, (m - d.y) / (m / 0.4)  + 0.5);
     titleStyle.transform = titleStyle.transform = 'scale(' + scale + ') translateZ(0)';
+    //Polymer.Base.transform('scale(' + scale + ') translateZ(0)', title);
 
     // Adjust header's color
     //document.querySelector('#mainheader').style.color = (d.y >= d.height - d.condensedHeight) ? '#fff' : '';
