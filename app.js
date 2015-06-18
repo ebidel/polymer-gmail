@@ -148,6 +148,12 @@ template._onThreadSelectChange = function(e) {
   this.headerClass = this._computeMainHeaderClass(this.narrow, this.selectedThreads.length);
 }
 
+template._onThreadTap = function(e) {
+  e.stopPropagation();
+  var idx = this.$.threadlist.items.indexOf(e.detail.thread);
+  this.$.threadlist.select(idx);
+};
+
 template.toggleSearch = function() {
   this.$.search.toggle();
 };
@@ -217,8 +223,7 @@ template.onMainAreaTrack = function(e, detail, sender) {
   this.$.refreshspinner.style.opacity =
       Math.min(1, 1 - ((this.MAX_REFRESH_Y - e.dy) / this.MAX_REFRESH_Y));
 
-  var style = this.$.refresh.style;
-  style.transform = style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
+  Polymer.Base.transform('translate3d(0, ' + y + 'px, 0)', this.$.refresh);
 
   if (!this.refreshStarted) {
     // TODO(ericbidelman): fake scrolling. We're already in a touch event, and
@@ -232,8 +237,7 @@ template.onRefreshUp = function(e, detail, sender) {
     return;
   }
 
-  var style = this.$.refresh.style;
-  style.transform = style.webkitTransform = '';
+  Polymer.Base.transform('', this.$.refresh);
 
   var threshhold = this.MAX_REFRESH_Y / 2;
 
@@ -462,7 +466,7 @@ template.addEventListener('dom-change', function(e) {
   this.headerClass = this._computeMainHeaderClass(this.narrow, this.selectedThreads.length);
 
   var headerEl = document.querySelector('#mainheader');
-  var titleStyle = document.querySelector('.title').style;
+  var title = document.querySelector('.title');
 
   this.$.drawerPanel.addEventListener('paper-header-transform', function(e) {
 
@@ -483,8 +487,7 @@ template.addEventListener('dom-change', function(e) {
     var m = d.height - d.condensedHeight;
     var scale = Math.max(0.5, (m - d.y) / (m / 0.25)  + 0.5);
     // var scale = Math.max(0.5, (m - d.y) / (m / 0.4)  + 0.5);
-    titleStyle.transform = titleStyle.transform = 'scale(' + scale + ') translateZ(0)';
-    //Polymer.Base.transform('scale(' + scale + ') translateZ(0)', title);
+    Polymer.Base.transform('scale(' + scale + ') translateZ(0)', title);
 
     // Adjust header's color
     //document.querySelector('#mainheader').style.color = (d.y >= d.height - d.condensedHeight) ? '#fff' : '';

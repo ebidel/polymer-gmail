@@ -4,6 +4,13 @@
 /* Global custom props */
 :root {
   --header-red-color: var(--paper-red-600);
+
+  --gmail-undo-action: {
+    color: #ffa726;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 400;
+  };
 }
 
 paper-scroll-header-panel {
@@ -18,10 +25,14 @@ paper-scroll-header-panel {
   };
 }
 
+/* github.com/PolymerElements/paper-scroll-header-panel/issues/17 */
+#mainheader::shadow .title {
+  isolation: isolate; /* force main header title to its own layer */
+}
 
-/*#mainheader::shadow .toolbar-tools {
-  z-index: 1;
-}*/
+#toast .undo {
+  @apply(--gmail-undo-action);
+}
 
 #fab {
   background: var(--paper-red-700);

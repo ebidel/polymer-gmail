@@ -145,7 +145,7 @@
       </template>
 
       <!-- TODO: don't pass all messages, users, labels into mail-thread -->
-      <iron-selector id="threadlist" multi
+      <iron-selector id="threadlist" multi activate-event=""
                      selected-attribute="selected"
                      selected-items="{{selectedThreads}}"
                      on-iron-select="_onThreadSelectChange"
@@ -153,7 +153,8 @@
         <template is="dom-repeat" items="[[threads]]">
           <mail-thread messages="[[item.messages]]"
                        labels="[[labelMap]]" users="[[users]]"
-                       narrow="[[narrow]]"></mail-thread>
+                       narrow="[[narrow]]"
+                       on-thread-select="_onThreadTap"></mail-thread>
         </template>
       </iron-selector>
 

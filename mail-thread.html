@@ -44,9 +44,6 @@ A single GMail mail thread.
       border-bottom: 1px solid #e0e0e0;
       will-change: transform, opacity;
     }
-    #thread.pressing {
-      background-color: #e0e0e0;
-    }
     #lastline,
     #actionicons,
     time {
@@ -95,8 +92,7 @@ A single GMail mail thread.
       color: var(--paper-yellow-600);
     }
     .undo {
-      color: #ffa726;
-      text-transform: uppercase;
+      @apply(--gmail-undo-action);
     }
     .undo:active {
       background-color: #9e9e9e;
@@ -149,7 +145,8 @@ A single GMail mail thread.
                      selected="[[selected]]" on-tap="_onSelectThread"
                      on-transitionend="_onProfileImgTransitionEnd"></profile-img>
         <div class="flex layout horizontal">
-          <header class="layout vertical flex" unread$="{{thread.unread}}">
+          <header class="layout vertical flex" unread$="{{thread.unread}}"
+                  on-down="_onDown" on-up="_onUp">
             <span class="layout horizontal center justified">
               <span class="name">
                 <span>{{thread.from.name}}</span>
@@ -189,6 +186,10 @@ A single GMail mail thread.
     is: 'mail-thread',
 
     behaviors: [SwipeableBehavior],
+
+    _HOLD_DELAY: 400, // wait delay (ms) to fire hold event.
+
+    _didUp: false, // True if the user relased the thread (up event was fired).
 
     properties: {
       /**
@@ -314,6 +315,9 @@ A single GMail mail thread.
     },
 
     _hideThreadLabel: function(id) {
+      if (!this.labels) {
+        return true;
+      }
       var label = this.labels[id];
       return !label || label.type !== 'user';
     },
@@ -336,33 +340,29 @@ A single GMail mail thread.
       this.swipe(false);
     },
 
-    // TODO(ericbidelman): Add back in. .pressing class currently looks
-    // janky when scrolling.
-    // onDown: function(e, detail, sender) {
-    //   if (e.target == this.$.profileimage || e.target == this.$.star) {
-    //     return;
-    //   }
-    //   this.$.thread.classList.add('pressing');
-    // },
+    _onUp: function(e) {
+      this._didUp = true;
+    },
 
-    // onUp: function(e, detail, sender) {
-    //   this.$.thread.classList.remove('pressing');
-    // },
+    _onDown: function(e) {
+      this._didUp = false;
+      // e.detail.prevent('tap');
+      // e.detail.prevent('track');
 
-    // _onHold: function(e) {
-    //   // If the profile image is the target ignore. onTap() will handle it.
-    //   if (e.target == this.$.profileimage || e.target == this.$.star) {
-    //     return;
-    //   }
-    //   this.selected = !this.selected;
-    //   this.$.profileimage.fire('tap');
-    // },
+      this.async(function() {
+        // Select thread if it isn't being swiped off or the user lifted their
+        // finger before the "hold" event.
+        if (!this._didUp && !this.target.classList.contains(this.swipingClass)) {
+          this.$.profileimage.fire('tap'); // select thread.
+        }
+      }, this._HOLD_DELAY);
+    },
 
     _onSelectThread: function(e) {
       if (Polymer.dom(e).localTarget === this.$.profileimage) {
-        // e.stopPropagation();
+        e.stopPropagation();
         this.selected = !this.selected;
-        // this.$.profileimage.fire('tap');
+        this.fire('thread-select', {thread: this});
       }
     },
 

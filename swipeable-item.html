@@ -4,7 +4,6 @@
 <!-- Styles in an import are added to the main document -->
 <style>
 .offscreen {
-  -webkit-transition: all 200ms ease-in-out;
   transition: all 200ms ease-in-out;
 }
 .offscreen.right {
@@ -21,7 +20,6 @@
   user-select: none;
 }
 .snapback {
-  -webkit-transition: all 200ms ease-in-out;
   transition: all 200ms ease-in-out;
   -webkit-transform: none !important;
   transform: none !important;
@@ -135,23 +133,21 @@ SwipeableBehavior = {
   //   trackx: '_onTrack',
   //   trackstart: '_onTrackStart',
   //   trackend: '_onTrackEnd',
-  //   // webkitTransitionEnd: 'snapBack',
   //   transitionend: 'snapBack'
   // },
 
   listeners: {
     track: '_onTrack',
-    // webkitTransitionEnd: 'snapBack',
+    // down: '_onDown',
     transitionend: 'snapBack'
   },
 
-  // domReady: function() {
-  //   this.width = this.target.offsetWidth; // cache it.
-  //   thisDoc.querySelector('#swipeable').width = this.width;
-  // },
-
   ready: function() {
     this.setScrollDirection('y', this);
+  },
+
+  attached: function() {
+    this.width = this.target.offsetWidth; // cache it.
   },
 
   _targetChanged: function() {
@@ -160,56 +156,51 @@ SwipeableBehavior = {
 
   _onTrackStart: function(e) {
     //e.preventTap();
-    this.target.classList.add(this.swipingClass);
+    Polymer.dom(this.target).classList.add(this.swipingClass);
   },
 
   _onTrack: function(e) {
-
+    // e.preventDefault();
+// console.log(e)
     switch(e.detail.state) {
       case 'start':
         this._onTrackStart(e);
         break;
       case 'track':
-console.log(e.detail);//e.detail.hover())
+        this._last_ddx = e.detail.ddx;
+
+        Polymer.Base.transform('translate3d(' + e.detail.dx + 'px, 0, 0)', this.target);
+
+        if (!this.noDissolve) {
+          this.target.style.opacity = 1 - (Math.abs(e.detail.dx) / this.width);
+        }
         break;
       case 'end':
-console.log('end')
+        this._onTrackEnd(e);
         break;
-
     }
   },
 
-  // _onTrack: function(e, detail, sender) {
-  //   this.last_ddx_ = e.ddx;
-
-  //   var style = this.target.style;
-  //   style.transform = style.webkitTransform = 'translate3d(' + e.dx + 'px, 0, 0)';
-  //   if (!this.noDissolve) {
-  //     style.opacity = 1 - (Math.abs(e.dx) / this.width);
-  //   }
-  // },
-
   _onTrackEnd: function(e) {
-    this.target.classList.remove(this.swipingClass);
+    Polymer.dom(this.target).classList.remove(this.swipingClass);
 
-    var info = {dx: e.dx, ddx: this.last_ddx_, direction: e.xDirection};
+    var info = {dx: e.detail.dx, ddx: this._last_ddx, direction: e.detail.dx > 0 ? 1 : -1};
 
     // Swipe the item offscreen if it was fast.
-    if (Math.abs(this.last_ddx_) > this.SWIPE_OFF_THREASHOLD) {
+    if (Math.abs(this._last_ddx) > this.SWIPE_OFF_THREASHOLD) {
       this.swipe(true, info);
 
       // TODO: 100ms out animation seems good but may want to use swipe
-      // acceleration (this.last__ddx_) instead.
-      this.target.style.transition = this.target.style.webkitTransition =
-          'all 100ms linear';
+      // acceleration (this.last_ddx_) instead.
+      this.target.style.transition = 'all 100ms linear';
       return;
     }
 
     // Slide all the way off (left/right) if we're 50% total width.
-    if (Math.abs(e.dx) >= this.width / 2) {
+    if (Math.abs(e.detail.dx) >= this.width / 2) {
       this.swipe(true, info);
     } else if (!this.noSnapBack) {
-      this.target.classList.add('snapback');
+      Polymer.dom(this.target).classList.add('snapback');
     }
   },
 
@@ -217,43 +208,45 @@ console.log('end')
     e.stopPropagation(); // Prevent transitionend event from bubbling up further.
 
     // If item is already swiped offscreen, don't snap it back.
+    // TODO: use Polymer.dom().classList.contains when ready. github.com/Polymer/polymer/issues/1907
     if (this.target.classList.contains('offscreen')) {
       return;
     }
 
     if (e.propertyName.indexOf('transform') != -1) {
-      var style = this.target.style;
-      style.transform = style.webkitTransform = '';
-      style.opacity = '';
-      this.target.classList.remove('snapback');
+      Polymer.Base.transform('', this.target);
+      this.target.style.opacity = '';
+      Polymer.dom(this.target).classList.remove('snapback');
     }
   },
 
   swipe: function(goAway, obj) {
     var style = this.target.style;
+    var target = Polymer.dom(this.target);
 
     this.swipeOff = goAway;
 
     if (goAway) {
-      this.target.classList.add('offscreen');
+      target.classList.add('offscreen');
       if (!this.noDissolve) {
-        this.target.classList.add('fade');
+        target.classList.add('fade');
       }
 
-      style.transform = style.webkitTransform =
-          'translate3d(' + (obj.direction * this.width) + 'px, 0, 0)';
+      Polymer.Base.transform(
+          'translate3d(' + (obj.direction * this.width) + 'px, 0, 0)', this.target);
+
 
       this.fire('swipe-away', {direction: obj.direction});
 
     } else {
-      style.transition = style.webkitTransition = '';
-      style.transform = style.webkitTransform = 'translate3d(' + this.width + 'px, 0, 0)';
-      this.target.classList.remove('offscreen', 'fade');
+      style.transition = '';
+      Polymer.Base.transform('translate3d(' + this.width + 'px, 0, 0)', this.target);
+      target.classList.remove('offscreen', 'fade');
 
       // Native app always comes back from right. Need to wait one rAF for
       // .offscreen to have been applied.
       this.async(function() {
-        this.target.classList.add('snapback');
+        target.classList.add('snapback');
       });
     }
   }
