@@ -326,23 +326,26 @@ template.listenOnce = function(node, event, fn, args) {
   node.addEventListener(event, listener, false);
 };
 
-template.onThreadArchive = function(e, detail, sender) {
-  // When user interacts with app, remove any visibly archived threads,
-  // then remove touch listener.
-
-  if (!detail.showUndo) {
+template.onThreadArchive = function(e) {
+  if (!e.detail.showUndo) {
     return;
   }
 
-  // TODO: if user archive/undos several times, this adds a listener each time.
-  this.listenOnce(this.$.scrollheader, 'scroll', function() {
-    for (var i = 0, threadEl; threadEl = this.$.threadlist.items[i]; ++i) {
-      if (threadEl.archived) {
-        threadEl.classList.add('shrink');
-        threadEl.undo = false; // hide in-place UNDO UI.
+  if (!this._scrollArchiveSetup) {
+    // When user scrolls page, remove visibly archived threads.
+    this.listenOnce(this.$.scrollheader, 'content-scroll', function(e) {
+console.log(this.selectedThreads)
+      for (var i = 0, threadEl; threadEl = this.$.threadlist.items[i]; ++i) {
+        if (threadEl.archived) {
+          threadEl.classList.add('shrink');
+          threadEl.undo = false; // hide in-place UNDO UI.
+        }
       }
-    }
-  });
+      this._scrollArchiveSetup = false;
+    });
+  }
+
+  this._scrollArchiveSetup = true;
 };
 
 template.onSigninSuccess = function(e) {
@@ -445,7 +448,7 @@ template.threads = [];
 template.selectedThreads = [];
 template.headerTitle = 'Inbox';
 template.headerClass = template._computeMainHeaderClass(template.narrow, 0);
-
+template._scrollArchiveSetup = false; // True if the user has attempted to archive a thread.
 // template.touchAction = 'none'; // Allow track events from x/y directions.
 
 template.MAX_REFRESH_Y = 150;
