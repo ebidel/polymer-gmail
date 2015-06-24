@@ -3,6 +3,8 @@
 <link rel="import" href="bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
+<!-- <link rel="import" href="bower_components/iron-menu-behavior/iron-menu-behavior.html"> -->
+
 <link rel="import" href="profile-img.html">
 <link rel="import" href="swipeable-item.html">
 
@@ -185,7 +187,10 @@ A single GMail mail thread.
   Polymer({
     is: 'mail-thread',
 
-    behaviors: [SwipeableBehavior],
+    behaviors: [
+      SwipeableBehavior
+      // Polymer.IronMenuBehavior
+    ],
 
     _HOLD_DELAY: 400, // wait delay (ms) to fire hold event.
 

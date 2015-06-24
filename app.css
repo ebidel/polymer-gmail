@@ -1,9 +1,16 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Roboto", sans-serif;
   -webkit-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
   background-color: #fafafa;
-  font-weight: 300;
+  color: #444;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #loginscreen {
@@ -35,7 +42,7 @@ body {
 }
 
 #drawerPanel paper-header-panel {
-  background: #fafafa;
+  /*background: #fafafa;*/
   box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
   color: #757575;
 }
@@ -217,4 +224,13 @@ paper-scroll-header-panel [content] {
 
 iframe[src^="https://apis.google.com"] {
   display: none;
+}
+
+.version {
+  font-size: 10px;
+  opacity: 0.3;
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+}
 }
