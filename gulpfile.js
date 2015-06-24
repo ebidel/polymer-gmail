@@ -35,7 +35,7 @@ var license = require('gulp-license');
 var replace = require('gulp-replace');
 var bump = require('gulp-bump');
 var vulcanize = require('gulp-vulcanize');
-var minifyInline = require('gulp-minify-inline');
+//var minifyInline = require('gulp-minify-inline');
 var path = require('path');
 
 var version = null;
@@ -118,7 +118,7 @@ gulp.task('clean', function(done) {
 
 /** Styles */
 gulp.task('styles', function() {
-  return gulp.src('./src/styles/*.scss')
+  return gulp.src('./styles/*.scss')
       .pipe(sass())
       .pipe(minifycss())
       .pipe(license('Apache', {
@@ -135,20 +135,19 @@ gulp.task('scripts', function() {
   }
 })
 
-/** Root */
-gulp.task('root', function() {
-  gulp.src('./src/*.*')
-    .pipe(replace(/@VERSION@/g, version))
-    .pipe(gulp.dest('./dist/'));
+// /** Root */
+// gulp.task('root', function() {
+//   gulp.src('./*.*')
+//     .pipe(replace(/@VERSION@/g, version))
+//     .pipe(gulp.dest('./dist/'));
 
-  return gulp.src('./src/favicon.ico')
-    .pipe(gulp.dest('./dist/'));
-});
+//   return gulp.src('./src/favicon.ico')
+//     .pipe(gulp.dest('./dist/'));
+// });
 
 /** HTML */
 gulp.task('html', function() {
-
-  return gulp.src('./src/**/*.html')
+  return gulp.src('./**/*.html')
     .pipe(replace(/@VERSION@/g, version))
     .pipe(gulp.dest('./dist/'));
 });
@@ -156,36 +155,37 @@ gulp.task('html', function() {
 /** Images */
 gulp.task('images', function() {
   return gulp.src([
-      './src/**/*.svg',
-      './src/**/*.png',
-      './src/**/*.jpg'])
+      './images/**/*.svg',
+      './images/**/*.png',
+      './images/**/*.jpg'])
     .pipe(gulp.dest('./dist'));
 });
 
-/** Third Party */
-gulp.task('third_party', function() {
-  return gulp.src('./src/third_party/**/*.*')
-    .pipe(gulp.dest('./dist/third_party'));
-});
+// /** Third Party */
+// gulp.task('third_party', function() {
+//   return gulp.src('./src/third_party/**/*.*')
+//     .pipe(gulp.dest('./dist/third_party'));
+// });
 
 /** Service Worker */
 gulp.task('serviceworker', function() {
-  return gulp.src('./src/scripts/sw.js')
+  return gulp.src('./scripts/sw.js')
     .pipe(replace(/@VERSION@/g, version))
     .pipe(gulp.dest('./dist/scripts'));
 });
 
 /** Vulcanize */
-gulp.task('vulcanize-and-minify', function() {
+gulp.task('vulcanize', function() {
 
   return gulp.src('./dist/elements/**/*.html')
     .pipe(vulcanize({
       inlineScripts: true,
       inlineCss: true,
-      stripExcludes: false,
-      excludes: [path.resolve('./dist/third_party/polymer.html')]
+      // stripExcludes: false,
+      stripComments: true,
+      //excludes: [path.resolve('./dist/third_party/polymer.html')]
     }))
-    .pipe(minifyInline())
+    //.pipe(minifyInline())
     .pipe(gulp.dest('./dist/elements'));
 
 });
@@ -199,10 +199,10 @@ gulp.task('clean-elements-folder', function(done) {
 /** Watches */
 gulp.task('watch', function() {
   gulp.watch('./src/**/*.scss', ['styles']);
-  gulp.watch('./src/*.*', ['root']);
+  // gulp.watch('./src/*.*', ['root']);
   gulp.watch('./src/**/*.html', ['html']);
   gulp.watch('./src/images/**/*.*', ['images']);
-  gulp.watch('./src/third_party/**/*.*', ['third_party']);
+  // gulp.watch('./src/third_party/**/*.*', ['third_party']);
   gulp.watch('./src/scripts/sw.js', ['serviceworker']);
 
   watchBundles();
@@ -223,7 +223,7 @@ gulp.task('getversion', function() {
   }
 })();
 
-var allTasks = ['styles', 'scripts', 'root', 'html', 'images',
+var allTasks = ['styles', 'scripts', 'html', 'images',
     'third_party', 'serviceworker'];
 
 gulp.task('bump', function() {
@@ -235,7 +235,7 @@ gulp.task('bump', function() {
 gulp.task('default', function() {
   isProd = true;
   return runSequence('clean', 'bump', 'getversion', allTasks,
-        'vulcanize-and-minify', 'clean-elements-folder');
+        'vulcanize', 'clean-elements-folder');
 })
 
 gulp.task('dev', function() {
