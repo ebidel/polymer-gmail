@@ -51,7 +51,7 @@ PolymerMetrics.prototype.printPageMetrics = function() {
     console.debug(item.name, '@', item.duration, 'ms');
   }
 
-  //console.info('First paint @', polyMetrics.getFirstPaintTime());
+  // console.info('First paint @', polyMetrics.getFirstPaintTime());
 };
 
 // if (window.PolymerMetrics) {

@@ -1,28 +1,125 @@
 (function() {
 
+var DEBUG = location.search.indexOf('debug') != -1;
+var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
+
+var template = document.querySelector('#t');
+
 // var firstPaintRaf;
 // requestAnimationFrame(function() {
 //   firstPaintRaf = performance.now();
 // });
 
-if (window.PolymerMetrics) {
-  var polyMetrics = new PolymerMetrics(template);
-  window.addEventListener('load', polyMetrics.printPageMetrics);
+// if (window.PolymerMetrics) {
+//   var polyMetrics = new PolymerMetrics(template);
+//   window.addEventListener('load', polyMetrics.printPageMetrics);
+// }
+
+// Conditionally loads webcomponents polyfill (if needed).
+var webComponentsSupported = ('registerElement' in document
+    && 'import' in document.createElement('link')
+    && 'content' in document.createElement('template'));
+
+if (!webComponentsSupported) {
+  var wcPoly = document.createElement('script');
+  wcPoly.async = true;
+  wcPoly.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
+  wcPoly.onload = finishLazyLoadingImports;
+  document.head.appendChild(wcPoly);
+} else {
+  finishLazyLoadingImports();
 }
 
 
-var DEBUG = location.search.indexOf('debug') != -1;
-var FROM_HEADER_REGEX = new RegExp(/"?(.*?)"?\s?<(.*)>/);
+function finishLazyLoadingImports() {
+  importsLoadedDeferred.promise.then(function(htmlImport) {
+    // Auto binding template doesn't stamp with async import
+    // Remove when github.com/Polymer/polymer/issues/1968 is fixed.
+    template._readySelf();
+    document.body.classList.remove('loading');
+    var loading = document.getElementById('loading');
+    loading.addEventListener('transitionend', function(e) {
+      this.remove();
+    });
 
-var Labels = {
-  UNREAD: 'UNREAD',
-  STARRED: 'STARRED'
-};
+    loadDebugData();
+  });
+
+// console.time('import load');
+//   var elImport = document.createElement('link');
+//   elImport.rel = 'import';
+//   elImport.href = 'elements/elements.html';
+//   elImport.onload = function() {
+// console.timeEnd('import load');
+//     loadDebugData();
+//     // setTimeout(function() {
+//       document.body.classList.remove('loading');
+//     // }, 1000);
+//   };
+//   elImport.async = true;
+//   document.head.appendChild(elImport);
+
+
+// console.log(Polymer.Base)
+//   Polymer.Base.importHref('elements/elements.html', function(link) {
+// console.log(link)
+//   }, function(e) {
+//     console.error('Main app HTML Import could not load.');
+//   });
+}
+
+function loadDebugData() {
+  if (!DEBUG) {
+    return;
+  }
+
+  var ajax = document.createElement('iron-ajax');
+
+  ajax.auto = true;
+  ajax.url = '/data/users.json';
+  ajax.addEventListener('response', function(e) {
+    template.users = e.detail.response;
+  });
+
+  var ajax2 = document.createElement('iron-ajax');
+  ajax2.auto = true;
+  ajax2.url = '/data/threads.json';
+  ajax2.addEventListener('response', function(e) {
+    var threads = e.detail.response;
+    // for (var i = 0, thread; thread = threads[i]; ++i) {
+    //   thread.archived = false;
+    // }
+    template.threads = threads;
+  });
+}
+
+/**
+ * Utility function to listen to an event on a node once.
+ *
+ * @method listenOnce
+ * @param {Node} node The animated node
+ * @param {string} event Name of an event
+ * @param {Function} fn Event handler
+ * @param {Array} args Additional arguments to pass to `fn`
+ */
+function listenOnce(node, event, fn, args) {
+  var self = this;
+  var listener = function() {
+    fn.apply(self, args);
+    node.removeEventListener(event, listener, false);
+  };
+  node.addEventListener(event, listener, false);
+}
 
 var previouslySelected = [];
 
 
 var GMail = window.GMail || {};
+
+GMail.Labels = {
+  UNREAD: 'UNREAD',
+  STARRED: 'STARRED'
+};
 
 GMail.fetchMail = function(q, opt_callback) {
   var gmail = gapi.client.gmail.users;
@@ -53,7 +150,6 @@ GMail.fetchMail = function(q, opt_callback) {
     batch.then();
 
   });
-
 
 };
 
@@ -114,17 +210,19 @@ function fixUpMessages(resp) {
     }
     m.from.name = m.from.name.split('@')[0]; // Ensure email is split.
 
-    m.unread = m.labelIds.indexOf(Labels.UNREAD) != -1;
-    m.starred = m.labelIds.indexOf(Labels.STARRED) != -1;
+    m.unread = m.labelIds.indexOf(GMail.Labels.UNREAD) != -1;
+    m.starred = m.labelIds.indexOf(GMail.Labels.STARRED) != -1;
   }
 
   return messages;
 }
 
-var template = document.querySelector('#t');
+// template._computeLoginScreenClass = function(isAuthenticated, staticClasses) {
+//   return (!isAuthenticated ? 'show ' : '') + staticClasses;
+// };
 
-template._computeLoginScreenClass = function(isAuthenticated, staticClasses) {
-  return (!isAuthenticated ? 'show ' : '') + staticClasses;
+template._computeHideLogin = function(isAuthenticated) {
+  return isAuthenticated || DEBUG;
 };
 
 template._computeShowSpinner = function(threads, isAuthenticated) {
@@ -181,7 +279,7 @@ template.refreshInbox = function(opt_callback) {
   }
 };
 
-// paper-toast 1.0 doesnt have event: github.com/PolymerElements/paper-toast/issues/10
+// paper-toast 1.0 doesn't have an event: github.com/PolymerElements/paper-toast/issues/10
 template.onToastOpenClose = function(e) {
 
   var opened = this.$.toast.visible;
@@ -307,25 +405,6 @@ template.archiveAll = function(e) {
   }, 1000); // delay showing the toast.
 };
 
-// TODO(ericbidelman): listenOnce is defined in core-transition
-/**
- * Utility function to listen to an event on a node once.
- *
- * @method listenOnce
- * @param {Node} node The animated node
- * @param {string} event Name of an event
- * @param {Function} fn Event handler
- * @param {Array} args Additional arguments to pass to `fn`
- */
-template.listenOnce = function(node, event, fn, args) {
-  var self = this;
-  var listener = function() {
-    fn.apply(self, args);
-    node.removeEventListener(event, listener, false);
-  };
-  node.addEventListener(event, listener, false);
-};
-
 template.onThreadArchive = function(e) {
   if (!e.detail.showUndo) {
     return;
@@ -333,8 +412,7 @@ template.onThreadArchive = function(e) {
 
   if (!this._scrollArchiveSetup) {
     // When user scrolls page, remove visibly archived threads.
-    this.listenOnce(this.$.scrollheader, 'content-scroll', function(e) {
-console.log(this.selectedThreads)
+    listenOnce(this.$.scrollheader, 'content-scroll', function(e) {
       for (var i = 0, threadEl; threadEl = this.$.threadlist.items[i]; ++i) {
         if (threadEl.archived) {
           threadEl.classList.add('shrink');
@@ -342,7 +420,7 @@ console.log(this.selectedThreads)
         }
       }
       this._scrollArchiveSetup = false;
-    });
+    }.bind(this));
   }
 
   this._scrollArchiveSetup = true;
@@ -450,6 +528,7 @@ template.headerTitle = 'Inbox';
 template.headerClass = template._computeMainHeaderClass(template.narrow, 0);
 template._scrollArchiveSetup = false; // True if the user has attempted to archive a thread.
 // template.touchAction = 'none'; // Allow track events from x/y directions.
+template.user = {};
 
 template.MAX_REFRESH_Y = 150;
 template.syncing = false; // True, if the mail is syncing.
@@ -502,30 +581,4 @@ template.addEventListener('dom-change', function(e) {
 //   return false;
 // };
 
-if (!navigator.onLine || DEBUG) {
-
-  document.addEventListener('WebComponentsReady', function(e) {
-    var ajax = document.createElement('iron-ajax');
-    ajax.auto = true;
-    ajax.url = '/data/users.json';
-    ajax.addEventListener('response', function(e) {
-      template.users = e.detail.response;
-    });
-
-    var ajax2 = document.createElement('iron-ajax');
-    ajax2.auto = true;
-    ajax2.url = '/data/threads.json';
-    ajax2.addEventListener('response', function(e) {
-      var threads = e.detail.response;
-      // for (var i = 0, thread; thread = threads[i]; ++i) {
-      //   thread.archived = false;
-      // }
-      template.threads = threads;
-    });
-  });
-}
-
-// window.Polymer.dom = 'shadow';
-
 })();
-

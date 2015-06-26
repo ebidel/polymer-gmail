@@ -1,5 +1,5 @@
 <!-- Author: Eric Bidelman <@ebidel> -->
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -9,40 +9,45 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <!-- Fallback for manifest.json add to homescreen (Chrome Android) -->
   <meta name="mobile-web-app-capable" content="yes">
-
   <meta name="apple-mobile-web-app-status-bar-style" content="#e51c23">
   <meta name="msapplication-TileColor" content="#e51c23">
   <meta name="msapplication-tap-highlight" content="no">
   <meta name="theme-color" content="#e51c23">
 
   <link rel="icon" sizes="192x192" href="images/gmail.png">
-
   <link rel="manifest" href="manifest.json">
 
   <link rel="stylesheet" href="styles/app.css">
 
-  <!-- Polyfill webcomponents in browsers that don't support it. -->
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script async>
+    function deferred() {
+      var result = {};
+      result.promise = new Promise(function(resolve, reject) {
+        result.resolve = resolve;
+        result.reject = reject;
+      });
+      return result;
+    };
 
-  <link rel="import" href="elements/elements.html">
+    // Use native Shadow DOM if we have it.
+    window.Polymer = window.Polymer || {};
+    window.Polymer.dom = 'shadow';
+
+    var importsLoadedDeferred = deferred(); //Promise.defer();
+
+    function onImportsLoaded(e) {
+      importsLoadedDeferred.resolve(e.target);
+    }
+  </script>
+
+  <link rel="import" href="elements/elements.html" async onload="onImportsLoaded(event)">
 </head>
-<body class="fullbleed">
+<body class="fullbleed loading">
+
+<!-- Loading splash outside of Imports + Polymer so 1st paint is always fast. -->
+<div id="loading"></div>
 
 <template id="t" is="dom-bind">
-
-<div id="loginscreen"
-     class$="[[_computeLoginScreenClass(isAuthenticated, 'layout vertical center-center fit')]]"
-     hidden="{{DEBUG}}">
-  <google-signin width="wide" height="tall"
-      client-id="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
-      scopes="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.readonly"
-      on-google-signin-success="onSigninSuccess"
-      on-google-signed-out="onSignOut"
-      on-google-signout-attempted="onSignOutAttempt"
-      on-google-signin-aware-signed-out="onSignInAwareSignout"
-      on-google-signin-failure="onSigninFailure"
-      signed-in="{{signedIn}}"></google-signin>
-</div>
 
 <material-search id="search" narrow="[[narrow]]"
                  previous-searches="{{previousSearches}}" class="fit"></material-search>
@@ -54,7 +59,7 @@
       <iron-image src="{{user.cover}}" placeholder="images/beach.jpg"
                   sizing="cover" preload fade
                   class="fit" style="height:192px;"></iron-image>
-      <img class="middle profile" src="{{user.profile}}" hidden="{{!user.profile}}">
+      <img class="middle profile" src$="{{user.profile}}" hidden="{{!user.profile}}">
       <div class="bottom layout vertical">
         <span>{{user.name}}</span>
         <span>{{user.email}}</span>
@@ -143,6 +148,19 @@
           <paper-spinner active></paper-spinner>
         </div>
       </template>
+
+      <div id="loginscreen" class="layout vertical center-center"
+           hidden="[[_computeHideLogin(isAuthenticated)]]">
+        <google-signin width="wide" height="tall"
+            client-id="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
+            scopes="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.readonly"
+            on-google-signin-success="onSigninSuccess"
+            on-google-signed-out="onSignOut"
+            on-google-signout-attempted="onSignOutAttempt"
+            on-google-signin-aware-signed-out="onSignInAwareSignout"
+            on-google-signin-failure="onSigninFailure"
+            signed-in="{{signedIn}}"></google-signin>
+      </div>
 
       <!-- TODO: don't pass all messages, users, labels into mail-thread -->
       <iron-selector id="threadlist" multi activate-event=""
