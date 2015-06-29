@@ -3,7 +3,7 @@
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
-<!-- <link rel="import" href="bower_components/iron-menu-behavior/iron-menu-behavior.html"> -->
+<!-- <link rel="import" href="../bower_components/iron-menu-behavior/iron-menu-behavior.html"> -->
 
 <link rel="import" href="profile-img.html">
 <link rel="import" href="swipeable-item.html">
@@ -22,6 +22,10 @@ A single GMail mail thread.
       background-color: #757575;
       transition: max-height 200ms ease-in-out 200ms;
       max-height: 120px; /* bigger than thread can ever be. */
+    }
+    :host(:focus) {
+      z-index: 1;
+      position: relative;
     }
     :host(.shrink) {
       max-height: 0;
@@ -116,6 +120,21 @@ A single GMail mail thread.
       border-radius: 2px;
       margin-right: 5px;
     }
+    .offscreen {
+      @apply(--swipeable-transition);
+    }
+    .offscreen.right {
+      @apply(--swipeable-pos-right);
+    }
+    .fade {
+      @apply(--swipeable-fade);
+    }
+    .swiping {
+      @apply(--swipeable-swiping);
+    }
+    .snapback {
+      @apply(--swipeable-snapback);
+    }
     label.pink {
       @apply(--label-pink);
     }
@@ -145,7 +164,7 @@ A single GMail mail thread.
                      src="[[profileSrc]]"
                      letter="[[thread.from.name.0]]"
                      selected="[[selected]]" on-tap="_onSelectThread"
-                     on-transitionend="_onProfileImgTransitionEnd"></profile-img>
+                     on-transitionend="_eatEvent"></profile-img>
         <div class="flex layout horizontal">
           <header class="layout vertical flex" unread$="{{thread.unread}}"
                   on-down="_onDown" on-up="_onUp">
@@ -169,7 +188,7 @@ A single GMail mail thread.
                          on-tap="_onHighlightStar" starred$="{{thread.starred}}"></iron-icon>
             </span>
           </header>
-          <div id="actionicons" on-down="_onMailAction" class="self-start">
+          <div id="actionicons" on-transitionend="_eatEvent" on-down="_onMailAction" class="self-start">
             <paper-icon-button icon="reply"></paper-icon-button>
             <paper-icon-button icon="reply-all"></paper-icon-button>
             <paper-icon-button icon="forward"></paper-icon-button>
@@ -177,7 +196,7 @@ A single GMail mail thread.
           </div>
         </div>
       </div>
-      <div id="archived" class="layout horizontal center justified fit">
+      <div id="archived" class="layout horizontal center justified fit" aria-hidden="true">
         <span>Archived</span>
         <span class="undo layout horizontal center self-stretch" on-tap="_onUndo">UNDO</span>
       </div>
@@ -289,6 +308,10 @@ A single GMail mail thread.
     //   '_updateProfilePic(thread.from.*)'
     // ],
 
+    created: function() {
+      Polymer.dom(this).classList.add('swipeable-item');
+    },
+
     ready: function() {
       // this.async(function() {
         this.target = this.$.thread;
@@ -371,7 +394,7 @@ A single GMail mail thread.
       }
     },
 
-    _onProfileImgTransitionEnd: function(e) {
+    _eatEvent: function(e) {
       e.stopPropagation();
     },
 
@@ -382,7 +405,6 @@ A single GMail mail thread.
     },
 
     _archivedChanged: function() {
-      //this.thread.archived = this.archived;
       if (!this.isAttached) {
         return;
       }
@@ -407,6 +429,8 @@ A single GMail mail thread.
       } else {
         Polymer.dom(this.target).classList.remove('offscreen', 'right');
         this.toggleClass('shrink', false);
+
+        this.fire('thread-archive', {thread: this, showUndo: this.undo});
       }
     }
   });

@@ -19,28 +19,7 @@
 
   <link rel="stylesheet" href="styles/app.css">
 
-  <script async>
-    function deferred() {
-      var result = {};
-      result.promise = new Promise(function(resolve, reject) {
-        result.resolve = resolve;
-        result.reject = reject;
-      });
-      return result;
-    };
-
-    // Use native Shadow DOM if we have it.
-    window.Polymer = window.Polymer || {};
-    window.Polymer.dom = 'shadow';
-
-    var importsLoadedDeferred = deferred(); //Promise.defer();
-
-    function onImportsLoaded(e) {
-      importsLoadedDeferred.resolve(e.target);
-    }
-  </script>
-
-  <link rel="import" href="elements/elements.html" async onload="onImportsLoaded(event)">
+  <link rel="import" id="bundle" href="elements/elements.html" async>
 </head>
 <body class="fullbleed loading">
 
@@ -65,7 +44,7 @@
         <span>{{user.email}}</span>
       </div>
     </paper-toolbar>
-    <paper-menu selectable="paper-icon-item" on-iron-select="menuSelect">
+    <paper-menu selected="0" selectable="paper-icon-item" on-iron-select="menuSelect">
       <paper-icon-item role="menuitem">
         <iron-icon icon="inbox" item-icon></iron-icon>Inbox
       </paper-icon-item>
@@ -141,7 +120,7 @@
       </div>
 
     </paper-toolbar>
-    <div content on-thread-archive="onThreadArchive">
+    <div class="scroll-content" on-thread-archive="onThreadArchive">
 
       <template is="dom-if" if="{{_computeShowSpinner(threads, signedIn)}}">
         <div class="layout vertical center-center" style="height:100%">
@@ -163,6 +142,7 @@
       </div>
 
       <!-- TODO: don't pass all messages, users, labels into mail-thread -->
+      <!-- activate-event="" ensures entire thread isn't selectable. -->
       <iron-selector id="threadlist" multi activate-event=""
                      selected-attribute="selected"
                      selected-items="{{selectedThreads}}"
@@ -172,7 +152,8 @@
           <mail-thread messages="[[item.messages]]"
                        labels="[[labelMap]]" users="[[users]]"
                        narrow="[[narrow]]"
-                       on-thread-select="_onThreadTap"></mail-thread>
+                       on-thread-select="_onThreadTap"
+                       tabindex="0" data-thread-index$="[[index]]"></mail-thread>
         </template>
       </iron-selector>
 
@@ -182,7 +163,7 @@
 </paper-drawer-panel>
 
 <paper-toast id="toast" class="layout horizontal justified"
-             duration="10000" text="{{toastMessage}}" visible="{{toastOpened}}"
+             duration="3000" text="{{toastMessage}}" visible="{{toastOpened}}"
              on-paper-overlay-open="onToastOpenClose"
              on-transitionend="onToastOpenClose">
   <div on-tap="undoAll" class="undo">Undo</div>
@@ -198,6 +179,16 @@
 <!--<iron-localstorage name="polymer-mail-users" value="{{users}}"></iron-localstorage>-->
 
 </template>
+
+<!-- <platinum-sw-register skip-waiting clients-claim auto-register>
+  <platinum-sw-cache default-cache-strategy="cacheFirst"></platinum-sw-cache>
+  <platinum-sw-fetch handler="gmailFetchHandler"
+                     origin="https://content\\.googleapis\\.com"
+                     path="/gmail/v1/(.*)"></platinum-sw-fetch>
+  <platinum-sw-fetch handler="gmailFetchHandler"
+                     origin="https://content\\.googleapis\\.com"
+                     path="/plus/v1/(.*)"></platinum-sw-fetch>
+</platinum-sw-register> -->
 
 <script src="scripts/polymer_metrics.js"></script>
 <script src="scripts/app.js"></script>

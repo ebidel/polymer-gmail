@@ -2,28 +2,37 @@
 <!-- <link rel="import" href="../bower_components/paper-style/paper-style.html"> -->
 
 <!-- Styles in an import are added to the main document -->
-<style>
-.offscreen {
-  transition: all 200ms ease-in-out;
-}
-.offscreen.right {
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0);
-}
-.fade {
-  opacity: 0 !important;
-}
-.swiping {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-.snapback {
-  transition: all 200ms ease-in-out;
-  -webkit-transform: none !important;
-  transform: none !important;
-  opacity: 1 !important;
+<style is="custom-style">
+/* Global custom props */
+/* Users of this behavior need to add the swipeable-item class to their element
+   to gain swipable features */
+.swipeable-item {
+  --swipeable-transition: {
+    transition: all 200ms ease-in-out;
+  };
+
+  --swipeable-pos-right: {
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+  };
+
+  --swipeable-fade: {
+    opacity: 0 !important;
+  };
+
+  --swipeable-swiping: {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  };
+
+  --swipeable-snapback: {
+    transition: all 200ms ease-in-out;
+    -webkit-transform: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  };
 }
 </style>
 

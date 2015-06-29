@@ -17,7 +17,7 @@ body {
   height: 100%;
 }
 
-#drawerPanel:not([narrow]) paper-scroll-header-panel [content] {
+#drawerPanel:not([narrow]) paper-scroll-header-panel .scroll-content {
   padding: 30px 0;
   background-color: #fafafa;
 }
@@ -61,6 +61,10 @@ body {
 
 paper-icon-item iron-icon {
   color: #757575;
+}
+
+paper-icon-item.iron-selected {
+  background: #eee;
 }
 
 paper-icon-item.iron-selected iron-icon {
@@ -151,10 +155,6 @@ paper-icon-item.iron-selected iron-icon {
   padding: 0 !important;
 }
 
-paper-scroll-header-panel [content] {
-  height: 100%;
-}
-
 #threadlist {
   display: block;
 }
@@ -217,10 +217,6 @@ iframe[src^="https://apis.google.com"] {
 }
 
 #loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
   position: absolute;
   top: 0;
   left: 0;

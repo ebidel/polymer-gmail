@@ -15,7 +15,7 @@ var template = document.querySelector('#t');
 //   window.addEventListener('load', polyMetrics.printPageMetrics);
 // }
 
-// Conditionally loads webcomponents polyfill (if needed).
+// Conditionally load webcomponents polyfill (if needed).
 var webComponentsSupported = ('registerElement' in document
     && 'import' in document.createElement('link')
     && 'content' in document.createElement('template'));
@@ -30,42 +30,33 @@ if (!webComponentsSupported) {
   finishLazyLoadingImports();
 }
 
-
 function finishLazyLoadingImports() {
-  importsLoadedDeferred.promise.then(function(htmlImport) {
+  // Use native Shadow DOM if it's available in the browser.
+  window.Polymer = window.Polymer || {dom: 'shadow'};
+
+  var onImportLoaded = function() {
     // Auto binding template doesn't stamp with async import
     // Remove when github.com/Polymer/polymer/issues/1968 is fixed.
     template._readySelf();
-    document.body.classList.remove('loading');
-    var loading = document.getElementById('loading');
-    loading.addEventListener('transitionend', function(e) {
-      this.remove();
+
+    var loadContainer = document.getElementById('loading');
+    loadContainer.addEventListener('transitionend', function() {
+      loadContainer.parentNode.removeChild(loadContainer); // IE 10 doesn't support el.remove()
     });
 
+    document.body.classList.remove('loading');
+
     loadDebugData();
-  });
+  };
 
-// console.time('import load');
-//   var elImport = document.createElement('link');
-//   elImport.rel = 'import';
-//   elImport.href = 'elements/elements.html';
-//   elImport.onload = function() {
-// console.timeEnd('import load');
-//     loadDebugData();
-//     // setTimeout(function() {
-//       document.body.classList.remove('loading');
-//     // }, 1000);
-//   };
-//   elImport.async = true;
-//   document.head.appendChild(elImport);
-
-
-// console.log(Polymer.Base)
-//   Polymer.Base.importHref('elements/elements.html', function(link) {
-// console.log(link)
-//   }, function(e) {
-//     console.error('Main app HTML Import could not load.');
-//   });
+  // crbug.com/504944 - readyState never goes to complete in Chrome
+  // crbug.com/505279 - Resource Timing API is also not viable atm.
+  var link = document.querySelector('#bundle');
+  if (link.import && link.import.readyState === 'complete') {
+    onImportLoaded();
+  } else {
+    link.addEventListener('load', onImportLoaded);
+  }
 }
 
 function loadDebugData() {
@@ -86,9 +77,9 @@ function loadDebugData() {
   ajax2.url = '/data/threads.json';
   ajax2.addEventListener('response', function(e) {
     var threads = e.detail.response;
-    // for (var i = 0, thread; thread = threads[i]; ++i) {
-    //   thread.archived = false;
-    // }
+    for (var i = 0, thread; thread = threads[i]; ++i) {
+      thread.archived = false;
+    }
     template.threads = threads;
   });
 }
@@ -225,6 +216,10 @@ template._computeHideLogin = function(isAuthenticated) {
   return isAuthenticated || DEBUG;
 };
 
+// template._computeThreadTabIndex = function(archived) {
+//   return archived ? -1 : 0;
+// };
+
 template._computeShowSpinner = function(threads, isAuthenticated) {
   return !threads.length && isAuthenticated;
 };
@@ -261,6 +256,7 @@ template.undoAll = function(e, detail, sender) {
 
   for (var i = 0, threadEl; threadEl = previouslySelected[i]; ++i) {
     threadEl.archived = false;
+threadEl.removed = false;
   }
 
   previouslySelected = [];
@@ -289,7 +285,12 @@ template.onToastOpenClose = function(e) {
     //   threadEl.undo = false; // hide in-place UNDO UI.
     // }
   } else {
-    previouslySelected = [];
+    // Remove threads that were in the archived state.
+    for (var i = 0, threadEl; threadEl = previouslySelected[i]; ++i) {
+      this.removeThread(threadEl);
+    }
+
+    previouslySelected = []; // clear previous selections.
     this.$.fab.classList.remove('moveup');
   }
 };
@@ -406,6 +407,7 @@ template.archiveAll = function(e) {
 };
 
 template.onThreadArchive = function(e) {
+  // Ignore thread unarchive.
   if (!e.detail.showUndo) {
     return;
   }
@@ -417,6 +419,7 @@ template.onThreadArchive = function(e) {
         if (threadEl.archived) {
           threadEl.classList.add('shrink');
           threadEl.undo = false; // hide in-place UNDO UI.
+          this.removeThread(threadEl);
         }
       }
       this._scrollArchiveSetup = false;
@@ -424,6 +427,11 @@ template.onThreadArchive = function(e) {
   }
 
   this._scrollArchiveSetup = true;
+};
+
+template.removeThread = function(threadEl) {
+  threadEl.removed = true;
+  this.splice('threads', parseInt(threadEl.dataset.threadIndex), 1);
 };
 
 template.onSigninSuccess = function(e) {
