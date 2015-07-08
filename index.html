@@ -14,7 +14,7 @@
   <meta name="msapplication-tap-highlight" content="no">
   <meta name="theme-color" content="#e51c23">
 
-  <link rel="icon" sizes="192x192" href="images/gmail.png">
+  <link rel="icon" sizes="192x192" href="images/gmail_small.png">
   <link rel="manifest" href="manifest.json">
 
   <link rel="stylesheet" href="styles/app.css">
@@ -28,6 +28,23 @@
 
 <template id="t" is="dom-bind">
 
+<template is="dom-if" if="{{syncing}}">
+  <div id="refresh" class="fit layout vertical center-center">
+    <div id="refresh-spinner-container" class="layout vertical center-center shrink">
+      <paper-spinner active></paper-spinner>
+    </div>
+  </div>
+</template>
+
+<div id="loginscreen" class="layout vertical center-center fit"
+     hidden="[[_computeHideLogin(isAuthenticated)]]">
+  <google-signin width="wide" height="tall"
+      client-id="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
+      scopes="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.readonly"
+      on-google-signin-success="onSigninSuccess"
+      signed-in="{{signedIn}}"></google-signin>
+</div>
+
 <material-search id="search" narrow="[[narrow]]"
                  previous-searches="{{previousSearches}}" class="fit"></material-search>
 
@@ -35,16 +52,16 @@
 
   <paper-header-panel mode="scroll" drawer>
     <paper-toolbar id="navheader" class="tall">
-      <iron-image src="{{user.cover}}" placeholder="images/beach.jpg"
-                  sizing="cover" preload fade
-                  class="fit" style="height:192px;"></iron-image>
+      <iron-image id="coverimage" placeholder="images/beach.jpg"
+                  src="[[user.cover]]"
+                  sizing="cover" preload fade class="fit"></iron-image>
       <img class="middle profile" src$="{{user.profile}}" hidden="{{!user.profile}}">
       <div class="bottom layout vertical">
         <span>{{user.name}}</span>
         <span>{{user.email}}</span>
       </div>
     </paper-toolbar>
-    <paper-menu selected="0" selectable="paper-icon-item" on-iron-select="menuSelect">
+    <paper-menu selected="0" selectable="paper-icon-item" on-iron-activate="menuSelect">
       <paper-icon-item role="menuitem">
         <iron-icon icon="inbox" item-icon></iron-icon>Inbox
       </paper-icon-item>
@@ -81,10 +98,7 @@
   </paper-header-panel>
 
   <paper-scroll-header-panel id="scrollheader" main
-      keep-condensed-header condenses="{{!narrow}}" fixed="{{narrow}}"
-      on-trackstart="onRefreshStart"
-      on-tracky="onMainAreaTrack"
-      on-trackend="onRefreshUp">
+      keep-condensed-header condenses="{{!narrow}}" fixed="{{narrow}}">
 
     <paper-toolbar id="mainheader" class$="[[headerClass]]">
       <paper-icon-button icon="arrow-back" class="selected-item" on-tap="deselectAll"></paper-icon-button>
@@ -92,6 +106,7 @@
       <paper-icon-button id="navicon" icon="menu" paper-drawer-toggle></paper-icon-button>
       <div class="flex"></div>
       <span class="bottom indent title">{{headerTitle}}</span>
+      <paper-icon-button icon="refresh" on-tap="onRefreshInboxButton"></paper-icon-button>
       <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="toggleSearch"></paper-icon-button>
 
       <paper-icon-button icon="archive" class="selected-item" on-tap="archiveAll"></paper-icon-button>
@@ -111,35 +126,8 @@
         </paper-dropdown>
       </paper-menu-button> -->
 
-      <div id="refresh" class="bottom fit layout horizontal center-center"
-           on-transitionend="onRefreshTransitionEnd">
-        <div>
-          <!-- <paper-material class="fit" elevation="2" animated></paper-material> -->
-          <paper-spinner id="refreshspinner"></paper-spinner>
-        </div>
-      </div>
-
     </paper-toolbar>
     <div class="scroll-content" on-thread-archive="onThreadArchive">
-
-      <template is="dom-if" if="{{_computeShowSpinner(threads, signedIn)}}">
-        <div class="layout vertical center-center" style="height:100%">
-          <paper-spinner active></paper-spinner>
-        </div>
-      </template>
-
-      <div id="loginscreen" class="layout vertical center-center"
-           hidden="[[_computeHideLogin(isAuthenticated)]]">
-        <google-signin width="wide" height="tall"
-            client-id="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
-            scopes="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.readonly"
-            on-google-signin-success="onSigninSuccess"
-            on-google-signed-out="onSignOut"
-            on-google-signout-attempted="onSignOutAttempt"
-            on-google-signin-aware-signed-out="onSignInAwareSignout"
-            on-google-signin-failure="onSigninFailure"
-            signed-in="{{signedIn}}"></google-signin>
-      </div>
 
       <!-- TODO: don't pass all messages, users, labels into mail-thread -->
       <!-- activate-event="" ensures entire thread isn't selectable. -->
@@ -162,35 +150,41 @@
 
 </paper-drawer-panel>
 
-<paper-toast id="toast" class="layout horizontal justified"
-             duration="3000" text="{{toastMessage}}" visible="{{toastOpened}}"
-             on-paper-overlay-open="onToastOpenClose"
-             on-transitionend="onToastOpenClose">
-  <div on-tap="undoAll" class="undo">Undo</div>
+<paper-toast id="swtoast" class="toast" duration="6000"
+             text="This app is ready to work offline."></paper-toast>
+
+<paper-toast id="arhivedtoast" class="toast layout horizontal justified"
+             duration="7000" text="{{inboxToastMessage}}"
+             on-transitionend="onArchivedToastOpenClose">
+  <div on-tap="undoAll" class="action">Undo</div>
 </paper-toast>
 
 <paper-fab id="fab" icon="create" on-tap="newMail"></paper-fab>
 
-
 <!-- Cache data requests. -->
-<!--<iron-localstorage name="polymer-mail-user" value="{{user}}"></iron-localstorage>-->
-<!--<iron-localstorage name="polymer-mail-labels" value="{{labels}}"></iron-localstorage>-->
-<!--<iron-localstorage name="polymer-mail-threads" value="{{threads}}"></iron-localstorage>-->
-<!--<iron-localstorage name="polymer-mail-users" value="{{users}}"></iron-localstorage>-->
+<iron-localstorage name="polymer-mail-user" value="{{user}}"></iron-localstorage>
+<iron-localstorage name="polymer-mail-labels" value="{{labels}}"></iron-localstorage>
+<iron-localstorage name="polymer-mail-threads" value="{{threads}}"
+    on-iron-localstorage-load-empty="onCachedThreadsEmpty"></iron-localstorage>
+<iron-localstorage name="polymer-mail-users" value="{{users}}"></iron-localstorage>
 
 </template>
 
-<!-- <platinum-sw-register skip-waiting clients-claim auto-register>
-  <platinum-sw-cache default-cache-strategy="cacheFirst"></platinum-sw-cache>
-  <platinum-sw-fetch handler="gmailFetchHandler"
-                     origin="https://content\\.googleapis\\.com"
-                     path="/gmail/v1/(.*)"></platinum-sw-fetch>
-  <platinum-sw-fetch handler="gmailFetchHandler"
-                     origin="https://content\\.googleapis\\.com"
-                     path="/plus/v1/(.*)"></platinum-sw-fetch>
-</platinum-sw-register> -->
+<platinum-sw-register skip-waiting clients-claim auto-register>
+  <platinum-sw-cache default-cache-strategy="networkFirst"></platinum-sw-cache>
+  <!-- <platinum-sw-cache default-cache-strategy="networkFirst"
+                     precache-file="precache.json"></platinum-sw-cache> -->
+ <!--  <platinum-sw-fetch origin="https://content\.googleapis\.com"
+                     path="/gmail/v1/users/me/threads(.*)"
+                     handler="networkFirst"></platinum-sw-fetch>
+  <platinum-sw-fetch origin="https://content\.googleapis\.com"
+                     path="/plus/v1/(.*)"
+                     handler="networkFirst"></platinum-sw-fetch -->
+ <!--  <platinum-sw-fetch origin="https://content\.googleapis\.com"
+                     path="/plus/v1/people/me"></platinum-sw-fetch> -->
+</platinum-sw-register>
 
-<script src="scripts/polymer_metrics.js"></script>
+<!-- <script src="scripts/polymer_metrics.js"></script> -->
 <script src="scripts/app.js"></script>
 <!-- <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

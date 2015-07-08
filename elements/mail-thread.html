@@ -19,7 +19,7 @@ A single GMail mail thread.
   <style>
     :host {
       display: block;
-      background-color: #757575;
+      background-color: var(--paper-green-800);
       transition: max-height 200ms ease-in-out 200ms;
       max-height: 120px; /* bigger than thread can ever be. */
     }
@@ -56,7 +56,6 @@ A single GMail mail thread.
       color: #9e9e9e;
     }
     .messagecount {
-      font-weight: 400;
       color: #9e9e9e;
       margin-left: 5px;
     }
@@ -95,13 +94,12 @@ A single GMail mail thread.
       letter-spacing: 1px;
     }
     iron-icon[starred] {
-      color: var(--paper-yellow-600);
+      color: var(--paper-yellow-700);
     }
     .undo {
       @apply(--gmail-undo-action);
-    }
-    .undo:active {
-      background-color: #9e9e9e;
+      cursor: pointer;
+      font-weight: 500;
     }
     #archived {
       color: white;
@@ -185,7 +183,7 @@ A single GMail mail thread.
                 </template>
               </span>
               <iron-icon id="star" icon="[[starredIcon]]"
-                         on-tap="_onHighlightStar" starred$="{{thread.starred}}"></iron-icon>
+                         on-tap="_onHighlightStar" starred$="{{threadIsStarred}}"></iron-icon>
             </span>
           </header>
           <div id="actionicons" on-transitionend="_eatEvent" on-down="_onMailAction" class="self-start">
@@ -287,7 +285,7 @@ A single GMail mail thread.
       starredIcon: {
         type: String,
         value: '',
-        computed: '_computeStarredIcon(thread.starred)'
+        computed: '_computeStarredIcon(threadIsStarred)'
       },
 
       profileSrc: {
@@ -299,6 +297,12 @@ A single GMail mail thread.
 
       showMessageCount: {
         type: Number,
+        readOnly: true,
+        value: false
+      },
+
+      threadIsStarred: {
+        type: Boolean,
         readOnly: true,
         value: false
       }
@@ -325,7 +329,13 @@ A single GMail mail thread.
     },
 
     _computeProfilePic: function(users, name) {
-      this._setProfileSrc(this.users[name]);
+      if (!this.users) {
+        return null;
+      }
+      // var src = this.users && this.users[name] ? this.users[name] : '/images/user.png';
+      var src = this.users[name];
+      this._setProfileSrc(src);
+      return src;
     },
 
     _messagesChanged: function() {
@@ -333,6 +343,11 @@ A single GMail mail thread.
       this._setThread(this.messages[0]);
       if (this.messages.length >= 2) {
         this._setShowMessageCount(true);
+      }
+
+      // Show starred thread if any messages are starred.
+      if (this.messages.filter(function(m) { return m.starred; }).length) {
+        this._setThreadIsStarred(true);
       }
     },
 

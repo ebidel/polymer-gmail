@@ -5,7 +5,7 @@
 :root {
   --header-red-color: var(--paper-red-600);
 
-  --gmail-undo-action: {
+  --gmail-toast-action: {
     color: #ffa726;
     text-transform: uppercase;
     cursor: pointer;
@@ -30,8 +30,8 @@ paper-scroll-header-panel {
   isolation: isolate; /* force main header title to its own layer */
 }
 
-#toast .undo {
-  @apply(--gmail-undo-action);
+.toast .action {
+  @apply(--gmail-toast-action);
 }
 
 #fab {

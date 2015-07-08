@@ -21,6 +21,7 @@ var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 var fs = require('fs');
 var del = require('del');
+var glob = require('glob');
 var watchify = require('watchify');
 var browserify = require('browserify');
 // var source = require('vinyl-source-stream');
@@ -191,12 +192,29 @@ gulp.task('images', function() {
 //     .pipe(gulp.dest('./dist/third_party'));
 // });
 
-/** Service Worker */
-gulp.task('serviceworker', function() {
-  return gulp.src('./scripts/sw.js')
-    .pipe($.replace(/@VERSION@/g, version))
-    .pipe(gulp.dest('./dist/scripts'));
+// /** Service Worker */
+// gulp.task('serviceworker', function() {
+//   return gulp.src('./scripts/sw.js')
+//     .pipe($.replace(/@VERSION@/g, version))
+//     .pipe(gulp.dest('./dist/scripts'));
+// });
+
+// Generate a list of files to precached when serving from 'dist'.
+// The list will be consumed by the <platinum-sw-cache> element.
+gulp.task('precache', function(callback) {
+  var dir = 'dist';
+
+  glob('{elements,scripts,styles}/**/*.*', {cwd: dir}, function(error, files) {
+    if (error) {
+      callback(error);
+    } else {
+      files.push('index.html', './', 'bower_components/webcomponentsjs/webcomponents-lite.min.js');
+      var filePath = path.join(dir, 'precache.json');
+      fs.writeFile(filePath, JSON.stringify(files), callback);
+    }
+  });
 });
+
 
 /** Vulcanize */
 gulp.task('vulcanize', function() {
@@ -258,7 +276,8 @@ gulp.task('bump', function() {
 
 gulp.task('default', function() {
   isProd = true;
-  return runSequence('clean', 'bump', 'getversion', allTasks, 'vulcanize', 'copy_bower_components');
+  return runSequence('clean', 'bump', 'getversion',
+                     allTasks, 'vulcanize', 'precache', 'copy_bower_components');
 })
 
 gulp.task('dev', function() {
