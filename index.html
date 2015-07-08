@@ -46,7 +46,8 @@
 </div>
 
 <material-search id="search" narrow="[[narrow]]"
-                 previous-searches="{{previousSearches}}" class="fit"></material-search>
+                 previous-searches="{{previousSearches}}"
+                 on-search-change="_onSearch" class="fit"></material-search>
 
 <paper-drawer-panel id="drawerPanel" narrow="{{narrow}}">
 
@@ -128,6 +129,10 @@
 
     </paper-toolbar>
     <div class="scroll-content" on-thread-archive="onThreadArchive">
+
+      <template is="dom-if" if="[[_computeShowNoResults(threads, syncing)]]">
+        <span class="layout horizontal center-center fit">No results.</span>
+      </template>
 
       <!-- TODO: don't pass all messages, users, labels into mail-thread -->
       <!-- activate-event="" ensures entire thread isn't selectable. -->

@@ -26,7 +26,7 @@ template._scrollArchiveSetup = false; // True if the user has attempted to archi
 
 // TODO: save this from users past searches using iron-localstorage.
 template.previousSearches = [
-  "something fun",
+  "fake search",
   "tax forms",
   'to: me',
   'airline tickets',
@@ -213,8 +213,8 @@ GMail._fixUpMessages = function(resp) {
     }
     m.from.name = m.from.name.split('@')[0]; // Ensure email is split.
 
-    m.unread = m.labelIds.indexOf(this.Labels.UNREAD) != -1;
-    m.starred = m.labelIds.indexOf(this.Labels.STARRED) != -1;
+    m.unread = m.labelIds ? m.labelIds.indexOf(this.Labels.UNREAD) != -1 : false;
+    m.starred = m.labelIds ? m.labelIds.indexOf(this.Labels.STARRED) != -1 : false;
   }
 
   return messages;
@@ -270,6 +270,10 @@ GMail.fetchMail = function(q) {
 
       var batch = gapi.client.newBatch();
       var threads = resp.result.threads;
+
+      if (!threads) {
+        return [];
+      }
 
       // Setup a batch operation to fetch all messages for each thread.
       for (var i = 0, thread; thread = threads[i]; ++i) {
@@ -390,6 +394,9 @@ GPlus.fetchUsersCoverImage = function() {
   }.bind(this));
 };
 
+template._computeShowNoResults = function(threads, syncing) {
+  return !syncing && threads && !threads.length;
+};
 
 template._computeHideLogin = function(isAuthenticated) {
   return isAuthenticated || DEBUG;
@@ -440,6 +447,12 @@ template.onArchivedToastOpenClose = function() {
   }
 };
 
+template._onSearch = function(e) {
+  this.toggleSearch();
+  this.showLoadingSpinner();
+  this.refreshInbox(e.detail.value);
+};
+
 template.toggleSearch = function() {
   this.$.search.toggle();
 };
@@ -474,15 +487,20 @@ template.refreshLabels = function() {
   }, GMailErrorCallback);
 };
 
-template.refreshInbox = function() {
+template.refreshInbox = function(opt_query) {
   clearInterval(inboxRefreshId);
 
-  return GMail.fetchMail('in:inbox').then(function(threads) {
+  var query = opt_query || 'in:inbox';
+
+  return GMail.fetchMail(query).then(function(threads) {
     template.hideLoadingSpinner();
     template.threads = threads;
 
     // TODO: use gmail's push api: http://googleappsdeveloper.blogspot.com/2015/05/gmail-api-push-notifications-dont-call.html
-    inboxRefreshId = setInterval(template.refreshInbox.bind(template), REFRESH_INTERVAL);
+    // Setup auto-fresh if we're querying the inbox.
+    if (!opt_query) {
+      inboxRefreshId = setInterval(template.refreshInbox.bind(template), REFRESH_INTERVAL);
+    }
   }, GMailErrorCallback);
 };
 

@@ -183,7 +183,6 @@ paper-scroll-header-panel .scroll-content {
 }
 
 #refresh {
-  position: absolute;
   z-index: 1;
   pointer-events: none;
 }
