@@ -24,6 +24,7 @@
   paper-menu {
     margin-left: 0;
     margin-right: 0;
+    overflow: auto;
   }
 
   paper-toolbar {
@@ -42,6 +43,7 @@
     paper-menu {
       max-width: 50%;
       margin: 0 auto;
+      max-height: 50vh;
     }
   }
 
@@ -149,6 +151,7 @@
     _searchValueChanged: function() {
       if (this.searchValue) {
         this.fire('search-change', {value: this.searchValue});
+        this.searchValue = '';
       }
     },
 

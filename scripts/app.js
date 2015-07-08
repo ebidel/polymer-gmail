@@ -26,11 +26,9 @@ template._scrollArchiveSetup = false; // True if the user has attempted to archi
 
 // TODO: save this from users past searches using iron-localstorage.
 template.previousSearches = [
-  "fake search",
-  "tax forms",
+  "is: chat",
   'to: me',
-  'airline tickets',
-  'party on saturday'
+  'airline tickets'
 ];
 
 
@@ -451,6 +449,7 @@ template._onSearch = function(e) {
   this.toggleSearch();
   this.showLoadingSpinner();
   this.refreshInbox(e.detail.value);
+  this.unshift('previousSearches', e.detail.value);
 };
 
 template.toggleSearch = function() {
