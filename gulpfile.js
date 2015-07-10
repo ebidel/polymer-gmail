@@ -21,7 +21,6 @@ var $ = require('gulp-load-plugins')();
 var fs = require('fs');
 var del = require('del');
 var glob = require('glob');
-// var watchify = require('watchify');
 
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
@@ -254,8 +253,7 @@ gulp.task('vulcanize', function() {
     }))
     // .pipe($.minifyInline()) // TODO: messes up SVG icons
     .pipe($.crisper()) // Separate JS into its own file for CSP compliance.
-    .pipe(gulp.dest('./dist/elements'));
-
+    .pipe(gulp.dest('./dist/elements'))
 });
 
 // gulp.task('clean-elements-folder', function(done) {
