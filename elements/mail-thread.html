@@ -93,6 +93,9 @@ A single GMail mail thread.
       font-weight: 400;
       letter-spacing: 1px;
     }
+    #star {
+      cursor: pointer;
+    }
     iron-icon[starred] {
       color: var(--paper-yellow-700);
     }
@@ -371,7 +374,8 @@ A single GMail mail thread.
 
     _onHighlightStar: function(e) {
       e.stopPropagation();
-      this.set('thread.starred', !this.thread.starred);
+      this.thread.starred = !this.thread.starred;
+      this._setThreadIsStarred(this.thread.starred);
     },
 
     _onMailAction: function(e) {
