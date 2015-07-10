@@ -1,5 +1,7 @@
-function PolymerMetrics(opt_template) {
-  var t = opt_template || document;
+'use strict';
+
+function PolymerMetrics(optTemplate) {
+  var t = optTemplate || document;
   t.addEventListener('dom-change', function(e) {
     window.performance.mark('mark_dom_change_fired');
   });
@@ -7,17 +9,19 @@ function PolymerMetrics(opt_template) {
   document.addEventListener('WebComponentsReady', function(e) {
     window.performance.mark('mark_WebComponentsReady_fired');
   });
-};
+}
 
 PolymerMetrics.prototype.getFirstPaintTime = function() {
   var firstPaint = 0;
+  var firstPaintTime;
 
   if (window.chrome && window.chrome.loadTimes) {
     // Convert to ms
-    var firstPaint = window.chrome.loadTimes().firstPaintTime * 1000;
-    firstPaintTime = firstPaint - (window.chrome.loadTimes().startLoadTime * 1000);
+    var loadTimes = window.chrome.loadTimes();
+    firstPaint = loadTimes.firstPaintTime * 1000;
+    firstPaintTime = firstPaint - (loadTimes.startLoadTime * 1000);
   } else if (typeof window.performance.timing.msFirstPaint === 'number') { // IE
-    var firstPaint = window.performance.timing.msFirstPaint;
+    firstPaint = window.performance.timing.msFirstPaint;
     firstPaintTime = firstPaint - window.performance.timing.navigationStart;
   }
 
@@ -36,7 +40,8 @@ PolymerMetrics.prototype.printPageMetrics = function() {
   p.measure('DOMContentLoaded', 'navigationStart', 'domContentLoadedEventEnd');
   p.measure('load', 'navigationStart', 'loadEventStart');
   p.measure('dom-change', 'navigationStart', 'mark_dom_change_fired');
-  p.measure('WebComponentsReady', 'navigationStart', 'mark_WebComponentsReady_fired');
+  p.measure('WebComponentsReady', 'navigationStart',
+            'mark_WebComponentsReady_fired');
 
   // console.log(performance.timing.domComplete - performance.timing.navigationStart)
   // console.debug('DOMContentLoaded', '@', p.timing.domComplete - p.timing.navigationStart, 'ms');//, item.duration, 'ms');
@@ -47,6 +52,7 @@ PolymerMetrics.prototype.printPageMetrics = function() {
     return a.duration - b.duration;
   });
 
+  // jshint boss:true
   for (var i = 0, item; item = items[i]; ++i) {
     console.debug(item.name, '@', item.duration, 'ms');
   }
@@ -59,3 +65,14 @@ PolymerMetrics.prototype.printPageMetrics = function() {
 //   window.addEventListener('load', polyMetrics.printPageMetrics);
 // }
 
+// Main page:
+//
+// var firstPaintRaf;
+// requestAnimationFrame(function() {
+//   firstPaintRaf = performance.now();
+// });
+
+// if (window.PolymerMetrics) {
+//   var polyMetrics = new PolymerMetrics(template);
+//   window.addEventListener('load', polyMetrics.printPageMetrics);
+// }

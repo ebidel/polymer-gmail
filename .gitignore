@@ -2,4 +2,5 @@
 bower_components
 dist
 node_modules
+scripts/bundle.js
 vulcanized*

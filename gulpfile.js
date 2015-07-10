@@ -1,5 +1,4 @@
 /**
- *
  * Copyright 2015 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +21,12 @@ var $ = require('gulp-load-plugins')();
 var fs = require('fs');
 var del = require('del');
 var glob = require('glob');
-var watchify = require('watchify');
+// var watchify = require('watchify');
+
 var browserify = require('browserify');
-// var source = require('vinyl-source-stream');
+var source = require('vinyl-source-stream');
 var babelify = require('babelify');
+
 var runSequence = require('run-sequence');
 var path = require('path');
 
@@ -104,7 +105,7 @@ var isProd = false;
 
 /** Clean */
 gulp.task('clean', function(done) {
-  del(['dist'], done);
+  del(['dist', 'scripts/bundle.js'], done);
 });
 
 /** Styles */
@@ -138,15 +139,43 @@ gulp.task('styles', function() {
 });
 
 /** Scripts */
-gulp.task('scripts', function() {
-  // var bundleKeys = Object.keys(bundles);
-  // for (var b = 0; b < bundleKeys.length; b++) {
-  //   buildBundle(bundleKeys[b]);
-  // }
-  return gulp.src('./scripts/*.js')
-    .pipe($.uglify())
-    .pipe(gulp.dest('./dist/scripts'));
-})
+gulp.task('js', ['jshint', 'jscsrc']);
+
+// Lint JavaScript
+gulp.task('jshint', function() {
+  return gulp.src(['./scripts/**/*.js'])
+    .pipe($.jshint('.jshintrc'))
+    .pipe($.jshint.reporter('jshint-stylish'))
+});
+
+// Check JS style
+gulp.task('jscsrc', function() {
+  return gulp.src(['./scripts/**/*.js'])
+    .pipe($.jscs());
+});
+
+function buildBundle(file) {
+  return browserify({
+    entries: [file],
+    debug: isProd
+  })
+  .transform(babelify) // es6 -> e5
+  .bundle();
+}
+
+gulp.task('bundlejs', function() {
+  console.log('==Building JS bundle==');
+
+  var dest = isProd ? 'dist' : '';
+
+  return buildBundle('./scripts/app.js')
+    .pipe(source('bundle.js'))
+    .pipe($.streamify($.uglify()))
+    .pipe($.license('Apache', {
+      organization: 'Google Inc. All rights reserved.'
+    }))
+    .pipe(gulp.dest('./' + dest + '/scripts'))
+});
 
 /** Root */
 gulp.task('root', function() {
@@ -164,10 +193,17 @@ gulp.task('root', function() {
 });
 
 gulp.task('copy_bower_components', function() {
-  return gulp.src([
-      'bower_components/webcomponentsjs/webcomponents-lite.min.js'
+  gulp.src([
+      'bower_components/webcomponentsjs/webcomponents-lite.min.js',
+      'bower_components/platinum-sw/*.js'
     ], {base: './'})
     .pipe(gulp.dest('./dist'));
+
+  // Service worker elements want files in a specific location.
+  gulp.src(['bower_components/sw-toolbox/*.js'])
+    .pipe(gulp.dest('./dist/sw-toolbox'));
+  gulp.src(['bower_components/platinum-sw/bootstrap/*.js'])
+    .pipe(gulp.dest('./dist/elements/bootstrap'));
 });
 
 /** HTML */
@@ -186,18 +222,6 @@ gulp.task('images', function() {
     .pipe(gulp.dest('./dist/images'));
 });
 
-// /** Third Party */
-// gulp.task('third_party', function() {
-//   return gulp.src('./src/third_party/**/*.*')
-//     .pipe(gulp.dest('./dist/third_party'));
-// });
-
-// /** Service Worker */
-// gulp.task('serviceworker', function() {
-//   return gulp.src('./scripts/sw.js')
-//     .pipe($.replace(/@VERSION@/g, version))
-//     .pipe(gulp.dest('./dist/scripts'));
-// });
 
 // Generate a list of files to precached when serving from 'dist'.
 // The list will be consumed by the <platinum-sw-cache> element.
@@ -218,6 +242,7 @@ gulp.task('precache', function(callback) {
 
 /** Vulcanize */
 gulp.task('vulcanize', function() {
+  console.log('==Vulcanizing HTML Imports==');
 
   return gulp.src('./elements/elements.html')
     .pipe($.vulcanize({
@@ -241,14 +266,12 @@ gulp.task('vulcanize', function() {
 
 /** Watches */
 gulp.task('watch', function() {
-  $.watch('./styles/**/*.scss', ['styles']);
-  $.watch('./*.html', ['root']);
-  $.watch('./elements/**/*.html', ['vulcanize']);
-  $.watch('./images/**/*.*', ['images']);
-  // $.watch('./src/third_party/**/*.*', ['third_party']);
-  //$.watch('./scripts/sw.js', ['serviceworker']);
-
-  // watchBundles();
+  gulp.watch('./styles/**/*.scss', ['styles']);
+  gulp.watch('./*.html', ['root']);
+  // gulp.watch('./sw-import.js', ['serviceworker']);
+  gulp.watch('./elements/**/*.html', ['vulcanize']);
+  gulp.watch('./images/**/*.*', ['images']);
+  gulp.watch('./scripts/**/*.js', ['bundlejs']);
 });
 
 gulp.task('getversion', function() {
@@ -257,16 +280,7 @@ gulp.task('getversion', function() {
 
 /** Main tasks */
 
-// (function () {
-//   var bundleKeys = Object.keys(bundles);
-//   var key = null;
-//   for (var b = 0; b < bundleKeys.length; b++) {
-//     key = bundleKeys[b];
-//     bundles[key].bundle = createBundle(bundles[key].url);
-//   }
-// })();
-
-var allTasks = ['root', 'styles', 'scripts', 'images'];//, 'serviceworker'];
+var allTasks = ['root', 'styles', 'bundlejs', 'images'];//, 'serviceworker'];
 
 gulp.task('bump', function() {
   return gulp.src('./package.json')
@@ -281,5 +295,5 @@ gulp.task('default', function() {
 })
 
 gulp.task('dev', function() {
-  return runSequence('clean', 'getversion', allTasks);//, 'watch');
+  return runSequence('clean', 'getversion', allTasks, 'watch');
 });

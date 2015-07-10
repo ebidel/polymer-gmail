@@ -160,7 +160,7 @@
 
 <paper-toast id="arhivedtoast" class="toast layout horizontal justified"
              duration="7000" text="{{inboxToastMessage}}"
-             on-transitionend="onArchivedToastOpenClose">
+             on-transitionend="_onArchivedToastOpenClose">
   <div on-tap="undoAll" class="action">Undo</div>
 </paper-toast>
 
@@ -170,7 +170,7 @@
 <iron-localstorage name="polymer-mail-user" value="{{user}}"></iron-localstorage>
 <iron-localstorage name="polymer-mail-labels" value="{{labels}}"></iron-localstorage>
 <iron-localstorage name="polymer-mail-threads" value="{{threads}}"
-    on-iron-localstorage-load-empty="onCachedThreadsEmpty"></iron-localstorage>
+    on-iron-localstorage-load-empty="_onCachedThreadsEmpty"></iron-localstorage>
 <iron-localstorage name="polymer-mail-users" value="{{users}}"></iron-localstorage>
 
 </template>
@@ -190,7 +190,7 @@
 </platinum-sw-register>
 
 <!-- <script src="scripts/polymer_metrics.js"></script> -->
-<script src="scripts/app.js"></script>
+<script src="scripts/bundle.js"></script>
 <!-- <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

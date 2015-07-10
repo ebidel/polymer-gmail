@@ -1,0 +1,23 @@
+{
+  "node": true,
+  "browser": true,
+  "esnext": true,
+  "bitwise": true,
+  "curly": true,
+  "eqeqeq": true,
+  "funcscope": true,
+  "immed": true,
+  "indent": 2,
+  "newcap": true,
+  "noarg": true,
+  "quotmark": "single",
+  "undef": true,
+  "unused": "vars",
+  "strict": true,
+  "globals": {
+    "gapi": true,
+    "Polymer": true,
+    "GMail": true,
+    "GPlus": true
+  }
+}
