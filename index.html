@@ -155,8 +155,10 @@
 
 </paper-drawer-panel>
 
-<paper-toast id="swtoast" class="toast" duration="6000"
-             text="This app is ready to work offline."></paper-toast>
+<paper-toast id="swtoast" class="toast layout horizontal justified" duration="7000"
+             text="Ready to work offline. Tap to refresh.">
+  <span on-tap="refreshApp" class="action">Refresh</span>
+</paper-toast>
 
 <paper-toast id="arhivedtoast" class="toast layout horizontal justified"
              duration="7000" text="{{inboxToastMessage}}"
@@ -170,7 +172,7 @@
 <iron-localstorage name="polymer-mail-user" value="{{user}}"></iron-localstorage>
 <iron-localstorage name="polymer-mail-labels" value="{{labels}}"></iron-localstorage>
 <iron-localstorage name="polymer-mail-threads" value="{{threads}}"
-    on-iron-localstorage-load-empty="_onCachedThreadsEmpty"></iron-localstorage>
+      on-iron-localstorage-load-empty="_onCachedThreadsEmpty"></iron-localstorage>
 <iron-localstorage name="polymer-mail-users" value="{{users}}"></iron-localstorage>
 
 </template>

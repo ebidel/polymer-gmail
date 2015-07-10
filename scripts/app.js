@@ -423,6 +423,10 @@ template.signOut = function(e) {
   localStorage.clear();
 };
 
+template.refreshApp = function() {
+  location.reload();
+};
+
 template.headerClass = template._computeMainHeaderClass(template.narrow, 0);
 
 template.addEventListener('dom-change', function(e) {
@@ -462,6 +466,11 @@ template.addEventListener('dom-change', function(e) {
 var sw = document.querySelector('platinum-sw-register');
 sw.addEventListener('service-worker-installed', function(e) {
   var toast = document.querySelector('#swtoast');
+  toast.show();
+});
+sw.addEventListener('service-worker-updated', function(e) {
+  var toast = document.querySelector('#swtoast');
+  toast.text = 'A new version of this app is available. Tap to refresh';
   toast.show();
 });
 
