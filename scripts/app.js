@@ -114,12 +114,6 @@ function loadData() {
 
     return;
   }
-
-  if (!navigator.onLine) {
-    template.async(function() {
-      this.toggleToast('Connection is flaky. Content may be stale.');
-    }, 1000);
-  }
 }
 
 /**
@@ -470,8 +464,12 @@ sw.addEventListener('service-worker-installed', function(e) {
 });
 sw.addEventListener('service-worker-updated', function(e) {
   var toast = document.querySelector('#swtoast');
-  toast.text = 'A new version of this app is available. Tap to refresh';
+  toast.text = 'A new version is available. Tap to refresh';
   toast.show();
+});
+
+window.addEventListener('offline', function() {
+  template.toggleToast('Connection is flaky. Content may be stale.');
 });
 
 // // Prevent context menu.

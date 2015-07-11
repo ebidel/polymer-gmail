@@ -256,12 +256,6 @@ gulp.task('vulcanize', function() {
     .pipe(gulp.dest('./dist/elements'))
 });
 
-// gulp.task('clean-elements-folder', function(done) {
-//   del(['dist/elements/**/*.*',
-//       '!dist/elements/**/*.svg',
-//       '!dist/elements/**/*.html'], done);
-// });
-
 /** Watches */
 gulp.task('watch', function() {
   gulp.watch('./styles/**/*.scss', ['styles']);

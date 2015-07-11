@@ -157,6 +157,8 @@
 
 </paper-drawer-panel>
 
+<paper-toast id="toast" class="toast layout horizontal justified" duration="7000"></paper-toast>
+
 <paper-toast id="swtoast" class="toast layout horizontal justified" duration="7000"
              text="Ready to work offline. Tap to refresh.">
   <span on-tap="refreshApp" class="action">Refresh</span>
@@ -195,13 +197,13 @@
 
 <!-- <script src="scripts/polymer_metrics.js"></script> -->
 <script src="scripts/bundle.js"></script>
-<!-- <script>
+<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
   ga('create', 'UA-56540783-1', 'auto');
   ga('send', 'pageview');
-</script> -->
+</script>
 </body>
 </html>
