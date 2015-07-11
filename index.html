@@ -107,8 +107,10 @@
       <paper-icon-button id="navicon" icon="menu" paper-drawer-toggle></paper-icon-button>
       <div class="flex"></div>
       <span class="bottom indent title">{{headerTitle}}</span>
-      <paper-icon-button icon="refresh" on-tap="onRefreshInboxButton"></paper-icon-button>
-      <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="toggleSearch"></paper-icon-button>
+      <paper-icon-button icon="refresh" class="fade-on-drawer-open"
+                         on-tap="onRefreshInboxButton"></paper-icon-button>
+      <paper-icon-button icon="search" class="fade-on-drawer-open"
+                         on-tap="toggleSearch"></paper-icon-button>
 
       <paper-icon-button icon="archive" class="selected-item" on-tap="archiveAll"></paper-icon-button>
       <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
