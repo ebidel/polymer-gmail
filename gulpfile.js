@@ -177,15 +177,18 @@ gulp.task('bundlejs', function() {
 });
 
 /** Root */
-gulp.task('root', function() {
+gulp.task('root', ['getversion'], function() {
   gulp.src([
       './*.*',
       '!{package,bower}.json',
       '!gulpfile.js',
-      '!*.md',
+      '!deploy.sh',
+      '!*.md'
     ])
     .pipe($.replace(/@VERSION@/g, version))
     .pipe(gulp.dest('./dist/'));
+
+  gulp.src(['./data/*.json']).pipe(gulp.dest('./dist/data'));
 
   return gulp.src('./favicon.ico')
     .pipe(gulp.dest('./dist/'));
