@@ -47,20 +47,22 @@ template.previousSearches = [
   'airline tickets'
 ];
 
-// Conditionally load webcomponents polyfill (if needed).
-var webComponentsSupported = ('registerElement' in document &&
-    'import' in document.createElement('link') &&
-    'content' in document.createElement('template'));
+// // Conditionally load webcomponents polyfill (if needed).
+// var webComponentsSupported = ('registerElement' in document &&
+//     'import' in document.createElement('link') &&
+//     'content' in document.createElement('template'));
 
-if (!webComponentsSupported) {
-  var script = document.createElement('script');
-  script.async = true;
-  script.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
-  script.onload = finishLazyLoadingImports;
-  document.head.appendChild(script);
-} else {
-  finishLazyLoadingImports();
-}
+// if (!webComponentsSupported) {
+//   var script = document.createElement('script');
+//   script.async = true;
+//   script.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
+//   script.onload = finishLazyLoadingImports;
+//   document.head.appendChild(script);
+// } else {
+//   finishLazyLoadingImports();
+// }
+
+finishLazyLoadingImports();
 
 function finishLazyLoadingImports() {
   // Use native Shadow DOM if it's available in the browser.
@@ -69,7 +71,7 @@ function finishLazyLoadingImports() {
   var onImportLoaded = function() {
     // Auto binding template doesn't stamp with async import
     // Remove when github.com/Polymer/polymer/issues/1968 is fixed.
-    template._readySelf();
+    //template._readySelf();
 
     var loadContainer = document.getElementById('loading');
     loadContainer.addEventListener('transitionend', function() {
@@ -81,14 +83,16 @@ function finishLazyLoadingImports() {
     document.body.classList.remove('loading');
   };
 
-  // crbug.com/504944 - readyState never goes to complete in Chrome
-  // crbug.com/505279 - Resource Timing API is also not viable atm.
-  var link = document.querySelector('#bundle');
-  if (link.import && link.import.readyState === 'complete') {
-    onImportLoaded();
-  } else {
-    link.addEventListener('load', onImportLoaded);
-  }
+  //window.addEventListener('WebComponentsReady', onImportLoaded);
+
+  // // crbug.com/504944 - readyState never goes to complete in Chrome
+  // // crbug.com/505279 - Resource Timing API is also not viable atm.
+  // var link = document.querySelector('#bundle');
+  // if (link.import && link.import.readyState === 'complete') {
+  //   onImportLoaded();
+  // } else {
+  //   link.addEventListener('load', onImportLoaded);
+  // }
 }
 
 /**

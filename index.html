@@ -18,13 +18,13 @@
   <link rel="manifest" href="manifest.json">
 
   <link rel="stylesheet" href="styles/app.css">
-
-  <link rel="import" id="bundle" href="elements/elements.html" async>
+  <script src="/bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <link rel="import" id="bundle" href="elements/elements.html" async2>
 </head>
-<body class="fullbleed loading">
+<body class="fullbleed loading" unresolved>
 
 <!-- Loading splash outside of Imports + Polymer so 1st paint is always fast. -->
-<div id="loading"></div>
+<!-- <div id="loading"></div> -->
 
 <template id="t" is="dom-bind">
 

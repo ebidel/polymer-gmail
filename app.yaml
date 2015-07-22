@@ -1,5 +1,5 @@
 application: poly-mail
-version: polymer10
+version: slowload
 runtime: python27
 api_version: 1
 threadsafe: yes
