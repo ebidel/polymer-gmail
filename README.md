@@ -2,30 +2,61 @@
 
 **Note**: the app is *read only* despite what the permissions popup says. Also, most of the buttons don't do anything. There's a lot of missing functionality.
 
-#### Building
+#### Setup
 
-Install [Vulcanize](https://github.com/polymer/vulcanize) (`npm install -g vulcanize`) and run:
+In your local checkout, install the deps and Polymer elements
 
-    vulcanize -o vulcanized.html elements.html
+        npm install; bower install
 
-This will create vulcanized.html, which is used in index.html.
+#### Development & Building
 
-#### Testing
+##### Compile the ES6 goodness
 
-Hitting http://localhost:8080?debug will bypass Google Sign-in and use mock data for threads. Under this
+While ES6 Classes run natively in Chrome, FF Nightly, Safari 9, and Edge, some of JS
+in PolyMail still requires compilation using Babel. In particular, `scripts/googleapis.js` uses ES6 `=>` functions and modules (`import` statement) in addition to classes.
+
+Compile the JS:
+
+        gulp jsbundle
+
+This produces a single built and concatenated `scripts/bundle.js`. You're ready to run the app!
+
+##### Run the app
+
+Use any webserver you'd like. I use [npm serve](https://www.npmjs.com/package/serve):
+
+    serve -p 8080
+
+**Run /dist**
+
+This serves the app from the root folder. To run the production version, first run
+`gulp` then hit [http://localhost:8080/dist/](http://localhost:8080/dist/).
+
+##### Watch files
+
+To rebuild the [vulcanized](https://github.com/polymer/vulcanize) elements.html bundle
+and compile the ES6, run the `watch` task:
+
+    gulp watch
+
+#### Using test data
+
+Hitting [http://localhost:8080?debug](http://localhost:8080?debug) will bypass Google Sign-in and use mock data for threads. Under this
 testig mode, you will no see custom labels in the left nav or user profile images show up on threads.
 
 #### Future improvements
 
-- Caching API requests
-- full offline support (Service Worker)
-- notifications (SW/GCM)
+- Push notifications
 - Reading emails in a thread
 - Creating emails
-- Searching emails
-- Label filtering
-- Pagnination (currently only the first few emails are read)
+- Clicking Label actually does filtering
+- Pagination (currently only the first few emails are visible)
 - a11y (keyboard access, tab support)
 - i18n
-- better perf on mobile (gesture UX needs work)
-- use new drawer-panel for touch support
+- [x] Service Worker offline support & caching
+- [x] Caching API requests
+- [x] Auto-refresh inbox
+- [x] Use Google Sign-in 2.0
+- [x] Use GMail API push notifications ([docs](https://developers.google.com/gmail/api/guides/push))
+- [x] Use GMail API history feature ([docs](https://developers.google.com/gmail/api/v1/reference/users/history/list))
+- [x] Searching emails. Full gmail search (e.g. `to:me from:someone@gmail.com` is supported`).
