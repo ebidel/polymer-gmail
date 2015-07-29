@@ -150,7 +150,9 @@ gulp.task('images', function() {
   return gulp.src([
       './images/**/*.svg',
       './images/**/*.png',
-      './images/**/*.jpg'])
+      './images/**/*.jpg',
+      '!./images/screenshot.jpg'
+    ])
     .pipe(gulp.dest('./dist/images'));
 });
 
