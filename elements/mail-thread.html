@@ -293,7 +293,6 @@ A single GMail mail thread.
 
       profileSrc: {
         type: String,
-        value: null,
         readOnly: true,
         computed: '_computeProfilePic(users, thread.from.name)'
       },
@@ -337,7 +336,6 @@ A single GMail mail thread.
       }
       // var src = this.users && this.users[name] ? this.users[name] : '/images/user.png';
       var src = this.users[name];
-      // this._setProfileSrc(src); // No longer works in Polymer 1.0.8
       return src;
     },
 

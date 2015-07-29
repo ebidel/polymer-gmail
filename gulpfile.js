@@ -92,7 +92,7 @@ function buildBundle(file) {
   .bundle();
 }
 
-gulp.task('bundlejs', function() {
+gulp.task('jsbundle', function() {
   console.log('==Building JS bundle==');
 
   var dest = isProd ? 'dist' : '';
@@ -196,7 +196,7 @@ gulp.task('watch', function() {
   // gulp.watch('./sw-import.js', ['serviceworker']);
   gulp.watch('./elements/**/*.html', ['vulcanize']);
   gulp.watch('./images/**/*.*', ['images']);
-  gulp.watch('./scripts/**/*.js', ['bundlejs']);
+  gulp.watch('./scripts/**/*.js', ['jsbundle']);
 });
 
 gulp.task('getversion', function() {
@@ -205,7 +205,7 @@ gulp.task('getversion', function() {
 
 /** Main tasks */
 
-var allTasks = ['root', 'styles', 'bundlejs', 'images'];//, 'serviceworker'];
+var allTasks = ['root', 'styles', 'jsbundle', 'images'];//, 'serviceworker'];
 
 gulp.task('bump', function() {
   return gulp.src('./package.json')
