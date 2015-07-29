@@ -8,9 +8,11 @@ Demo: [https://poly-mail.appspot.com/](https://poly-mail.appspot.com/) &nbsp; (m
 
 **Note**: the app is *read only* despite what the permissions popup says. Also, most of the buttons don't do anything. There's a lot of missing functionality.
 
-**Performance**
+#### Performance
 
-The performance improvements over the Polymer 0.5 version are documented [here](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813). TL;DR: paint is within 690ms and loads < 1s on Chrome desktop.
+*TLDR: paint is ~690ms and the app loads ~1s on Chrome desktop.* The full performance improvements over the Polymer 0.5 version are documented [here](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813). 
+
+===
 
 ### Setup
 
