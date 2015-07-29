@@ -1,14 +1,19 @@
 ## PolyMail
 
 PolyMail is an offline mobile-first web app built using [Polymer 1.0](https://www.polymer-project.org/1.0/) and [Service Worker](http://www.html5rocks.com/en/tutorials/service-worker/introduction/).
-It's a WIP web version of the [new Gmail native app UI](http://gmailblog.blogspot.com/2014/11/a-more-modern-gmail-app-for-android.html).
 
 - Demo: [https://poly-mail.appspot.com/](https://poly-mail.appspot.com/)
 - Demo (mock data): [https://poly-mail.appspot.com/?debug](https://poly-mail.appspot.com/?debug)
 
+![PolyMail](https://raw.githubusercontent.com/ebidel/polymer-gmail/master/images/screenshot.jpg)
+
+This is a WIP web version of the [new Gmail native app UI](http://gmailblog.blogspot.com/2014/11/a-more-modern-gmail-app-for-android.html).
+
 **Note**: the app is *read only* despite what the permissions popup says. Also, most of the buttons don't do anything. There's a lot of missing functionality.
 
-![PolyMail](https://raw.githubusercontent.com/ebidel/polymer-gmail/master/images/screenshot.jpg)
+**Performance**
+
+The performance improvements over the Polymer 0.5 version are documented [here](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813). TL;DR: paint is within 690ms and loads < 1s on Chrome desktop.
 
 ### Setup
 
