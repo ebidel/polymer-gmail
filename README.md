@@ -1,13 +1,11 @@
 ## PolyMail
 
-PolyMail is an offline mobile-first web app built using [Polymer 1.0](https://www.polymer-project.org/1.0/) and [Service Worker](http://www.html5rocks.com/en/tutorials/service-worker/introduction/).
+PolyMail is an offline, mobile-first, web version of the [new Gmail native app UI](http://gmailblog.blogspot.com/2014/11/a-more-modern-gmail-app-for-android.html). It's built using [Polymer 1.0](https://www.polymer-project.org/1.0/) and [Service Worker](http://www.html5rocks.com/en/tutorials/service-worker/introduction/) and...is a WIP.
 
 - Demo: [https://poly-mail.appspot.com/](https://poly-mail.appspot.com/)
 - Demo (mock data): [https://poly-mail.appspot.com/?debug](https://poly-mail.appspot.com/?debug)
 
 ![PolyMail](https://raw.githubusercontent.com/ebidel/polymer-gmail/master/images/screenshot.jpg)
-
-This is a WIP web version of the [new Gmail native app UI](http://gmailblog.blogspot.com/2014/11/a-more-modern-gmail-app-for-android.html).
 
 **Note**: the app is *read only* despite what the permissions popup says. Also, most of the buttons don't do anything. There's a lot of missing functionality.
 
