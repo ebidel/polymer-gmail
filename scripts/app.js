@@ -81,7 +81,7 @@ function finishLazyLoadingImports() {
   };
 
   // crbug.com/504944 - readyState never goes to complete until Chrome 46.
-  // crbug.com/505279 - Resource Timing API is also not viable atm.
+  // crbug.com/505279 - Resource Timing API is not available until Chrome 46.
   var link = document.querySelector('#bundle');
   if (link.import && link.import.readyState === 'complete') {
     onImportLoaded();
