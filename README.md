@@ -12,6 +12,8 @@ Demo: [https://poly-mail.appspot.com/](https://poly-mail.appspot.com/) &nbsp; (m
 
 *TLDR: paint is ~690ms and the app loads ~1s on Chrome desktop.* The full performance improvements over the Polymer 0.5 version are documented [here](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813). 
 
+[Full results](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813)
+
 ===
 
 ### Setup
