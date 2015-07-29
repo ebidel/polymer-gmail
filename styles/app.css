@@ -93,6 +93,7 @@ paper-icon-item.iron-selected iron-icon {
 
 #coverimage {
   height: 192px;
+  top: 0;
 }
 
 #navheader .bottom :last-child {

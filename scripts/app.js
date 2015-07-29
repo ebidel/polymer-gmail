@@ -67,9 +67,8 @@ function finishLazyLoadingImports() {
   window.Polymer = window.Polymer || {dom: 'shadow'};
 
   var onImportLoaded = function() {
-    // Auto binding template doesn't stamp with async import
-    // Remove when github.com/Polymer/polymer/issues/1968 is fixed.
-    template._readySelf();
+    // Auto binding template doesn't stamp with async import. Need to call render().
+    template.render();
 
     var loadContainer = document.getElementById('loading');
     loadContainer.addEventListener('transitionend', function() {
@@ -81,7 +80,7 @@ function finishLazyLoadingImports() {
     document.body.classList.remove('loading');
   };
 
-  // crbug.com/504944 - readyState never goes to complete in Chrome
+  // crbug.com/504944 - readyState never goes to complete until Chrome 46.
   // crbug.com/505279 - Resource Timing API is also not viable atm.
   var link = document.querySelector('#bundle');
   if (link.import && link.import.readyState === 'complete') {
