@@ -92,7 +92,7 @@ function buildBundle(file) {
   .bundle();
 }
 
-gulp.task('jsbundle', ['js'], function() {
+gulp.task('jsbundle', function() {
   console.log('==Building JS bundle==');
 
   var dest = isProd ? 'dist' : '';
@@ -217,7 +217,7 @@ gulp.task('bump', function() {
 
 gulp.task('default', function() {
   isProd = true;
-  return runSequence('clean', 'bump', 'getversion',
+  return runSequence('clean', 'bump', 'getversion', 'js',
                      allTasks, 'vulcanize', 'precache', 'copy_bower_components');
 })
 
