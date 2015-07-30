@@ -68,7 +68,7 @@ gulp.task('styles', function() {
 });
 
 /** Scripts */
-gulp.task('js', ['jshint', 'jscs']);
+gulp.task('js', ['jshint', 'jscs', 'jsbundle']);
 
 // Lint JavaScript
 gulp.task('jshint', function() {
@@ -198,7 +198,7 @@ gulp.task('watch', function() {
   // gulp.watch('./sw-import.js', ['serviceworker']);
   gulp.watch('./elements/**/*.html', ['vulcanize']);
   gulp.watch('./images/**/*.*', ['images']);
-  gulp.watch('./scripts/**/*.js', ['jsbundle']);
+  gulp.watch('./scripts/**/*.js', ['js']);
 });
 
 gulp.task('getversion', function() {
@@ -207,7 +207,7 @@ gulp.task('getversion', function() {
 
 /** Main tasks */
 
-var allTasks = ['root', 'styles', 'jsbundle', 'images'];//, 'serviceworker'];
+var allTasks = ['root', 'styles', 'js', 'images'];//, 'serviceworker'];
 
 gulp.task('bump', function() {
   return gulp.src('./package.json')
