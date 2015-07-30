@@ -68,7 +68,7 @@ gulp.task('styles', function() {
 });
 
 /** Scripts */
-gulp.task('js', ['jshint', 'jscs', 'jsbundle']);
+gulp.task('js', ['jshint', 'jscs']);
 
 // Lint JavaScript
 gulp.task('jshint', function() {
@@ -92,7 +92,7 @@ function buildBundle(file) {
   .bundle();
 }
 
-gulp.task('jsbundle', function() {
+gulp.task('jsbundle', ['js'], function() {
   console.log('==Building JS bundle==');
 
   var dest = isProd ? 'dist' : '';
@@ -207,7 +207,7 @@ gulp.task('getversion', function() {
 
 /** Main tasks */
 
-var allTasks = ['root', 'styles', 'js', 'images'];//, 'serviceworker'];
+var allTasks = ['root', 'styles', 'jsbundle', 'images'];//, 'serviceworker'];
 
 gulp.task('bump', function() {
   return gulp.src('./package.json')
