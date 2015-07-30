@@ -419,13 +419,13 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
 
   template.addEventListener('dom-change', e => {
     // Force binding updated when narrow has been calculated via binding.
-    this.headerClass = this._computeMainHeaderClass(
-        this.narrow, this.selectedThreads.length);
+    template.headerClass = template._computeMainHeaderClass(
+        template.narrow, template.selectedThreads.length);
 
     var headerEl = document.querySelector('#mainheader');
     var title = document.querySelector('.title');
 
-    this.$.drawerPanel.addEventListener('paper-header-transform', e => {
+    template.$.drawerPanel.addEventListener('paper-header-transform', e => {
 
       if (!headerEl.classList.contains('tall')) {
         return;
