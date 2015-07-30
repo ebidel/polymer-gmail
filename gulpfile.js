@@ -68,7 +68,7 @@ gulp.task('styles', function() {
 });
 
 /** Scripts */
-gulp.task('js', ['jshint', 'jscsrc']);
+gulp.task('js', ['jshint', 'jscs']);
 
 // Lint JavaScript
 gulp.task('jshint', function() {
@@ -78,7 +78,7 @@ gulp.task('jshint', function() {
 });
 
 // Check JS style
-gulp.task('jscsrc', function() {
+gulp.task('jscs', function() {
   return gulp.src(['./scripts/**/*.js'])
     .pipe($.jscs());
 });

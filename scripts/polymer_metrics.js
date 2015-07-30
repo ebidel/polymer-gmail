@@ -1,7 +1,10 @@
+//jscs:disable requireArrowFunctions
+
 'use strict';
 
 function PolymerMetrics(optTemplate) {
   var t = optTemplate || document;
+
   t.addEventListener('dom-change', function(e) {
     window.performance.mark('mark_dom_change_fired');
   });

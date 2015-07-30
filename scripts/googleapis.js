@@ -126,8 +126,10 @@ export class GMail extends GoogleClientAPI {
       }
       m.from.name = m.from.name.split('@')[0]; // Ensure email is split.
 
-      m.unread = m.labelIds ? m.labelIds.indexOf(GMail.Labels.UNREAD) !== -1 : false;
-      m.starred = m.labelIds ? m.labelIds.indexOf(GMail.Labels.STARRED) !== -1 : false;
+      m.unread = (m.labelIds ?
+          m.labelIds.indexOf(GMail.Labels.UNREAD) !== -1 : false);
+      m.starred = (m.labelIds ?
+          m.labelIds.indexOf(GMail.Labels.STARRED) !== -1 : false);
     }
 
     return messages;
@@ -155,7 +157,7 @@ export class GMail extends GoogleClientAPI {
 
   fetchMail(q) {
     return this.init().then(api => {
-       // Fetch only the emails in the user's inbox.
+      // Fetch only the emails in the user's inbox.
       var fetchThreads = api.users.threads.list({userId: 'me', q: q});
       return fetchThreads.then(resp => {
 
@@ -177,7 +179,8 @@ export class GMail extends GoogleClientAPI {
         return batch.then(resp => {
           // jshint boss:true
           for (var i = 0, thread; thread = threads[i]; ++i) {
-            thread.messages = this.fixUpMessages(resp.result[thread.id]).reverse();
+            thread.messages = this.fixUpMessages(
+                resp.result[thread.id]).reverse();
             //thread.archived = false; // initialize archived.
           }
           return threads;
@@ -209,7 +212,8 @@ export class GPlus extends GoogleClientAPI {
       }, users);
 
       if (resp.result.nextPageToken) {
-        this._getAllUserProfileImages(users, resp.result.nextPageToken, callback);
+        this._getAllUserProfileImages(
+            users, resp.result.nextPageToken, callback);
       } else {
         callback(users);
       }
