@@ -210,7 +210,9 @@ gulp.task('getversion', function() {
 var allTasks = ['root', 'styles', 'jsbundle', 'images'];//, 'serviceworker'];
 
 gulp.task('bump', function() {
-  return gulp.src('./package.json')
+  return gulp.src([
+      './{package,bower}.json'
+    ])
     .pipe($.bump({type: 'patch'}))
     .pipe(gulp.dest('./'));
 });
