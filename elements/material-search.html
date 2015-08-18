@@ -59,7 +59,7 @@
 </style>
 <template>
   <paper-header-panel mode="standard" class="fit">
-    <paper-toolbar class="{{_computeHeaderClass(narrow)}}">
+    <paper-toolbar class$="{{_computeHeaderClass(narrow)}}">
       <paper-icon-button icon="arrow-back" on-tap="toggle"></paper-icon-button>
       <input id="searchbox" placeholder="Search mail" class="flex"
              value="{{searchValue::change}}"
