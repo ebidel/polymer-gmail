@@ -1,5 +1,4 @@
 application: poly-mail
-version: polymer10
 runtime: python27
 api_version: 1
 threadsafe: yes

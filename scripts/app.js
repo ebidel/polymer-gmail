@@ -24,6 +24,7 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   var REFRESH_INTERVAL = 60000; // every 60 sec.
   var inboxRefreshId;
   var pendingArchivedThreads = [];
+  var _templateStamped = false;
 
   var GMail = new Gmail();
   var GPlus = new Gplus();
@@ -418,6 +419,12 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   template.headerClass = template._computeMainHeaderClass(template.narrow, 0);
 
   template.addEventListener('dom-change', e => {
+    if (_templateStamped) {
+      return;
+    }
+
+    _templateStamped = true;
+
     // Force binding updated when narrow has been calculated via binding.
     template.headerClass = template._computeMainHeaderClass(
         template.narrow, template.selectedThreads.length);

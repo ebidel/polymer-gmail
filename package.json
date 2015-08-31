@@ -1,6 +1,6 @@
 {
   "name": "polymail",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "engines": {
     "node": ">=0.10.0"

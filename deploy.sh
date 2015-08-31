@@ -28,7 +28,7 @@ gulp --env prod
 #cp app.yaml dist/app.yaml
 
 echo "Deploying: $deployVersion"
-gcloud preview app deploy dist/ --project poly-mail \
+gcloud preview app deploy dist/app.yaml --project poly-mail \
   --version $deployVersion
 
 # Tag a release.
