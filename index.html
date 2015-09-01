@@ -23,8 +23,19 @@
 </head>
 <body class="fullbleed loading">
 
-<!-- Loading splash outside of Imports + Polymer so 1st paint is always fast. -->
-<div id="loading"></div>
+<!-- Loading screens happen outside of HTML Imports + Polymer so 1st
+     paint is fast and does not depend on network resources. Mobile gets
+     a loading splash screen. Desktop the layout/shell of the app. -->
+<div id="splash">
+  <div class="appshell_drawer">
+    <div class="appshell_drawer_top"></div>
+    <div class="appshell_drawer_bottom"></div>
+  </div>
+  <div class="appshell_main">
+    <div class="appshell_header"><h1>Inbox</h1></div>
+    <div class="appshell_content"></div>
+  </div>
+</div>
 
 <template id="t" is="dom-bind">
 

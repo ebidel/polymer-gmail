@@ -24,7 +24,6 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   var REFRESH_INTERVAL = 60000; // every 60 sec.
   var inboxRefreshId;
   var pendingArchivedThreads = [];
-  var _templateStamped = false;
 
   var GMail = new Gmail();
   var GPlus = new Gplus();
@@ -49,7 +48,8 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   ];
 
   // Conditionally load webcomponents polyfill (if needed).
-  var webComponentsSupported = ('registerElement' in document &&
+  var webComponentsSupported = (
+      'registerElement' in document &&
       'import' in document.createElement('link') &&
       'content' in document.createElement('template'));
 
@@ -68,15 +68,14 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
     window.Polymer = window.Polymer || {dom: 'shadow'};
 
     var onImportLoaded = function() {
-      // Auto binding template doesn't stamp with async import. Need to call render().
-      template.render();
-
-      var loadContainer = document.getElementById('loading');
+      var loadContainer = document.getElementById('splash');
       loadContainer.addEventListener('transitionend', e => {
         loadContainer.parentNode.removeChild(loadContainer); // IE 10 doesn't support el.remove()
-
-        loadData();
       });
+
+      if (DEBUG) {
+        loadTestData();
+      }
 
       document.body.classList.remove('loading');
     };
@@ -92,26 +91,22 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   }
 
   /**
-   * Loads sample data if in debug mode.
+   * Loads sample data.
    */
-  function loadData() {
-    if (DEBUG) {
-      var ajax = document.createElement('iron-ajax');
-      ajax.auto = true;
-      ajax.url = '/data/users.json';
-      ajax.addEventListener('response', e => {
-        template.users = e.detail.response;
-      });
+  function loadTestData() {
+    var ajax = document.createElement('iron-ajax');
+    ajax.auto = true;
+    ajax.url = '/data/users.json';
+    ajax.addEventListener('response', e => {
+      template.users = e.detail.response;
+    });
 
-      var ajax2 = document.createElement('iron-ajax');
-      ajax2.auto = true;
-      ajax2.url = '/data/threads.json';
-      ajax2.addEventListener('response', e => {
-        template.threads = e.detail.response;
-      });
-
-      return;
-    }
+    var ajax2 = document.createElement('iron-ajax');
+    ajax2.auto = true;
+    ajax2.url = '/data/threads.json';
+    ajax2.addEventListener('response', e => {
+      template.threads = e.detail.response;
+    });
   }
 
   /**
@@ -419,12 +414,6 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   template.headerClass = template._computeMainHeaderClass(template.narrow, 0);
 
   template.addEventListener('dom-change', e => {
-    if (_templateStamped) {
-      return;
-    }
-
-    _templateStamped = true;
-
     // Force binding updated when narrow has been calculated via binding.
     template.headerClass = template._computeMainHeaderClass(
         template.narrow, template.selectedThreads.length);
