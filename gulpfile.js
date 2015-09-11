@@ -95,7 +95,8 @@ function buildBundle(file) {
 gulp.task('jsbundle', function() {
   console.log('==Building JS bundle==');
 
-  var dest = isProd ? 'dist' : '';
+  //var dest = isProd ? 'dist' : '';
+  var dest = 'dist';
 
   return buildBundle('./scripts/app.js')
     .pipe(source('bundle.js'))
@@ -198,7 +199,7 @@ gulp.task('watch', function() {
   // gulp.watch('./sw-import.js', ['serviceworker']);
   gulp.watch('./elements/**/*.html', ['vulcanize']);
   gulp.watch('./images/**/*.*', ['images']);
-  gulp.watch('./scripts/**/*.js', ['js']);
+  gulp.watch('./scripts/**/*.js', ['jsbundle']);
 });
 
 gulp.task('getversion', function() {
