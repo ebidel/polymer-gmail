@@ -415,6 +415,7 @@ A single GMail mail thread.
       e.stopPropagation();
     },
 
+    // swipeable-item uses this observer if defined.
     _swipeOffChanged: function() {
       // Show in-place UNDO for a swipe. Don't show it for multi-select archive.
       this.undo = this.swipeOff;

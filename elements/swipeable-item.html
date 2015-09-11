@@ -69,6 +69,9 @@ Alternatively, you can listen for the `swipe-away` event.
 -->
 
 <script>
+
+var _allowSwipe = false;
+
 /** @polymerBehavior */
 SwipeableBehavior = {
 
@@ -77,6 +80,12 @@ SwipeableBehavior = {
     SWIPE_OFF_THREASHOLD: {
       type: Number,
       value: 10,
+      readOnly: true
+    },
+
+    Y_MAX_FOR_SCROLL: {
+      type: Number,
+      value: 5,
       readOnly: true
     },
 
@@ -136,13 +145,6 @@ SwipeableBehavior = {
    * @param {Object} detail.direction The direction the item was swiped. -1: left, 1: right
    */
 
-  // listeners: {
-  //   trackx: '_onTrack',
-  //   trackstart: '_onTrackStart',
-  //   trackend: '_onTrackEnd',
-  //   transitionend: 'snapBack'
-  // },
-
   listeners: {
     track: '_onTrack',
     // down: '_onDown',
@@ -162,18 +164,25 @@ SwipeableBehavior = {
   },
 
   _onTrackStart: function(e) {
-    //e.preventTap();
-    Polymer.dom(this.target).classList.add(this.swipingClass);
+    _allowSwipe = false;
+    // Prevent the item from being swiped if user is not strictly swiping
+    // horizontally. Don't want to mistake fling scrolling for a swipe off.
+    if (Math.abs(e.detail.dy) <= this.Y_MAX_FOR_SCROLL) {
+      _allowSwipe = true;
+      Polymer.dom(this.target).classList.add(this.swipingClass);
+    }
   },
 
   _onTrack: function(e) {
-    // e.preventDefault();
-// console.log(e)
     switch(e.detail.state) {
       case 'start':
         this._onTrackStart(e);
         break;
       case 'track':
+        if (!_allowSwipe) {
+          return;
+        }
+
         this._last_ddx = e.detail.ddx;
 
         Polymer.Base.transform('translate3d(' + e.detail.dx + 'px, 0, 0)', this.target);
@@ -183,6 +192,9 @@ SwipeableBehavior = {
         }
         break;
       case 'end':
+        if (!_allowSwipe) {
+          return;
+        }
         this._onTrackEnd(e);
         break;
     }
