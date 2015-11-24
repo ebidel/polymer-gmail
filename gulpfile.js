@@ -29,10 +29,13 @@ var babelify = require('babelify');
 var runSequence = require('run-sequence');
 var path = require('path');
 
-var version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 var isProd = false;
 
 const AUTOPREFIXER_BROWSERS = ['last 2 versions', 'ios 8', 'Safari 8'];
+
+function getVersion() {
+  return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
+}
 
 function minifyHtml() {
   return $.minifyHtml({quotes: true, empty: true, spare: true});
@@ -123,7 +126,7 @@ gulp.task('root', function() {
       '!deploy.sh',
       '!*.md'
     ])
-    .pipe($.replace(/@VERSION@/g, version))
+    .pipe($.replace(/@VERSION@/g, getVersion()))
     .pipe(gulp.dest('./dist/'));
 
   gulp.src(['./data/*.json']).pipe(gulp.dest('./dist/data'));
