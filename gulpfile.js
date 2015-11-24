@@ -29,12 +29,22 @@ var babelify = require('babelify');
 var runSequence = require('run-sequence');
 var path = require('path');
 
-var version = null;
+var version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 var isProd = false;
+
+const AUTOPREFIXER_BROWSERS = ['last 2 versions', 'ios 8', 'Safari 8'];
+
+function minifyHtml() {
+  return $.minifyHtml({quotes: true, empty: true, spare: true});
+}
+
+function uglifyJS() {
+  return $.uglify({preserveComments: 'some'});
+}
 
 /** Clean */
 gulp.task('clean', function(done) {
-  del(['dist', 'scripts/bundle.js'], done);
+  return del(['dist', 'scripts/bundle.js']);
 });
 
 /** Styles */
@@ -56,10 +66,7 @@ gulp.task('styles', function() {
 //       }))
 //       .pipe(gulp.dest('./dist/styles'));
   return gulp.src('./styles/*.css')
-    .pipe($.autoprefixer({
-      browsers: ['last 2 versions'],
-      cascade: false
-    }))
+    .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
     .pipe($.minifyCss())
     .pipe($.license('Apache', {
       organization: 'Google Inc. All rights reserved.'
@@ -88,7 +95,7 @@ function buildBundle(file) {
     entries: [file],
     debug: isProd
   })
-  .transform(babelify) // es6 -> e5
+  .transform(babelify, {presets: ['es2015']}) // es6 -> e5
   .bundle();
 }
 
@@ -100,7 +107,7 @@ gulp.task('jsbundle', function() {
 
   return buildBundle('./scripts/app.js')
     .pipe(source('bundle.js'))
-    .pipe($.streamify($.uglify()))
+    .pipe($.streamify(uglifyJS()))
     .pipe($.license('Apache', {
       organization: 'Google Inc. All rights reserved.'
     }))
@@ -108,7 +115,7 @@ gulp.task('jsbundle', function() {
 });
 
 /** Root */
-gulp.task('root', ['getversion'], function() {
+gulp.task('root', function() {
   gulp.src([
       './*.*',
       '!{package,bower}.json',
@@ -187,8 +194,9 @@ gulp.task('vulcanize', function() {
       //excludes: [path.resolve('./dist/third_party/polymer.html')]
       //stripExcludes: false,
     }))
-    // .pipe($.minifyInline()) // TODO: messes up SVG icons
-    .pipe($.crisper()) // Separate JS into its own file for CSP compliance.
+    .pipe($.crisper()) // Separate JS into its own file for CSP compliance and reduce html parser load.
+    .pipe($.if('*.html', minifyHtml())) // Minify html output
+    .pipe($.if('*.js', uglifyJS())) // Minify js output
     .pipe(gulp.dest('./dist/elements'))
 });
 
@@ -200,10 +208,6 @@ gulp.task('watch', function() {
   gulp.watch('./elements/**/*.html', ['vulcanize']);
   gulp.watch('./images/**/*.*', ['images']);
   gulp.watch('./scripts/**/*.js', ['jsbundle']);
-});
-
-gulp.task('getversion', function() {
-  version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 });
 
 /** Main tasks */
@@ -220,10 +224,14 @@ gulp.task('bump', function() {
 
 gulp.task('default', function() {
   isProd = true;
-  return runSequence('clean', 'bump', 'getversion', 'js',
-                     allTasks, 'vulcanize', 'precache', 'copy_bower_components');
+  return runSequence('clean', 'js', allTasks, 'vulcanize', 'precache',
+                     'copy_bower_components');
 })
 
 gulp.task('dev', function() {
-  return runSequence('clean', 'getversion', allTasks, 'watch');
+  return runSequence('clean', allTasks, 'watch');
+});
+
+gulp.task('release', ['bump'], function() {
+  return runSequence('default');
 });

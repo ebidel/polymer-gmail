@@ -76,6 +76,7 @@ paper-icon-item.iron-selected iron-icon {
 #navheader {
   font-size: inherit;
   color: white;
+  flex-shrink: 0;
 }
 
 #navheader iron-image {

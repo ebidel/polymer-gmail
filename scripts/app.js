@@ -323,7 +323,7 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
         });
 
         this._scrollArchiveSetup = false;
-      }.bind(this));
+      });
     }
 
     this._scrollArchiveSetup = true;
@@ -462,6 +462,22 @@ import {GMail as Gmail, GPlus as Gplus} from './googleapis';
   window.addEventListener('offline', () => {
     template.toggleToast('Connection is flaky. Content may be stale.');
   });
+
+  // Log first paint.
+  if (window.chrome.loadTimes) {
+    var getFP = function() {
+      let load = window.chrome.loadTimes();
+      let fp = (load.firstPaintTime - load.startLoadTime) * 1000;
+      return Math.round(fp);
+    };
+    window.onload = (e) => {
+      let render = () => {
+        let fp = getFP();
+        console.info(`First paint: ${fp} ms`);
+      };
+      setTimeout(render, 100); // Wait a tick so we're guaranteed a fp time.
+    };
+  }
 
   // // Prevent context menu.
   // window.oncontextmenu = function() {

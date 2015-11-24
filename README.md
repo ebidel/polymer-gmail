@@ -10,7 +10,7 @@ Demo: [https://poly-mail.appspot.com/](https://poly-mail.appspot.com/) &nbsp; (m
 
 #### Performance
 
-*TLDR: paint is ~590ms and the app loads ~1s on Chrome desktop. Motorola G - Chrome - 3G Fast connection first paint is 1.66s*  The full performance improvements over the Polymer 0.5 version are documented [here](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813). 
+*TLDR: paint is ~590ms and the app loads ~1s on Chrome desktop. Motorola G - Chrome - 3G Fast connection first paint is 1.66s*  The full performance improvements over the Polymer 0.5 version are documented [here](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813).
 
 [Full results](https://github.com/ebidel/polymer-gmail/issues/6#issuecomment-123875813)
 
@@ -20,7 +20,9 @@ Demo: [https://poly-mail.appspot.com/](https://poly-mail.appspot.com/) &nbsp; (m
 
 In your local checkout, install the deps and Polymer elements
 
-    npm install; bower install
+    npm install
+
+This will also run `bower install` for you.
 
 ### Development & Building
 

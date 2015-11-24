@@ -72,7 +72,7 @@ export class GMail extends GoogleClientAPI {
 
   static getValueForHeaderField(headers, field) {
     // jshint boss:true
-    for (var i = 0, header; header = headers[i]; ++i) {
+    for (let i = 0, header; header = headers[i]; ++i) {
       if (header.name === field || header.name === field.toLowerCase()) {
         return header.value;
       }
@@ -88,15 +88,15 @@ export class GMail extends GoogleClientAPI {
   }
 
   fixUpMessages(resp) {
-    var messages = resp.result.messages;
+    let messages = resp.result.messages;
 
     // jshint boss:true
-    for (var j = 0, m; m = messages[j]; ++j) {
-      var headers = m.payload.headers;
+    for (let j = 0, m; m = messages[j]; ++j) {
+      let headers = m.payload.headers;
 
-      var date = new Date(GMail.getValueForHeaderField(headers, 'Date'));
+      let date = new Date(GMail.getValueForHeaderField(headers, 'Date'));
 
-      var isToday = GMail.isToday(new Date(), date);
+      let isToday = GMail.isToday(new Date(), date);
       if (isToday) {
         // Example: Thu Sep 25 2014 14:43:18 GMT-0700 (PDT) -> 14:43:18.
         m.date = date.toLocaleTimeString().replace(
@@ -109,8 +109,14 @@ export class GMail extends GoogleClientAPI {
       m.to = GMail.getValueForHeaderField(headers, 'To');
       m.subject = GMail.getValueForHeaderField(headers, 'Subject');
 
-      var fromHeaders = GMail.getValueForHeaderField(headers, 'From');
-      var fromHeaderMatches = fromHeaders.match(this._FROM_HEADER_REGEX);
+      let fromHeaders = GMail.getValueForHeaderField(headers, 'From');
+
+      // Use Reply-To Header if From header wasn't found.
+      if (!fromHeaders) {
+        fromHeaders = GMail.getValueForHeaderField(headers, 'Reply-To');
+      }
+
+      let fromHeaderMatches = fromHeaders.match(this._FROM_HEADER_REGEX);
 
       m.from = {};
 
@@ -137,15 +143,15 @@ export class GMail extends GoogleClientAPI {
 
   fetchLabels() {
     return this.init().then(api => {
-      var fetchLabels = api.users.labels.list({userId: 'me'});
+      let fetchLabels = api.users.labels.list({userId: 'me'});
       return fetchLabels.then(resp => {
-        var labels = resp.result.labels.filter((label, i) => {
+        let labels = resp.result.labels.filter((label, i) => {
           // Add color to label.
           label.color = GMail.Labels.Colors[i % GMail.Labels.Colors.length];
           return label.type !== 'system'; // Don't include system labels.
         });
 
-        var labelMap = labels.reduce((o, v, i) => {
+        let labelMap = labels.reduce((o, v, i) => {
           o[v.id] = v;
           return o;
         }, {});
@@ -158,11 +164,11 @@ export class GMail extends GoogleClientAPI {
   fetchMail(q) {
     return this.init().then(api => {
       // Fetch only the emails in the user's inbox.
-      var fetchThreads = api.users.threads.list({userId: 'me', q: q});
+      let fetchThreads = api.users.threads.list({userId: 'me', q: q});
       return fetchThreads.then(resp => {
 
-        var batch = gapi.client.newBatch();
-        var threads = resp.result.threads;
+        let batch = gapi.client.newBatch();
+        let threads = resp.result.threads;
 
         if (!threads) {
           return [];
@@ -170,15 +176,15 @@ export class GMail extends GoogleClientAPI {
 
         // Setup a batch operation to fetch all messages for each thread.
         // jshint boss:true
-        for (var i = 0, thread; thread = threads[i]; ++i) {
-          var req = api.users.threads.get({userId: 'me', 'id': thread.id});
+        for (let i = 0, thread; thread = threads[i]; ++i) {
+          let req = api.users.threads.get({userId: 'me', 'id': thread.id});
           batch.add(req, {id: thread.id}); // Give each request a unique id for lookup later.
         }
 
         // Like Promise.all, but resp is an object instead of promise results.
         return batch.then(resp => {
           // jshint boss:true
-          for (var i = 0, thread; thread = threads[i]; ++i) {
+          for (let i = 0, thread; thread = threads[i]; ++i) {
             thread.messages = this.fixUpMessages(
                 resp.result[thread.id]).reverse();
             //thread.archived = false; // initialize archived.
@@ -222,7 +228,7 @@ export class GPlus extends GoogleClientAPI {
   }
 
   fetchFriendProfilePics() {
-    var users = {};
+    let users = {};
     return this.init().then(plus => {
       return new Promise((resolve, reject) => {
         this._getAllUserProfileImages(users, null, resolve);
@@ -234,7 +240,7 @@ export class GPlus extends GoogleClientAPI {
     return this.init().then(api => {
       // Get user's profile pic, cover image, email, and name.
       return api.people.get({userId: 'me'}).then(resp => {
-        // var img = resp.result.image && resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + this.PROFILE_IMAGE_SIZE);
+        // let img = resp.result.image && resp.result.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + this.PROFILE_IMAGE_SIZE);
         if (!resp.result.cover) {
           return null;
         }
