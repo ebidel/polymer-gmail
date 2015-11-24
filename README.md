@@ -59,6 +59,10 @@ For easier development, there's a task for rebuilding the [vulcanized](https://g
 Hitting [http://localhost:8080?debug](http://localhost:8080?debug) will bypass Google Sign-in and use mock data for threads. Under this
 testing mode, you will no see custom labels in the left nav or user profile images show up on threads.
 
+### Deploying
+
+    npm run deploy
+
 ### Future improvements
 
 - Push notifications
@@ -68,6 +72,7 @@ testing mode, you will no see custom labels in the left nav or user profile imag
 - Pagination (currently only the first few emails are visible)
 - a11y (keyboard access, tab support)
 - i18n
+- [x] http2 push
 - [x] Service Worker offline support & caching
 - [x] Caching API requests
 - [x] Auto-refresh inbox

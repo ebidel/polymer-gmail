@@ -19,12 +19,12 @@ deployVersion=$1
 if [ -z "$deployVersion" ]
 then
   echo "Deploy version not specified."
-  exit 1
+  exit 0
 fi
 
 # Build it.
 echo "Building: $deployVersion"
-gulp --env prod
+gulp release --env prod
 #cp app.yaml dist/app.yaml
 
 echo "Deploying: $deployVersion"

@@ -5,9 +5,6 @@
     "Eric Bidelman <ebidel@gmail.com>"
   ],
   "description": "Polymer version of Gmail app",
-  "scripts": {
-    "postinstall": "bower install"
-  },
   "main": "index.html",
   "keywords": [
     "webcomponents",
