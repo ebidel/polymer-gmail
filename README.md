@@ -31,11 +31,11 @@ This will also run `bower install` for you.
 While ES6 Classes run natively in Chrome, FF Nightly, Safari 9, and Edge, some of JS
 in PolyMail still requires compilation using Babel. In particular, `scripts/googleapis.js` uses ES6 `=>` functions and modules (`import` statement) in addition to classes.
 
-Compile the JS:
+Compile the JS/CSS:
 
-    gulp jsbundle
+    gulp
 
-This produces a single built and concatenated `scripts/bundle.js`. You're ready to run the app!
+This produces a single built and concatenated `dist/scripts/bundle.js` and compiles the rest of the app into `dist/`. You're ready to run the app!
 
 ### Run the app
 
@@ -43,10 +43,10 @@ Use any webserver you'd like. I use [npm serve](https://www.npmjs.com/package/se
 
     serve -p 8080
 
-**Run from /dist**
+**You must run from /dist**
 
-This serves the app from the root folder. To run the production version, first run
-`gulp` then hit [http://localhost:8080/dist/](http://localhost:8080/dist/).
+`serve -p 8080` serves the root folder, but the app runs the production version from `dist/`.
+So be sure to first run `gulp`, then hit [http://localhost:8080/dist/](http://localhost:8080/dist/).
 
 ##### Watching files
 
@@ -56,7 +56,7 @@ For easier development, there's a task for rebuilding the [vulcanized](https://g
 
 ### Using test data
 
-Hitting [http://localhost:8080?debug](http://localhost:8080?debug) will bypass Google Sign-in and use mock data for threads. Under this
+Hitting [http://localhost:8080?debug](http://localhost:8080/dist/?debug) will bypass Google Sign-in and use mock data for threads. Under this
 testing mode, you will no see custom labels in the left nav or user profile images show up on threads.
 
 ### Deploying
